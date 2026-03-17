@@ -91,7 +91,7 @@ export const COMPONENTS = {
     { id: 'mb-13', name: 'MSI MAG B550 Tomahawk', brand: 'MSI', price: 499, asin: 'B089CWDHFZ', search: 'MSI+MAG+B550+Tomahawk+Gaming+AM4+DDR4', socket: 'AM4', chipset: 'B550', formFactor: 'ATX', ramType: 'DDR4', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'budget' },
   ],
 
-  // ═══════ RAM — 10 total ═══════
+  // ═══════ RAM — 13 total ═══════
   ram: [
     // DDR5 High Speed
     { id: 'ram-1', name: 'TeamGroup DDR5-8000 32GB', brand: 'TeamGroup', price: 1022, asin: 'B0BWM1T88J', search: 'TeamGroup+T-Force+Delta+RGB+DDR5+8000+32GB+2x16GB', type: 'DDR5', size: 32, speed: 8000, latency: 'CL38', modules: '2x16GB', tier: 'enthusiast' },
@@ -106,9 +106,13 @@ export const COMPONENTS = {
     // DDR4
     { id: 'ram-8', name: 'Corsair Vengeance LPX DDR4-3200 16GB', brand: 'Corsair', price: 149, asin: 'B0143UM4TC', search: 'Corsair+Vengeance+LPX+16GB+DDR4+3200+CL16+2x8GB', type: 'DDR4', size: 16, speed: 3200, latency: 'CL16', modules: '2x8GB', tier: 'budget' },
     { id: 'ram-9', name: 'G.Skill Ripjaws V DDR4-3600 32GB', brand: 'G.Skill', price: 299, asin: 'B081374T3G', search: 'G.Skill+Ripjaws+V+32GB+DDR4+3600+CL18+2x16GB', type: 'DDR4', size: 32, speed: 3600, latency: 'CL18', modules: '2x16GB', tier: 'mid-range' },
+    // New DDR5
+    { id: 'ram-11', name: 'G.Skill Flare X5 DDR5-6000 32GB', brand: 'G.Skill', price: 699, asin: 'B0BFG9VTKL', search: 'G.Skill+Flare+X5+DDR5+6000+32GB+2x16GB', type: 'DDR5', size: 32, speed: 6000, latency: 'CL32', modules: '2x16GB', tier: 'mid-range' },
+    { id: 'ram-12', name: 'Kingston Fury Renegade DDR5-6400 32GB', brand: 'Kingston', price: 599, asin: 'B0B72BM63Q', search: 'Kingston+Fury+Renegade+DDR5+6400+32GB+RGB', type: 'DDR5', size: 32, speed: 6400, latency: 'CL32', modules: '2x16GB', tier: 'high-end' },
+    { id: 'ram-13', name: 'Corsair Vengeance DDR5-5200 32GB', brand: 'Corsair', price: 329, asin: 'B09NCPTVX5', search: 'Corsair+Vengeance+DDR5+5200+32GB+2x16GB', type: 'DDR5', size: 32, speed: 5200, latency: 'CL40', modules: '2x16GB', tier: 'budget' },
   ],
 
-  // ═══════ SSDs — 10 total ═══════
+  // ═══════ SSDs — 13 total ═══════
   ssd: [
     // Gen5 NVMe
     { id: 'ssd-1', name: 'WD Black SN8100 2TB', brand: 'WD', price: 1199, asin: 'B0F3BD1W6R', search: 'WD+BLACK+SN8100+2TB+NVMe+Gen5+SSD', interface: 'NVMe Gen5', capacity: 2000, read: 14900, write: 11000, tier: 'enthusiast' },
@@ -123,9 +127,13 @@ export const COMPONENTS = {
     // Budget
     { id: 'ssd-7', name: 'Kingston NV2 1TB', brand: 'Kingston', price: 199, asin: 'B0BBWH1R8H', search: 'Kingston+NV2+1TB+M.2+2280+PCIe+4.0+NVMe', interface: 'NVMe Gen4', capacity: 1000, read: 3500, write: 2100, tier: 'budget' },
     { id: 'ssd-8', name: 'Samsung 870 EVO 1TB', brand: 'Samsung', price: 399, asin: 'B08QBJ2YMG', search: 'Samsung+870+EVO+1TB+SATA+SSD', interface: 'SATA', capacity: 1000, read: 560, write: 530, tier: 'budget' },
+    // New Gen4 / SATA
+    { id: 'ssd-11', name: 'Crucial T500 2TB', brand: 'Crucial', price: 699, asin: 'B0CK2TC9XQ', search: 'Crucial+T500+2TB+NVMe+Gen4+SSD', interface: 'NVMe Gen4', capacity: 2000, read: 7400, write: 7000, tier: 'high-end' },
+    { id: 'ssd-12', name: 'WD Black SN770 1TB', brand: 'WD', price: 299, asin: 'B09QV692XY', search: 'WD+Black+SN770+1TB+NVMe+Gen4+SSD', interface: 'NVMe Gen4', capacity: 1000, read: 5150, write: 4900, tier: 'mid-range' },
+    { id: 'ssd-13', name: 'Samsung 870 QVO 2TB', brand: 'Samsung', price: 649, asin: 'B089C6LZ42', search: 'Samsung+870+QVO+2TB+SATA+SSD', interface: 'SATA', capacity: 2000, read: 560, write: 530, tier: 'budget' },
   ],
 
-  // ═══════ PSUs — 10 total ═══════
+  // ═══════ PSUs — 13 total ═══════
   psu: [
     // 1200W+ (for RTX 5090 / high-TDP builds)
     { id: 'psu-1', name: 'Corsair HX1500i ATX 3.1', brand: 'Corsair', price: 1499, asin: 'B0F1NGKBK3', search: 'Corsair+HX1500i+1500W+ATX+3.1+Platinum', watt: 1500, rating: '80+ Platinum', modular: 'Full', tier: 'enthusiast' },
@@ -140,9 +148,13 @@ export const COMPONENTS = {
     // 700W-750W
     { id: 'psu-7', name: 'Corsair RM750x', brand: 'Corsair', price: 399, asin: 'B079HGN5QS', search: 'Corsair+RM750x+750W+80+Plus+Gold+Fully+Modular', watt: 750, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
     { id: 'psu-8', name: 'EVGA 700 BR', brand: 'EVGA', price: 199, asin: 'B07DTP6MWS', search: 'EVGA+700+BR+80+Plus+Bronze+700W+Power+Supply', watt: 700, rating: '80+ Bronze', modular: 'Non', tier: 'budget' },
+    // New PSUs
+    { id: 'psu-11', name: 'Thermaltake Toughpower GF3 1000W', brand: 'Thermaltake', price: 699, asin: 'B0BF3R83W8', search: 'Thermaltake+Toughpower+GF3+1000W+ATX+3.0+Gold', watt: 1000, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
+    { id: 'psu-12', name: 'MSI MAG A850GL 850W', brand: 'MSI', price: 459, asin: 'B0CB9MSJ5N', search: 'MSI+MAG+A850GL+850W+80+Plus+Gold', watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
+    { id: 'psu-13', name: 'Corsair RM850e 850W', brand: 'Corsair', price: 499, asin: 'B0BYQPH5J3', search: 'Corsair+RM850e+850W+80+Plus+Gold+ATX+3.0', watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
   ],
 
-  // ═══════ Coolers — 10 total ═══════
+  // ═══════ Coolers — 13 total ═══════
   cooler: [
     // AIO 360mm
     { id: 'cool-1', name: 'Arctic Liquid Freezer III 360 A-RGB', brand: 'Arctic', price: 747, asin: 'B0DLWFCVSD', search: 'Arctic+Liquid+Freezer+III+360+A-RGB+AIO', type: 'AIO 360mm', tdpMax: 350, tier: 'high-end' },
@@ -157,9 +169,13 @@ export const COMPONENTS = {
     { id: 'cool-5', name: 'Thermalright PA 120 SE ARGB', brand: 'Thermalright', price: 199, asin: 'B09SDG4DFF', search: 'Thermalright+Peerless+Assassin+120+SE+ARGB', type: 'Air Tower', tdpMax: 200, tier: 'budget' },
     { id: 'cool-6', name: 'DeepCool AK400', brand: 'DeepCool', price: 99, asin: 'B0BB6W1JS3', search: 'DeepCool+AK400+Performance+CPU+Cooler+120mm', type: 'Air Tower', tdpMax: 150, tier: 'budget' },
     { id: 'cool-10', name: 'Cooler Master Hyper 212 Black', brand: 'CM', price: 149, asin: 'B07H25DYM3', search: 'Cooler+Master+Hyper+212+Black+Edition+CPU+Cooler', type: 'Air Tower', tdpMax: 150, tier: 'budget' },
+    // New Coolers
+    { id: 'cool-11', name: 'be quiet! Dark Rock Pro 5', brand: 'be quiet!', price: 449, asin: 'B0CJY3DYQ3', search: 'be+quiet+Dark+Rock+Pro+5+CPU+Cooler', type: 'Air Tower', tdpMax: 270, tier: 'high-end' },
+    { id: 'cool-12', name: 'Thermalright Frozen Prism 360 ARGB', brand: 'Thermalright', price: 279, asin: 'B0C4FGZKFB', search: 'Thermalright+Frozen+Prism+360+ARGB+AIO', type: 'AIO 360mm', tdpMax: 300, tier: 'mid-range' },
+    { id: 'cool-13', name: 'NZXT Kraken 240 RGB', brand: 'NZXT', price: 549, asin: 'B0BY3FJ4WQ', search: 'NZXT+Kraken+240+RGB+AIO+Cooler', type: 'AIO 240mm', tdpMax: 250, tier: 'mid-range' },
   ],
 
-  // ═══════ Cases — 10 total ═══════
+  // ═══════ Cases — 13 total ═══════
   case: [
     { id: 'case-1', name: 'Hyte Y70', brand: 'Hyte', price: 1283, asin: 'B0CX595GDJ', search: 'Hyte+Y70+Dual+Chamber+Mid+Tower+Case+Black', formFactor: 'Mid Tower', maxGPU: 430, tier: 'enthusiast' },
     { id: 'case-2', name: 'Lian Li O11 Dynamic EVO', brand: 'Lian Li', price: 599, asin: 'B09QHJZ7LK', search: 'Lian+Li+O11+Dynamic+EVO+Black+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 420, tier: 'high-end' },
@@ -171,6 +187,10 @@ export const COMPONENTS = {
     { id: 'case-8', name: 'Montech AIR 903 MAX', brand: 'Montech', price: 299, asin: 'B0C98RRPXL', search: 'Montech+AIR+903+MAX+E-ATX+Mid+Tower+ARGB', formFactor: 'Mid Tower', maxGPU: 400, tier: 'budget' },
     { id: 'case-9', name: 'NZXT H5 Flow', brand: 'NZXT', price: 299, asin: 'B0B6Y15C5L', search: 'NZXT+H5+Flow+Compact+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 365, tier: 'budget' },
     { id: 'case-10', name: 'Montech AIR 903 BASE', brand: 'Montech', price: 239, asin: 'B0C98RFQXJ', search: 'Montech+AIR+903+BASE+Mid+Tower+Case', formFactor: 'Mid Tower', maxGPU: 400, tier: 'budget' },
+    // New Cases
+    { id: 'case-11', name: 'Corsair 5000D Airflow', brand: 'Corsair', price: 549, asin: 'B08M49WW51', search: 'Corsair+5000D+Airflow+Tempered+Glass+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 400, tier: 'high-end' },
+    { id: 'case-12', name: 'Lian Li LANCOOL 216', brand: 'Lian Li', price: 399, asin: 'B0BN3SY5XW', search: 'Lian+Li+LANCOOL+216+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 392, tier: 'mid-range' },
+    { id: 'case-13', name: 'be quiet! Pure Base 500DX', brand: 'be quiet!', price: 449, asin: 'B087D7DBW6', search: 'be+quiet+Pure+Base+500DX+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 369, tier: 'mid-range' },
   ],
 };
 

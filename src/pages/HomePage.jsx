@@ -129,9 +129,22 @@ export default function HomePage() {
                   className={`relative p-4 sm:p-6 rounded-2xl bg-gradient-to-br ${gradient} border ${border} card-hover cursor-pointer`}
                   onClick={() => handleLoadBuild(key)}
                 >
-                  <span className="text-2xl sm:text-3xl mb-2 sm:mb-3 block">{preset.icon}</span>
+                  {/* CPU + GPU images */}
+                  <div className="flex items-center gap-2 mb-3">
+                    {buildComponents.cpu?.image_url ? (
+                      <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-white/5 overflow-hidden flex items-center justify-center p-1">
+                        <img src={buildComponents.cpu.image_url} alt="" loading="lazy" className="w-full h-full object-contain" />
+                      </div>
+                    ) : <span className="text-2xl">{preset.icon}</span>}
+                    {buildComponents.gpu?.image_url && (
+                      <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg bg-white/5 overflow-hidden flex items-center justify-center p-1">
+                        <img src={buildComponents.gpu.image_url} alt="" loading="lazy" className="w-full h-full object-contain" />
+                      </div>
+                    )}
+                  </div>
                   <h3 className={`text-sm sm:text-lg font-bold ${accent} mb-0.5 sm:mb-1`}>{preset.name}</h3>
-                  <p className="text-xs sm:text-sm text-gb-muted mb-2 sm:mb-3 line-clamp-2">{preset.desc}</p>
+                  <p className="text-[10px] sm:text-xs text-gb-muted/70 truncate mb-0.5">{buildComponents.cpu?.name}</p>
+                  <p className="text-[10px] sm:text-xs text-gb-muted/70 truncate mb-2">{buildComponents.gpu?.name}</p>
                   <div className="flex items-center justify-between pt-2 sm:pt-3 border-t border-white/5">
                     <span className="text-[10px] sm:text-xs text-gb-muted hidden sm:block">{preset.budget} ريال</span>
                     <span className={`text-xs sm:text-sm font-display font-bold ${accent}`}>{total.toLocaleString()} ر.س</span>

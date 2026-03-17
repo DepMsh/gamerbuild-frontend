@@ -55,8 +55,12 @@ export default function ComponentCard({
         ${selected ? 'bg-gb-primary/10 border-gb-primary/30' : 'bg-gb-card border-gb-border hover:border-gb-primary/20'}`}
         onClick={() => onSelect?.(component)}
       >
-        <div className="w-10 h-10 rounded-lg bg-gb-surface flex items-center justify-center shrink-0">
-          <Icon size={18} className="text-gb-primary" />
+        <div className="w-10 h-10 rounded-lg bg-gb-surface flex items-center justify-center shrink-0 overflow-hidden">
+          {component.image_url ? (
+            <img src={component.image_url} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" />
+          ) : (
+            <Icon size={18} className="text-gb-primary" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gb-text truncate">{component.name}</p>
@@ -81,8 +85,19 @@ export default function ComponentCard({
       {/* Image / Icon placeholder */}
       <div className="relative h-24 sm:h-40 bg-gradient-to-br from-gb-surface to-gb-card flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-30" />
-        <Icon size={36} className="sm:hidden text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
-        <Icon size={56} className="hidden sm:block text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
+        {component.image_url ? (
+          <img
+            src={component.image_url}
+            alt={component.name}
+            loading="lazy"
+            className="w-full h-full object-contain p-3 sm:p-4 transition-transform duration-300 group-hover:scale-105"
+            onError={e => { e.target.style.display = 'none'; if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }}
+          />
+        ) : null}
+        <div className={`${component.image_url ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+          <Icon size={36} className="sm:hidden text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
+          <Icon size={56} className="hidden sm:block text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
+        </div>
         {component.score && (
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gb-bg/80 backdrop-blur border border-gb-border flex items-center justify-center">
             <span className="text-[10px] sm:text-sm font-display font-bold text-gb-primary">{component.score}</span>
