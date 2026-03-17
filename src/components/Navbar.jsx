@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight } from 'lucide-react';
+import { Menu, X, Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
 // Desktop shows all, mobile bottom nav shows top 5
@@ -10,6 +10,7 @@ const allLinks = [
   { path: '/components', label: 'القطع', mobileLabel: 'القطع', icon: Cpu, mobile: false },
   { path: '/analysis', label: 'التحليل', mobileLabel: 'تحليل', icon: Activity, mobile: true },
   { path: '/games', label: 'الألعاب', mobileLabel: 'ألعاب', icon: Crosshair, mobile: true },
+  { path: '/prices', label: 'الأسعار', mobileLabel: 'أسعار', icon: TrendingDown, mobile: false },
   { path: '/compare', label: 'قارن', mobileLabel: 'قارن', icon: ArrowLeftRight, mobile: false },
   { path: '/deals', label: 'العروض', mobileLabel: 'عروض', icon: Tag, mobile: true },
 ];

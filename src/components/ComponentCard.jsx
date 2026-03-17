@@ -1,5 +1,6 @@
 import { Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box, Plus, Check, ArrowLeftRight, ExternalLink, HardDrive } from 'lucide-react';
 import { getAmazonLink } from '../utils/db';
+import { getPriceStats } from '../utils/priceHistory';
 
 const typeIcons = {
   cpu: Cpu,
@@ -121,7 +122,10 @@ export default function ComponentCard({
 
         {/* Price */}
         <div className="flex items-center justify-between">
-          <span className="text-sm sm:text-lg font-display font-bold text-gb-primary">{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm sm:text-lg font-display font-bold text-gb-primary">{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
+            <PriceTrend componentId={component.id} />
+          </div>
           
           <div className="flex items-center gap-1">
             {compareMode && (
@@ -162,6 +166,14 @@ export default function ComponentCard({
       </div>
     </div>
   );
+}
+
+function PriceTrend({ componentId }) {
+  const stats = getPriceStats(componentId);
+  if (!stats) return null;
+  if (stats.isNearLowest) return <span className="text-[10px] text-green-400 font-bold whitespace-nowrap">↓ أقل سعر</span>;
+  if (stats.isNearHighest) return <span className="text-[10px] text-red-400 font-bold whitespace-nowrap">↑ سعر مرتفع</span>;
+  return <span className="text-[10px] text-gb-muted whitespace-nowrap">→ مستقر</span>;
 }
 
 export { typeIcons, typeLabels, tierColors, tierLabels };

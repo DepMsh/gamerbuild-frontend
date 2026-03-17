@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react';
-import { ExternalLink, X, ChevronDown, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2 } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
+import PriceChart from '../components/PriceChart';
 
 export default function BuilderPage() {
   const { components, setComponent, removeComponent, clearBuild, totalPrice, selectedCount } = useBuild();
   const [openPicker, setOpenPicker] = useState(null);
   const [sortBy, setSortBy] = useState('price-asc');
   const [showOnlyCompat, setShowOnlyCompat] = useState(true);
+  const [priceHistoryOpen, setPriceHistoryOpen] = useState(null);
 
   const compat = fullCompatCheck(components);
   const wattage = estimateWattage(components);
@@ -108,6 +110,13 @@ export default function BuilderPage() {
 
                   {selected ? (
                     <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
+                        className={`p-1 rounded transition-colors ${priceHistoryOpen === key ? 'text-gb-primary bg-gb-primary/10' : 'text-gb-muted hover:text-gb-primary'}`}
+                        title="سجل الأسعار"
+                      >
+                        <BarChart2 size={13} />
+                      </button>
                       <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
                         className="text-[10px] font-bold text-[#ff9900] hover:text-[#ffb340] flex items-center gap-0.5">
                         أمازون <ExternalLink size={9} />
@@ -119,6 +128,13 @@ export default function BuilderPage() {
                     <ChevronDown size={16} className={`text-gb-muted transition-transform ${isOpen ? 'rotate-180' : ''}`} />
                   )}
                 </div>
+
+                {/* Price history expandable */}
+                {selected && priceHistoryOpen === key && (
+                  <div className="px-3 sm:px-4 py-3 bg-gb-bg/30 border-t border-gb-border/50">
+                    <PriceChart componentId={selected.id} />
+                  </div>
+                )}
 
                 {isOpen && (
                   <div className="border-t border-gb-border bg-gb-bg/50">

@@ -10,6 +10,7 @@ import ComparePage from './pages/ComparePage';
 import DealsPage from './pages/DealsPage';
 import AnalysisPage from './pages/AnalysisPage';
 import GamesPage from './pages/GamesPage';
+import PriceHistoryPage from './pages/PriceHistoryPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/deals" element={<DealsPage />} />
               <Route path="/analysis" element={<AnalysisPage />} />
               <Route path="/games" element={<GamesPage />} />
+              <Route path="/prices" element={<PriceHistoryPage />} />
             </Routes>
           </main>
           <Footer />
