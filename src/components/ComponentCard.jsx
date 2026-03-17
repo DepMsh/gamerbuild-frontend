@@ -55,9 +55,10 @@ export default function ComponentCard({
         ${selected ? 'bg-gb-primary/10 border-gb-primary/30' : 'bg-gb-card border-gb-border hover:border-gb-primary/20'}`}
         onClick={() => onSelect?.(component)}
       >
-        <div className="w-10 h-10 rounded-lg bg-gb-surface flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0 overflow-hidden">
           {component.image_url ? (
-            <img src={component.image_url} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" />
+            <img src={component.image_url} alt="" loading="lazy" className="w-full h-full object-contain p-0.5"
+              onError={e => { e.target.style.display = 'none'; e.target.parentElement.classList.add('img-fallback'); }} />
           ) : (
             <Icon size={18} className="text-gb-primary" />
           )}
@@ -86,13 +87,15 @@ export default function ComponentCard({
       <div className="relative h-24 sm:h-40 bg-gradient-to-br from-gb-surface to-gb-card flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-grid opacity-30" />
         {component.image_url ? (
-          <img
-            src={component.image_url}
-            alt={component.name}
-            loading="lazy"
-            className="w-full h-full object-contain p-3 sm:p-4 transition-transform duration-300 group-hover:scale-105"
-            onError={e => { e.target.style.display = 'none'; if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }}
-          />
+          <div className="relative z-[1] w-full h-full flex items-center justify-center bg-white/5 p-2 sm:p-3">
+            <img
+              src={component.image_url}
+              alt={component.name}
+              loading="lazy"
+              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+              onError={e => { e.target.closest('.bg-white\\/5').style.display = 'none'; const fallback = e.target.closest('.bg-white\\/5').nextElementSibling; if (fallback) fallback.style.display = 'flex'; }}
+            />
+          </div>
         ) : null}
         <div className={`${component.image_url ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
           <Icon size={36} className="sm:hidden text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />

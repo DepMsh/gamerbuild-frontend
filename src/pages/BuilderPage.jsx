@@ -163,8 +163,9 @@ export default function BuilderPage() {
                 >
                   {/* Thumbnail or icon */}
                   {selected?.image_url ? (
-                    <div className="w-10 h-10 rounded-lg bg-gb-surface overflow-hidden shrink-0 flex items-center justify-center">
-                      <img src={selected.image_url} alt="" loading="lazy" className="w-full h-full object-contain p-0.5" />
+                    <div className="w-10 h-10 rounded-lg bg-white/5 overflow-hidden shrink-0 flex items-center justify-center p-0.5">
+                      <img src={selected.image_url} alt="" loading="lazy" className="w-full h-full object-contain"
+                        onError={e => { e.target.parentElement.style.display = 'none'; }} />
                     </div>
                   ) : (
                     <span className="text-lg sm:text-xl w-10 text-center shrink-0">{icon}</span>
@@ -424,12 +425,12 @@ export default function BuilderPage() {
                               }`}
                             >
                               {/* Image */}
-                              <div className="h-20 sm:h-28 bg-gb-surface/50 flex items-center justify-center p-2">
+                              <div className="h-20 sm:h-28 bg-white/5 flex items-center justify-center p-2 sm:p-3">
                                 {item.image_url ? (
-                                  <img src={item.image_url} alt="" loading="lazy" className="h-full object-contain" />
-                                ) : (
-                                  <span className="text-2xl opacity-20">{currentCat.icon}</span>
-                                )}
+                                  <img src={item.image_url} alt="" loading="lazy" className="max-w-full max-h-full object-contain"
+                                    onError={e => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = ''); }} />
+                                ) : null}
+                                <span className={`text-2xl opacity-20 ${item.image_url ? 'hidden' : ''}`}>{currentCat.icon}</span>
                               </div>
 
                               {/* Content */}
