@@ -155,10 +155,10 @@ export function getUpgradeRoadmap(components, allComponents) {
   if (bn?.type === "cpu" || bn?.type === "balanced") {
     // Same socket CPUs first
     const sameSocket = allComponents
-      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.specs?.socket === components.cpu.specs?.socket)
+      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.socket === components.cpu.socket)
       .sort((a, b) => a.price - b.price);
     const diffSocket = allComponents
-      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.specs?.socket !== components.cpu.specs?.socket)
+      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.socket !== components.cpu.socket)
       .sort((a, b) => a.price - b.price);
 
     const opts = [];

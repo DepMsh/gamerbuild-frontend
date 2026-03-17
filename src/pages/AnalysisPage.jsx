@@ -5,12 +5,12 @@ import { Shield, ShieldCheck, ShieldAlert, TrendingUp, ArrowUp, Zap } from 'luci
 
 function checkCompat(components) {
   const issues = [], warnings = [];
-  if (components.cpu && components.motherboard && components.cpu.specs?.socket !== components.motherboard.specs?.socket)
-    issues.push(`سوكت المعالج (${components.cpu.specs.socket}) مو متوافق مع اللوحة (${components.motherboard.specs.socket})`);
+  if (components.cpu && components.motherboard && components.cpu.socket !== components.motherboard.socket)
+    issues.push(`سوكت المعالج (${components.cpu.socket}) مو متوافق مع اللوحة (${components.motherboard.socket})`);
   if (components.gpu && components.psu) {
-    const need = parseInt(components.gpu.specs?.tdp || 0) + parseInt(components.cpu?.specs?.tdp || 0) + 100;
-    if (parseInt(components.psu.specs?.wattage || 0) < need)
-      issues.push(`الباور (${components.psu.specs.wattage}) ممكن ما يكفي — تحتاج ~${need}W`);
+    const need = parseInt(components.gpu.tdp || 0) + parseInt(components.cpu?.tdp || 0) + 100;
+    if (parseInt(components.psu.watt || 0) < need)
+      issues.push(`الباور (${components.psu.watt}W) ممكن ما يكفي — تحتاج ~${need}W`);
   }
   if (components.cpu && !components.motherboard) warnings.push('اختر لوحة أم متوافقة');
   return { issues, warnings };
