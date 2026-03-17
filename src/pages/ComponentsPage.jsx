@@ -64,7 +64,7 @@ export default function ComponentsPage() {
   };
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">

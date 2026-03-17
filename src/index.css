@@ -123,3 +123,9 @@ body {
 .animate-slide-up-bar {
   animation: slideUpBar 0.3s ease-out;
 }
+
+@supports (padding-top: env(safe-area-inset-top)) {
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0);
+  }
+}

@@ -7,7 +7,7 @@ export default function GamesPage() {
 
   if (!hasBoth) {
     return (
-      <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+      <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
         <div className="max-w-2xl mx-auto text-center py-20">
           <div className="text-6xl opacity-30 mb-4">🎮</div>
           <h2 className="font-display text-xl font-bold text-gb-text mb-2">توقع الأداء</h2>
@@ -18,7 +18,7 @@ export default function GamesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <h1 className="font-display text-xl sm:text-2xl font-bold text-gb-text">🎮 توقع الأداء</h1>

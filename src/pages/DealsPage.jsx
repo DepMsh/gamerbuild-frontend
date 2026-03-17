@@ -52,7 +52,7 @@ export default function DealsPage() {
   const totalSavings = filtered.reduce((sum, d) => sum + (d.originalPrice - d.dealPrice), 0);
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-6">
           <div>

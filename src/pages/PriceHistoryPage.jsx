@@ -54,7 +54,7 @@ export default function PriceHistoryPage() {
   }, [search, sortBy]);
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-3 sm:px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-3 sm:px-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-4 sm:mb-6">

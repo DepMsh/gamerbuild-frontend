@@ -29,7 +29,7 @@ export default function AnalysisPage() {
 
   if (selectedCount < 2) {
     return (
-      <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+      <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
         <div className="max-w-2xl mx-auto text-center py-20">
           <div className="text-6xl opacity-30 mb-4">📊</div>
           <h2 className="font-display text-xl font-bold text-gb-text mb-2">التحليل الذكي</h2>
@@ -40,7 +40,7 @@ export default function AnalysisPage() {
   }
 
   return (
-    <div className="min-h-screen pt-16 sm:pt-20 pb-24 md:pb-10 px-4">
+    <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-2xl mx-auto">
         <h1 className="font-display text-xl sm:text-2xl font-bold text-gb-text mb-6 sm:mb-8">📊 التحليل الذكي</h1>
 
