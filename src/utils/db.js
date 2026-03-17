@@ -20,12 +20,12 @@ export const COMPONENTS = {
   cpu: [
     // AMD Ryzen 9000 X3D (AM5)
     { id: 'cpu-1', name: 'AMD Ryzen 9 9950X3D', brand: 'AMD', price: 3339, asin: 'B0DVZSG8D5', score: 100, socket: 'AM5', cores: 16, threads: 32, baseClock: 4.3, boostClock: 5.7, tdp: 170, tier: 'enthusiast' },
-    { id: 'cpu-2', name: 'AMD Ryzen 9 9900X3D', brand: 'AMD', price: 2399, asin: 'B0DWGWN8GY', score: 96, socket: 'AM5', cores: 12, threads: 24, baseClock: 4.4, boostClock: 5.5, tdp: 120, tier: 'enthusiast' },
-    { id: 'cpu-3', name: 'AMD Ryzen 7 9800X3D', brand: 'AMD', price: 1794, asin: 'B0DKFMSMYK', score: 95, socket: 'AM5', cores: 8, threads: 16, baseClock: 4.7, boostClock: 5.2, tdp: 120, tier: 'high-end' },
-    { id: 'cpu-4', name: 'AMD Ryzen 5 9600X', brand: 'AMD', price: 880, asin: 'B0D6NN6TM7', score: 78, socket: 'AM5', cores: 6, threads: 12, baseClock: 3.9, boostClock: 5.4, tdp: 65, tier: 'mid-range' },
+    { id: 'cpu-2', name: 'AMD Ryzen 9 9900X3D', brand: 'AMD', price: 2399, asin: 'B0DWGWN8GY', image_url: null, score: 99, socket: 'AM5', cores: 12, threads: 24, baseClock: 4.4, boostClock: 5.5, tdp: 120, tier: 'enthusiast' },
+    { id: 'cpu-3', name: 'AMD Ryzen 7 9800X3D', brand: 'AMD', price: 1794, asin: 'B0DKFMSMYK', image_url: null, score: 98, socket: 'AM5', cores: 8, threads: 16, baseClock: 4.7, boostClock: 5.2, tdp: 120, tier: 'high-end' },
+    { id: 'cpu-4', name: 'AMD Ryzen 5 9600X', brand: 'AMD', price: 880, asin: 'B0D6NN6TM7', image_url: null, score: 80, socket: 'AM5', cores: 6, threads: 12, baseClock: 3.9, boostClock: 5.4, tdp: 65, tier: 'mid-range' },
     // Intel Arrow Lake (LGA1851)
-    { id: 'cpu-5', name: 'Intel Core Ultra 9 285K', brand: 'Intel', price: 2297, asin: 'B0DFKC99VL', score: 82, socket: 'LGA1851', cores: 24, threads: 24, baseClock: 3.7, boostClock: 5.7, tdp: 125, tier: 'enthusiast' },
-    { id: 'cpu-6', name: 'Intel Core Ultra 7 265K', brand: 'Intel', price: 1504, asin: 'B0DFK2MH2D', score: 75, socket: 'LGA1851', cores: 20, threads: 20, baseClock: 3.9, boostClock: 5.5, tdp: 125, tier: 'high-end' },
+    { id: 'cpu-5', name: 'Intel Core Ultra 9 285K', brand: 'Intel', price: 2297, asin: 'B0DFKC99VL', image_url: null, score: 95, socket: 'LGA1851', cores: 24, threads: 24, baseClock: 3.7, boostClock: 5.7, tdp: 125, tier: 'enthusiast' },
+    { id: 'cpu-6', name: 'Intel Core Ultra 7 265K', brand: 'Intel', price: 1504, asin: 'B0DFK2MH2D', image_url: null, score: 88, socket: 'LGA1851', cores: 20, threads: 20, baseClock: 3.9, boostClock: 5.5, tdp: 125, tier: 'high-end' },
     { id: 'cpu-7', name: 'Intel Core Ultra 5 245K', brand: 'Intel', price: 939, asin: 'B0DFK2P311', score: 68, socket: 'LGA1851', cores: 14, threads: 14, baseClock: 4.2, boostClock: 5.2, tdp: 125, tier: 'mid-range' },
     // AMD Ryzen 7000 (AM5)
     { id: 'cpu-8', name: 'AMD Ryzen 7 7800X3D', brand: 'AMD', price: 1349, asin: 'B0BTZB7F88', score: 85, socket: 'AM5', cores: 8, threads: 16, baseClock: 4.2, boostClock: 5.0, tdp: 120, tier: 'high-end' },
@@ -46,15 +46,15 @@ export const COMPONENTS = {
   gpu: [
     // NVIDIA RTX 50 Series (Blackwell)
     { id: 'gpu-1', name: 'NVIDIA RTX 5090', brand: 'NVIDIA', price: 14999, asin: 'B0DYDY8KSC', search: 'NVIDIA+GeForce+RTX+5090+Founders+Edition+32GB', score: 100, vram: 32, tdp: 575, tier: 'enthusiast' },
-    { id: 'gpu-2', name: 'NVIDIA RTX 5080', brand: 'NVIDIA', price: 6129, asin: 'B0DYVCGVK4', search: 'NVIDIA+GeForce+RTX+5080+Founders+Edition+16GB', score: 82, vram: 16, tdp: 360, tier: 'enthusiast' },
-    { id: 'gpu-3', name: 'NVIDIA RTX 5070 Ti', brand: 'NVIDIA', price: 4323, asin: null, search: 'RTX+5070+Ti+16GB', score: 75, vram: 16, tdp: 300, tier: 'high-end' },
-    { id: 'gpu-4', name: 'NVIDIA RTX 5070', brand: 'NVIDIA', price: 2959, asin: null, search: 'RTX+5070+12GB+Founders+Edition', score: 68, vram: 12, tdp: 250, tier: 'high-end' },
-    { id: 'gpu-18', name: 'NVIDIA RTX 5060 Ti 16GB', brand: 'NVIDIA', price: 2399, asin: null, search: 'RTX+5060+Ti+16GB', score: 58, vram: 16, tdp: 180, tier: 'mid-range' },
-    { id: 'gpu-19', name: 'NVIDIA RTX 5060 Ti 8GB', brand: 'NVIDIA', price: 1779, asin: null, search: 'RTX+5060+Ti+8GB', score: 52, vram: 8, tdp: 180, tier: 'mid-range' },
-    { id: 'gpu-20', name: 'NVIDIA RTX 5060', brand: 'NVIDIA', price: 1259, asin: null, search: 'RTX+5060+8GB', score: 45, vram: 8, tdp: 145, tier: 'budget' },
+    { id: 'gpu-2', name: 'NVIDIA RTX 5080', brand: 'NVIDIA', price: 5500, asin: 'B0DYVCGVK4', search: 'NVIDIA+GeForce+RTX+5080+Founders+Edition+16GB', image_url: null, score: 92, vram: 16, tdp: 360, tier: 'enthusiast' },
+    { id: 'gpu-3', name: 'NVIDIA RTX 5070 Ti', brand: 'NVIDIA', price: 3500, asin: null, search: 'RTX+5070+Ti+16GB', image_url: null, score: 85, vram: 16, tdp: 300, tier: 'high-end' },
+    { id: 'gpu-4', name: 'NVIDIA RTX 5070', brand: 'NVIDIA', price: 2500, asin: null, search: 'RTX+5070+12GB+Founders+Edition', image_url: null, score: 78, vram: 12, tdp: 250, tier: 'high-end' },
+    { id: 'gpu-18', name: 'NVIDIA RTX 5060 Ti 16GB', brand: 'NVIDIA', price: 2100, asin: null, search: 'RTX+5060+Ti+16GB', image_url: null, score: 65, vram: 16, tdp: 180, tier: 'mid-range' },
+    { id: 'gpu-19', name: 'NVIDIA RTX 5060 Ti 8GB', brand: 'NVIDIA', price: 1800, asin: null, search: 'RTX+5060+Ti+8GB', image_url: null, score: 62, vram: 8, tdp: 180, tier: 'mid-range' },
+    { id: 'gpu-20', name: 'NVIDIA RTX 5060', brand: 'NVIDIA', price: 1400, asin: null, search: 'RTX+5060+8GB', image_url: null, score: 52, vram: 8, tdp: 150, tier: 'budget' },
     // AMD RX 9000 Series (RDNA 4)
-    { id: 'gpu-5', name: 'AMD RX 9070 XT', brand: 'AMD', price: 2976, asin: null, search: 'Sapphire+PULSE+AMD+Radeon+RX+9070+XT+16GB', score: 72, vram: 16, tdp: 304, tier: 'high-end' },
-    { id: 'gpu-6', name: 'AMD RX 9070', brand: 'AMD', price: 3069, asin: null, search: 'ASUS+Prime+AMD+Radeon+RX+9070+16GB+OC', score: 65, vram: 16, tdp: 220, tier: 'mid-range' },
+    { id: 'gpu-5', name: 'AMD RX 9070 XT', brand: 'AMD', price: 2800, asin: null, search: 'Sapphire+PULSE+AMD+Radeon+RX+9070+XT+16GB', image_url: null, score: 80, vram: 16, tdp: 300, tier: 'high-end' },
+    { id: 'gpu-6', name: 'AMD RX 9070', brand: 'AMD', price: 2200, asin: null, search: 'ASUS+Prime+AMD+Radeon+RX+9070+16GB+OC', image_url: null, score: 70, vram: 16, tdp: 250, tier: 'mid-range' },
     // NVIDIA RTX 40 Series (Ada Lovelace)
     { id: 'gpu-9', name: 'NVIDIA RTX 4090', brand: 'NVIDIA', price: 7299, asin: 'B0BG94PS2F', search: 'MSI+GeForce+RTX+4090+Gaming+X+Trio+24G', score: 88, vram: 24, tdp: 450, tier: 'enthusiast' },
     { id: 'gpu-10', name: 'NVIDIA RTX 4080 Super', brand: 'NVIDIA', price: 4199, asin: 'B0CSJYJRKD', search: 'Gigabyte+GeForce+RTX+4080+Super+Gaming+OC+16G', score: 73, vram: 16, tdp: 320, tier: 'high-end' },
@@ -68,7 +68,7 @@ export const COMPONENTS = {
     { id: 'gpu-17', name: 'AMD RX 7600', brand: 'AMD', price: 999, asin: 'B0C488N4BF', search: 'PowerColor+Fighter+AMD+Radeon+RX+7600+8GB', score: 38, vram: 8, tdp: 165, tier: 'budget' },
   ],
 
-  // ═══════ Motherboards — 15 total ═══════
+  // ═══════ Motherboards — 16 total ═══════
   motherboard: [
     // AM5 — X870E / X870 / B850 / B650
     { id: 'mb-1', name: 'ASUS ROG Strix X870E-E WiFi', brand: 'ASUS', price: 2249, asin: 'B0DGQ7NHT2', search: 'ASUS+ROG+Strix+X870E-E+Gaming+WiFi+AM5', socket: 'AM5', chipset: 'X870E', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 5, wifi: true, tier: 'enthusiast' },
@@ -79,6 +79,7 @@ export const COMPONENTS = {
     { id: 'mb-12', name: 'Gigabyte B650 AORUS Elite AX', brand: 'Gigabyte', price: 699, asin: 'B0BH7GTY9C', search: 'Gigabyte+B650+AORUS+Elite+AX+AM5+DDR5+WiFi+6E', socket: 'AM5', chipset: 'B650', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: true, tier: 'mid-range' },
     { id: 'mb-15', name: 'Gigabyte B850 Eagle WiFi6E', brand: 'Gigabyte', price: 699, asin: 'B0DQLJWRDX', search: 'Gigabyte+B850+Eagle+WiFi6E+AM5+DDR5', socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 3, wifi: true, tier: 'budget' },
     // LGA1851 — Z890 / B860 (Intel Arrow Lake)
+    { id: 'mb-16', name: 'ASUS ROG Maximus Z890 Hero', brand: 'ASUS', price: 2499, asin: null, search: 'ASUS+ROG+Maximus+Z890+Hero+WiFi+LGA1851+DDR5', image_url: null, socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 5, wifi: true, tier: 'enthusiast' },
     { id: 'mb-5', name: 'ASUS ROG Strix Z890-E WiFi', brand: 'ASUS', price: 1992, asin: 'B0DGWRK1PN', search: 'ASUS+ROG+Strix+Z890-E+Gaming+WiFi+LGA1851', socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 5, wifi: true, tier: 'enthusiast' },
     { id: 'mb-6', name: 'MSI MAG Z890 Tomahawk WiFi', brand: 'MSI', price: 1356, asin: 'B0DH6SF5LB', search: 'MSI+MAG+Z890+Tomahawk+WiFi+DDR5+LGA1851', socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 4, wifi: true, tier: 'high-end' },
     { id: 'mb-7', name: 'MSI PRO B860M-A WiFi', brand: 'MSI', price: 599, asin: 'B0DQB38722', search: 'MSI+PRO+B860M-A+WiFi+DDR5+LGA1851', socket: 'LGA1851', chipset: 'B860', formFactor: 'mATX', ramType: 'DDR5', ramSlots: 2, maxRam: 96, m2Slots: 2, wifi: true, tier: 'budget' },
@@ -91,7 +92,7 @@ export const COMPONENTS = {
     { id: 'mb-13', name: 'MSI MAG B550 Tomahawk', brand: 'MSI', price: 499, asin: 'B089CWDHFZ', search: 'MSI+MAG+B550+Tomahawk+Gaming+AM4+DDR4', socket: 'AM4', chipset: 'B550', formFactor: 'ATX', ramType: 'DDR4', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'budget' },
   ],
 
-  // ═══════ RAM — 13 total ═══════
+  // ═══════ RAM — 15 total ═══════
   ram: [
     // DDR5 High Speed
     { id: 'ram-1', name: 'TeamGroup DDR5-8000 32GB', brand: 'TeamGroup', price: 1022, asin: 'B0BWM1T88J', search: 'TeamGroup+T-Force+Delta+RGB+DDR5+8000+32GB+2x16GB', type: 'DDR5', size: 32, speed: 8000, latency: 'CL38', modules: '2x16GB', tier: 'enthusiast' },
@@ -110,9 +111,11 @@ export const COMPONENTS = {
     { id: 'ram-11', name: 'G.Skill Flare X5 DDR5-6000 32GB', brand: 'G.Skill', price: 699, asin: 'B0BFG9VTKL', search: 'G.Skill+Flare+X5+DDR5+6000+32GB+2x16GB', type: 'DDR5', size: 32, speed: 6000, latency: 'CL32', modules: '2x16GB', tier: 'mid-range' },
     { id: 'ram-12', name: 'Kingston Fury Renegade DDR5-6400 32GB', brand: 'Kingston', price: 599, asin: 'B0B72BM63Q', search: 'Kingston+Fury+Renegade+DDR5+6400+32GB+RGB', type: 'DDR5', size: 32, speed: 6400, latency: 'CL32', modules: '2x16GB', tier: 'high-end' },
     { id: 'ram-13', name: 'Corsair Vengeance DDR5-5200 32GB', brand: 'Corsair', price: 329, asin: 'B09NCPTVX5', search: 'Corsair+Vengeance+DDR5+5200+32GB+2x16GB', type: 'DDR5', size: 32, speed: 5200, latency: 'CL40', modules: '2x16GB', tier: 'budget' },
+    { id: 'ram-14', name: 'G.Skill Trident Z5 RGB DDR5-8000 32GB', brand: 'G.Skill', price: 750, asin: null, search: 'G.Skill+Trident+Z5+RGB+DDR5+8000+CL36+32GB+2x16GB', image_url: null, type: 'DDR5', size: 32, speed: 8000, latency: 'CL36', modules: '2x16GB', tier: 'enthusiast' },
+    { id: 'ram-15', name: 'TeamGroup T-Force Delta DDR5-6400 32GB', brand: 'TeamGroup', price: 399, asin: null, search: 'TeamGroup+T-Force+Delta+RGB+DDR5+6400+32GB+2x16GB', image_url: null, type: 'DDR5', size: 32, speed: 6400, latency: 'CL32', modules: '2x16GB', tier: 'mid-range' },
   ],
 
-  // ═══════ SSDs — 13 total ═══════
+  // ═══════ SSDs — 14 total ═══════
   ssd: [
     // Gen5 NVMe
     { id: 'ssd-1', name: 'WD Black SN8100 2TB', brand: 'WD', price: 1199, asin: 'B0F3BD1W6R', search: 'WD+BLACK+SN8100+2TB+NVMe+Gen5+SSD', interface: 'NVMe Gen5', capacity: 2000, read: 14900, write: 11000, tier: 'enthusiast' },
@@ -131,9 +134,10 @@ export const COMPONENTS = {
     { id: 'ssd-11', name: 'Crucial T500 2TB', brand: 'Crucial', price: 699, asin: 'B0CK2TC9XQ', search: 'Crucial+T500+2TB+NVMe+Gen4+SSD', interface: 'NVMe Gen4', capacity: 2000, read: 7400, write: 7000, tier: 'high-end' },
     { id: 'ssd-12', name: 'WD Black SN770 1TB', brand: 'WD', price: 299, asin: 'B09QV692XY', search: 'WD+Black+SN770+1TB+NVMe+Gen4+SSD', interface: 'NVMe Gen4', capacity: 1000, read: 5150, write: 4900, tier: 'mid-range' },
     { id: 'ssd-13', name: 'Samsung 870 QVO 2TB', brand: 'Samsung', price: 649, asin: 'B089C6LZ42', search: 'Samsung+870+QVO+2TB+SATA+SSD', interface: 'SATA', capacity: 2000, read: 560, write: 530, tier: 'budget' },
+    { id: 'ssd-14', name: 'WD Black SN8100 1TB', brand: 'WD', price: 499, asin: null, search: 'WD+BLACK+SN8100+1TB+NVMe+Gen5+SSD', image_url: null, interface: 'NVMe Gen5', capacity: 1000, read: 14900, write: 11000, tier: 'high-end' },
   ],
 
-  // ═══════ PSUs — 13 total ═══════
+  // ═══════ PSUs — 15 total ═══════
   psu: [
     // 1200W+ (for RTX 5090 / high-TDP builds)
     { id: 'psu-1', name: 'Corsair HX1500i ATX 3.1', brand: 'Corsair', price: 1499, asin: 'B0F1NGKBK3', search: 'Corsair+HX1500i+1500W+ATX+3.1+Platinum', watt: 1500, rating: '80+ Platinum', modular: 'Full', tier: 'enthusiast' },
@@ -152,6 +156,8 @@ export const COMPONENTS = {
     { id: 'psu-11', name: 'Thermaltake Toughpower GF3 1000W', brand: 'Thermaltake', price: 699, asin: 'B0BF3R83W8', search: 'Thermaltake+Toughpower+GF3+1000W+ATX+3.0+Gold', watt: 1000, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
     { id: 'psu-12', name: 'MSI MAG A850GL 850W', brand: 'MSI', price: 459, asin: 'B0CB9MSJ5N', search: 'MSI+MAG+A850GL+850W+80+Plus+Gold', watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
     { id: 'psu-13', name: 'Corsair RM850e 850W', brand: 'Corsair', price: 499, asin: 'B0BYQPH5J3', search: 'Corsair+RM850e+850W+80+Plus+Gold+ATX+3.0', watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
+    { id: 'psu-14', name: 'Seasonic Vertex GX-1200', brand: 'Seasonic', price: 949, asin: null, search: 'Seasonic+Vertex+GX-1200+1200W+80+Plus+Gold+ATX+3.0', image_url: null, watt: 1200, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
+    { id: 'psu-15', name: 'be quiet! Pure Power 12M 850W', brand: 'be quiet!', price: 449, asin: null, search: 'be+quiet+Pure+Power+12M+850W+80+Plus+Gold', image_url: null, watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
   ],
 
   // ═══════ Coolers — 13 total ═══════
@@ -175,7 +181,7 @@ export const COMPONENTS = {
     { id: 'cool-13', name: 'NZXT Kraken 240 RGB', brand: 'NZXT', price: 549, asin: 'B0BY3FJ4WQ', search: 'NZXT+Kraken+240+RGB+AIO+Cooler', type: 'AIO 240mm', tdpMax: 250, tier: 'mid-range' },
   ],
 
-  // ═══════ Cases — 13 total ═══════
+  // ═══════ Cases — 14 total ═══════
   case: [
     { id: 'case-1', name: 'Hyte Y70', brand: 'Hyte', price: 1283, asin: 'B0CX595GDJ', search: 'Hyte+Y70+Dual+Chamber+Mid+Tower+Case+Black', formFactor: 'Mid Tower', maxGPU: 430, tier: 'enthusiast' },
     { id: 'case-2', name: 'Lian Li O11 Dynamic EVO', brand: 'Lian Li', price: 599, asin: 'B09QHJZ7LK', search: 'Lian+Li+O11+Dynamic+EVO+Black+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 420, tier: 'high-end' },
@@ -191,6 +197,7 @@ export const COMPONENTS = {
     { id: 'case-11', name: 'Corsair 5000D Airflow', brand: 'Corsair', price: 549, asin: 'B08M49WW51', search: 'Corsair+5000D+Airflow+Tempered+Glass+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 400, tier: 'high-end' },
     { id: 'case-12', name: 'Lian Li LANCOOL 216', brand: 'Lian Li', price: 399, asin: 'B0BN3SY5XW', search: 'Lian+Li+LANCOOL+216+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 392, tier: 'mid-range' },
     { id: 'case-13', name: 'be quiet! Pure Base 500DX', brand: 'be quiet!', price: 449, asin: 'B087D7DBW6', search: 'be+quiet+Pure+Base+500DX+ATX+Mid+Tower', formFactor: 'Mid Tower', maxGPU: 369, tier: 'mid-range' },
+    { id: 'case-14', name: 'Hyte Y70 Touch', brand: 'Hyte', price: 899, asin: null, search: 'Hyte+Y70+Touch+Dual+Chamber+Mid+Tower+Case', image_url: null, formFactor: 'Mid Tower', maxGPU: 430, tier: 'enthusiast' },
   ],
 };
 
