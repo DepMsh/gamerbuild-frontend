@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from 'react';
-import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
+import { fetchLivePrices } from '../utils/amazonAPI';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
@@ -18,6 +19,38 @@ export default function BuilderPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterTier, setFilterTier] = useState('all');
+  const [livePrices, setLivePrices] = useState(new Map());
+  const [livePriceStatus, setLivePriceStatus] = useState('idle'); // idle | loading | loaded | error
+  const livePriceFetchedRef = useRef(new Set());
+
+  // Fetch live Amazon prices for selected components
+  useEffect(() => {
+    const selected = Object.values(components).filter(c => c && c.asin);
+    const newAsins = selected.filter(c => !livePriceFetchedRef.current.has(c.asin));
+    if (newAsins.length === 0) return;
+
+    setLivePriceStatus('loading');
+    fetchLivePrices(newAsins)
+      .then(priceMap => {
+        if (priceMap.size > 0) {
+          setLivePrices(prev => {
+            const merged = new Map(prev);
+            priceMap.forEach((v, k) => merged.set(k, v));
+            return merged;
+          });
+          newAsins.forEach(c => livePriceFetchedRef.current.add(c.asin));
+        }
+        setLivePriceStatus('loaded');
+      })
+      .catch(() => setLivePriceStatus('error'));
+  }, [components]);
+
+  // Helper: get live price for a component (falls back to local price)
+  const getLivePrice = (item) => {
+    if (!item?.asin) return item?.price;
+    const live = livePrices.get(item.asin);
+    return live?.price ?? item?.price;
+  };
 
   const compat = fullCompatCheck(components);
   const wattage = estimateWattage(components);
@@ -189,7 +222,12 @@ export default function BuilderPage() {
 
                   {selected ? (
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-sm font-display font-bold text-gb-primary whitespace-nowrap hidden sm:inline">{selected.price?.toLocaleString()} <span className="text-[9px] text-gb-muted">ر.س</span></span>
+                      <span className="text-sm font-display font-bold text-gb-primary whitespace-nowrap hidden sm:inline">
+                        {getLivePrice(selected)?.toLocaleString()} <span className="text-[9px] text-gb-muted">ر.س</span>
+                        {selected.asin && livePrices.has(selected.asin) && livePrices.get(selected.asin).price !== selected.price && (
+                          <span className="text-[8px] text-green-400 mr-1">live</span>
+                        )}
+                      </span>
                       {!selected.isCustom && (
                         <button
                           onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
@@ -258,7 +296,19 @@ export default function BuilderPage() {
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
+                {livePriceStatus === 'loading' && (
+                  <span className="flex items-center gap-1 text-[9px] text-gb-muted animate-pulse">
+                    <RefreshCw size={9} className="animate-spin" /> جاري تحديث الأسعار...
+                  </span>
+                )}
+                {livePriceStatus === 'loaded' && livePrices.size > 0 && (
+                  <span className="flex items-center gap-1 text-[9px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded">
+                    <Check size={8} /> أسعار محدثة من أمازون
+                  </span>
+                )}
+              </div>
               <span className="text-xl sm:text-2xl font-display font-black text-gb-primary">{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
             </div>
             {selectedCount >= 2 && (
