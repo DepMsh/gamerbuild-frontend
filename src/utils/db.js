@@ -336,33 +336,62 @@ export function calcTotal(build) {
 // Full compatibility check
 export function fullCompatCheck(build) {
   const errors = [], warnings = [], ok = [];
+  let hasCustom = false;
+
+  // Detect custom components and warn
+  const entries = Object.entries(build).filter(([, v]) => v);
+  for (const [cat, comp] of entries) {
+    if (comp.isCustom) {
+      hasCustom = true;
+      if (cat === 'cpu' && !comp.socket) warnings.push('معالج مخصص — لا يمكن التحقق من توافق السوكت');
+      if (cat === 'gpu' && (comp.vram == null || comp.tdp == null)) warnings.push('كرت شاشة مخصص — تحقق من التوافق يدوياً');
+      if (cat === 'motherboard' && !comp.socket) warnings.push('لوحة أم مخصصة — لا يمكن التحقق من توافق السوكت');
+      if (cat === 'psu' && !comp.watt) warnings.push('باور مخصص — تحقق من الواط يدوياً');
+      if (cat === 'ram' && !comp.type) warnings.push('رام مخصصة — تحقق من توافق DDR يدوياً');
+      if (cat === 'cooler' && !comp.tdpMax) warnings.push('تبريد مخصص — تحقق من كفاية التبريد يدوياً');
+    }
+  }
 
   if (build.cpu && build.motherboard) {
-    if (build.cpu.socket !== build.motherboard.socket)
-      errors.push(`سوكت المعالج (${build.cpu.socket}) ≠ اللوحة (${build.motherboard.socket})`);
-    else ok.push('السوكت متوافق');
+    if (build.cpu.isCustom || build.motherboard.isCustom) {
+      if (build.cpu.socket && build.motherboard.socket) {
+        if (build.cpu.socket !== build.motherboard.socket)
+          errors.push(`سوكت المعالج (${build.cpu.socket}) ≠ اللوحة (${build.motherboard.socket})`);
+        else ok.push('السوكت متوافق');
+      }
+    } else {
+      if (build.cpu.socket !== build.motherboard.socket)
+        errors.push(`سوكت المعالج (${build.cpu.socket}) ≠ اللوحة (${build.motherboard.socket})`);
+      else ok.push('السوكت متوافق');
+    }
   }
 
   if (build.ram && build.motherboard) {
-    if (build.ram.type !== build.motherboard.ramType)
-      errors.push(`الرام ${build.ram.type} ≠ اللوحة ${build.motherboard.ramType}`);
-    else ok.push('الرام متوافقة');
+    if (!build.ram.isCustom && !build.motherboard.isCustom) {
+      if (build.ram.type !== build.motherboard.ramType)
+        errors.push(`الرام ${build.ram.type} ≠ اللوحة ${build.motherboard.ramType}`);
+      else ok.push('الرام متوافقة');
+    }
   }
 
   const needed = estimateWattage(build);
   if (build.psu) {
-    if (build.psu.watt < needed)
-      errors.push(`الباور ${build.psu.watt}W < المطلوب ~${needed}W`);
-    else if (build.psu.watt < needed * 1.1)
-      warnings.push(`الباور يكفي بالكاد — يفضل ${getRecommendedPSU(build)}W`);
-    else ok.push('الباور كافي');
+    if (!build.psu.isCustom) {
+      if (build.psu.watt < needed)
+        errors.push(`الباور ${build.psu.watt}W < المطلوب ~${needed}W`);
+      else if (build.psu.watt < needed * 1.1)
+        warnings.push(`الباور يكفي بالكاد — يفضل ${getRecommendedPSU(build)}W`);
+      else ok.push('الباور كافي');
+    }
   }
 
   if (build.cpu && build.cooler) {
-    if (build.cooler.tdpMax < build.cpu.tdp)
-      warnings.push(`التبريد (${build.cooler.tdpMax}W) ضعيف للمعالج (${build.cpu.tdp}W)`);
-    else ok.push('التبريد كافي');
+    if (!build.cpu.isCustom && !build.cooler.isCustom) {
+      if (build.cooler.tdpMax < build.cpu.tdp)
+        warnings.push(`التبريد (${build.cooler.tdpMax}W) ضعيف للمعالج (${build.cpu.tdp}W)`);
+      else ok.push('التبريد كافي');
+    }
   }
 
-  return { errors, warnings, ok };
+  return { errors, warnings, ok, hasCustom };
 }

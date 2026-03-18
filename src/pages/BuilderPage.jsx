@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus } from 'lucide-react';
+import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
 import { fetchLivePrices } from '../utils/amazonAPI';
 import { useBuild } from '../hooks/BuildContext';
@@ -176,7 +176,9 @@ export default function BuilderPage() {
             {/* Connection line */}
             <div className="absolute top-1/2 left-0 right-0 h-px bg-gb-border -translate-y-1/2 z-0" />
             {CATEGORIES.map(({ key, label }) => {
-              const filled = !!components[key];
+              const comp = components[key];
+              const filled = !!comp;
+              const isCustom = comp?.isCustom;
               return (
                 <button
                   key={key}
@@ -184,13 +186,15 @@ export default function BuilderPage() {
                   className="relative z-10 flex flex-col items-center gap-1"
                 >
                   <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm transition-all ${
-                    filled
+                    filled && isCustom
+                      ? 'bg-yellow-500 text-gb-bg shadow-[0_0_12px_rgba(234,179,8,0.4)]'
+                      : filled
                       ? 'bg-gb-primary text-gb-bg shadow-[0_0_12px_rgba(0,229,255,0.4)]'
                       : 'bg-gb-card border border-gb-border text-gb-muted'
                   }`}>
-                    {filled ? <Check size={14} strokeWidth={3} /> : <span className="text-xs">{catIcons[key]}</span>}
+                    {filled && isCustom ? <AlertCircle size={14} strokeWidth={3} /> : filled ? <Check size={14} strokeWidth={3} /> : <span className="text-xs">{catIcons[key]}</span>}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] whitespace-nowrap ${filled ? 'text-gb-primary font-bold' : 'text-gb-muted'}`}>
+                  <span className={`text-[9px] sm:text-[10px] whitespace-nowrap ${filled && isCustom ? 'text-yellow-400 font-bold' : filled ? 'text-gb-primary font-bold' : 'text-gb-muted'}`}>
                     {label}
                   </span>
                 </button>
@@ -205,16 +209,21 @@ export default function BuilderPage() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`mb-4 p-3 rounded-xl border flex items-start gap-2.5 text-xs sm:text-sm ${
-              hasIssues ? 'bg-red-500/5 border-red-500/20' : compat.warnings.length > 0 ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-green-500/5 border-green-500/20'
+              hasIssues ? 'bg-red-500/5 border-red-500/20'
+              : compat.warnings.length > 0 ? 'bg-yellow-500/5 border-yellow-500/20'
+              : compat.hasCustom ? 'bg-yellow-500/5 border-yellow-500/20'
+              : 'bg-green-500/5 border-green-500/20'
             }`}
           >
             {hasIssues ? <ShieldAlert size={16} className="text-red-400 shrink-0 mt-0.5" />
               : compat.warnings.length > 0 ? <AlertTriangle size={16} className="text-yellow-400 shrink-0 mt-0.5" />
+              : compat.hasCustom ? <AlertTriangle size={16} className="text-yellow-400 shrink-0 mt-0.5" />
               : <ShieldCheck size={16} className="text-green-400 shrink-0 mt-0.5" />}
             <div>
               {compat.errors.map((e, i) => <p key={i} className="text-red-400">{e}</p>)}
               {compat.warnings.map((w, i) => <p key={i} className="text-yellow-400">{w}</p>)}
-              {!hasIssues && compat.warnings.length === 0 && <p className="text-green-400">كل القطع متوافقة</p>}
+              {!hasIssues && compat.warnings.length === 0 && !compat.hasCustom && <p className="text-green-400">كل القطع متوافقة</p>}
+              {!hasIssues && compat.warnings.length === 0 && compat.hasCustom && <p className="text-yellow-400">بعض القطع مخصصة — تحقق من التوافق يدوياً</p>}
             </div>
           </motion.div>
         )}
@@ -256,7 +265,12 @@ export default function BuilderPage() {
                     </div>
                     {selected ? (
                       <div>
-                        <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{selected.brand} {selected.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{selected.brand} {selected.name}</p>
+                          {selected.isCustom && (
+                            <span className="text-[8px] px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 font-bold shrink-0">مخصص</span>
+                          )}
+                        </div>
                         <p className="text-[10px] sm:text-xs text-gb-muted truncate">{specLine(key, selected)}</p>
                       </div>
                     ) : (

@@ -6,9 +6,15 @@ import { motion } from 'framer-motion';
 
 function checkCompat(components) {
   const issues = [], warnings = [];
-  if (components.cpu && components.motherboard && components.cpu.socket !== components.motherboard.socket)
-    issues.push(`سوكت المعالج (${components.cpu.socket}) مو متوافق مع اللوحة (${components.motherboard.socket})`);
-  if (components.gpu && components.psu) {
+  const customs = Object.entries(components).filter(([, v]) => v?.isCustom);
+  if (customs.length > 0) {
+    warnings.push('بعض القطع مخصصة — تحقق من التوافق يدوياً');
+  }
+  if (components.cpu && components.motherboard && !components.cpu.isCustom && !components.motherboard.isCustom) {
+    if (components.cpu.socket !== components.motherboard.socket)
+      issues.push(`سوكت المعالج (${components.cpu.socket}) مو متوافق مع اللوحة (${components.motherboard.socket})`);
+  }
+  if (components.gpu && components.psu && !components.gpu.isCustom && !components.psu.isCustom) {
     const need = parseInt(components.gpu.tdp || 0) + parseInt(components.cpu?.tdp || 0) + 100;
     if (parseInt(components.psu.watt || 0) < need)
       issues.push(`الباور (${components.psu.watt}W) ممكن ما يكفي — تحتاج ~${need}W`);

@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { getRecommendations, getUpgradeRoadmap, getChatResponse } from '../utils/engine';
 import { getAllComponents } from '../utils/db';
@@ -18,7 +19,9 @@ export default function ChatAssistant() {
   ]);
   const [input, setInput] = useState("");
   const endRef = useRef(null);
-  const { components } = useBuild();
+  const { components, selectedCount } = useBuild();
+  const location = useLocation();
+  const builderStickyVisible = location.pathname === '/builder' && selectedCount >= 1;
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -45,7 +48,9 @@ export default function ChatAssistant() {
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 md:bottom-6 left-4 z-40 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center shadow-lg shadow-gb-primary/25 hover:scale-105 active:scale-95 transition-transform"
+          className={`fixed left-4 z-40 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center shadow-lg shadow-gb-primary/25 hover:scale-105 active:scale-95 transition-all duration-300 ${
+            builderStickyVisible ? 'bottom-36 md:bottom-6' : 'bottom-20 md:bottom-6'
+          }`}
         >
           <MessageCircle size={22} className="text-gb-bg" />
         </button>
@@ -53,7 +58,9 @@ export default function ChatAssistant() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-20 md:bottom-6 left-4 right-4 sm:left-4 sm:right-auto sm:w-[360px] z-40 bg-gb-card border border-gb-border rounded-2xl shadow-2xl shadow-black/40 flex flex-col max-h-[70vh] sm:max-h-[500px] animate-slide-up">
+        <div className={`fixed left-4 right-4 sm:left-4 sm:right-auto sm:w-[360px] z-40 bg-gb-card border border-gb-border rounded-2xl shadow-2xl shadow-black/40 flex flex-col max-h-[70vh] sm:max-h-[500px] animate-slide-up ${
+          builderStickyVisible ? 'bottom-36 md:bottom-6' : 'bottom-20 md:bottom-6'
+        }`}>
           {/* Header */}
           <div className="flex items-center justify-between p-3 sm:p-4 border-b border-gb-border shrink-0">
             <div className="flex items-center gap-2">
