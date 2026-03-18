@@ -1,10 +1,8 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
-import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, getAmazonImageUrl, fullCompatCheck } from '../utils/db';
-import { fetchLivePrices } from '../utils/amazonAPI';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { List as FixedSizeList } from 'react-window';
 import PriceChart from '../components/PriceChart';
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
@@ -26,6 +24,8 @@ const catGridConfig = {
   case:        { gradient: 'from-zinc-800/80 to-zinc-900/90',    glow: 'shadow-zinc-500/20',    Icon: Box,            color: '#a1a1aa' },
 };
 
+const PAGE_SIZE = 50;
+
 export default function BuilderPage() {
   const { components, setComponent, removeComponent, clearBuild, totalPrice, selectedCount } = useBuild();
   const [openPicker, setOpenPicker] = useState(null);
@@ -37,53 +37,7 @@ export default function BuilderPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterTier, setFilterTier] = useState('all');
-  const [livePrices, setLivePrices] = useState(new Map());
-  const [livePriceStatus, setLivePriceStatus] = useState('idle');
-  const livePriceFetchedRef = useRef(new Set());
-  const listContainerRef = useRef(null);
-  const [listHeight, setListHeight] = useState(500);
-
-  // Measure available height for virtual list
-  useEffect(() => {
-    if (!openPicker || customMode) return;
-    const measure = () => {
-      if (listContainerRef.current) {
-        setListHeight(listContainerRef.current.clientHeight);
-      }
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [openPicker, customMode]);
-
-  // Fetch live Amazon prices
-  useEffect(() => {
-    const selected = Object.values(components).filter(c => c && c.asin);
-    const newAsins = selected.filter(c => !livePriceFetchedRef.current.has(c.asin));
-    if (newAsins.length === 0) return;
-    setLivePriceStatus('loading');
-    fetchLivePrices(newAsins)
-      .then(priceMap => {
-        if (priceMap.size > 0) {
-          setLivePrices(prev => { const m = new Map(prev); priceMap.forEach((v, k) => m.set(k, v)); return m; });
-          newAsins.forEach(c => livePriceFetchedRef.current.add(c.asin));
-        }
-        setLivePriceStatus('loaded');
-      })
-      .catch(() => setLivePriceStatus('error'));
-  }, [components]);
-
-  const getLivePrice = (item) => {
-    if (!item?.asin) return item?.price;
-    return livePrices.get(item.asin)?.price ?? item?.price;
-  };
-
-  const compat = fullCompatCheck(components);
-  const wattage = estimateWattage(components);
-  const recPSU = getRecommendedPSU(components);
-  const hasIssues = compat.errors.length > 0;
-  const psuCapacity = components.psu?.watt || recPSU;
-  const psuRatio = psuCapacity > 0 ? wattage / psuCapacity : 0;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     if (openPicker) document.body.style.overflow = 'hidden';
@@ -131,6 +85,7 @@ export default function BuilderPage() {
     setFilterBrand('all');
     setFilterTier('all');
     setCustomMode(false);
+    setVisibleCount(PAGE_SIZE);
   };
 
   const handleSelect = (cat, item) => {
@@ -176,77 +131,17 @@ export default function BuilderPage() {
 
   const currentCat = CATEGORIES.find(c => c.key === openPicker);
 
-  // Virtual list row renderer
-  const ITEM_HEIGHT = 140;
-  const PickerRow = useCallback(({ index, style }) => {
-    const item = pickerItems[index];
-    if (!item) return null;
-    const isSelected = components[openPicker]?.id === item.id;
-    const imgUrl = getAmazonImageUrl(item);
-    return (
-      <div style={style} className="px-3">
-        <div
-          onClick={() => item.compatible && handleSelect(openPicker, item)}
-          className={`flex items-stretch gap-4 p-4 rounded-2xl border transition-all h-[128px] ${
-            !item.compatible ? 'opacity-30 cursor-not-allowed border-[#1e1e2e] bg-[#12121c]' :
-            isSelected ? 'border-[#00e676]/40 bg-[#00e676]/5 cursor-pointer' :
-            'border-[#1e1e2e] bg-[#12121c] cursor-pointer hover:border-[#2a2a3e] active:bg-[#16161f]'
-          }`}
-        >
-          {/* Image — left */}
-          <div className="w-[100px] sm:w-[120px] shrink-0 rounded-xl bg-white/90 flex items-center justify-center overflow-hidden p-2">
-            {imgUrl ? (
-              <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
-                onError={e => { e.target.style.display = 'none'; if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }} />
-            ) : null}
-            <span className={`text-3xl opacity-40 ${imgUrl ? 'hidden' : 'flex'}`}>{currentCat?.icon}</span>
-          </div>
+  const compat = fullCompatCheck(components);
+  const wattage = estimateWattage(components);
+  const recPSU = getRecommendedPSU(components);
+  const hasIssues = compat.errors.length > 0;
+  const psuCapacity = components.psu?.watt || recPSU;
+  const psuRatio = psuCapacity > 0 ? wattage / psuCapacity : 0;
 
-          {/* Info — right */}
-          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-            <div>
-              <p className="text-[11px] text-[#888] font-medium">{item.brand}</p>
-              <p className="text-[13px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{item.name}</p>
-              <p className="text-[11px] text-[#666] mt-0.5 truncate">{specLine(openPicker, item)}</p>
-            </div>
-
-            <div className="flex items-center justify-between mt-auto">
-              <div className="flex items-center gap-2">
-                <span className="text-[18px] font-black" style={{ color: '#00e676' }}>{item.price?.toLocaleString()}</span>
-                <span className="text-[10px] text-[#666]">ر.س</span>
-                {item.score ? (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
-                ) : null}
-              </div>
-            </div>
-
-            {!item.compatible && item.reason && (
-              <p className="text-[10px] text-red-400 flex items-center gap-1 mt-0.5"><AlertCircle size={10} /> {item.reason}</p>
-            )}
-          </div>
-
-          {/* Actions — far right */}
-          <div className="flex flex-col items-center justify-center gap-2 shrink-0">
-            <button
-              onClick={e => { e.stopPropagation(); item.compatible && handleSelect(openPicker, item); }}
-              className={`w-full min-w-[80px] py-2.5 rounded-xl text-[12px] font-bold transition-all border ${
-                isSelected
-                  ? 'bg-[#00e676] text-[#12121c] border-[#00e676]'
-                  : 'bg-[#1a1a2e] text-white border-[#2a2a3e] hover:border-[#00e676]/40 hover:text-[#00e676]'
-              }`}
-            >
-              {isSelected ? '✓ تم' : '+ أضف'}
-            </button>
-            <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
-              className="text-[10px] text-[#ff9900] hover:underline flex items-center gap-0.5"
-              onClick={e => e.stopPropagation()}>
-              أمازون <ExternalLink size={8} />
-            </a>
-          </div>
-        </div>
-      </div>
-    );
-  }, [pickerItems, components, openPicker, currentCat]);
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [searchQuery, filterBrand, filterTier, sortBy, showOnlyCompat]);
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-36 md:pb-10 px-3 sm:px-4">
@@ -273,7 +168,7 @@ export default function BuilderPage() {
               const filled = !!comp;
               const isCustom = comp?.isCustom;
               return (
-                <button key={key} onClick={() => filled ? null : openPickerModal(key)} className="relative z-10 flex flex-col items-center gap-1">
+                <button key={key} onClick={() => filled ? openPickerModal(key) : openPickerModal(key)} className="relative z-10 flex flex-col items-center gap-1">
                   <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm transition-all ${
                     filled && isCustom ? 'bg-yellow-500 text-gb-bg shadow-[0_0_12px_rgba(234,179,8,0.4)]'
                     : filled ? 'bg-gb-primary text-gb-bg shadow-[0_0_12px_rgba(0,229,255,0.4)]'
@@ -290,7 +185,7 @@ export default function BuilderPage() {
           </div>
         </div>
 
-        {/* 2×2 Category Grid — shown when build is empty or partially filled */}
+        {/* 2×2 Category Grid — shown for unfilled categories */}
         {selectedCount < 8 && (
           <div className="mb-5 grid grid-cols-2 gap-3">
             {CATEGORIES.filter(({ key }) => !components[key]).map(({ key, label }) => {
@@ -344,13 +239,13 @@ export default function BuilderPage() {
                   className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3.5 sm:py-4 cursor-pointer transition-colors ${
                     selected ? 'hover:bg-gb-surface/20' : 'hover:bg-gb-surface/30 border-dashed'
                   }`}
-                  onClick={() => selected ? null : openPickerModal(key)}
+                  onClick={() => openPickerModal(key)}
                 >
                   {/* Thumbnail */}
                   {selected && getAmazonImageUrl(selected) ? (
                     <div className="w-12 h-12 rounded-xl bg-white/90 overflow-hidden shrink-0 flex items-center justify-center p-1">
                       <img src={getAmazonImageUrl(selected)} alt="" loading="lazy" className="w-full h-full object-contain"
-                        onError={e => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-xl">${icon}</span>`; }} />
+                        onError={e => { e.target.style.display = 'none'; }} />
                     </div>
                   ) : selected ? (
                     <div className="w-12 h-12 rounded-xl bg-gb-primary/10 flex items-center justify-center shrink-0">
@@ -385,12 +280,9 @@ export default function BuilderPage() {
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <div className="text-left">
                         <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: '#00e676' }}>
-                          {getLivePrice(selected)?.toLocaleString()}
+                          {selected.price?.toLocaleString()}
                         </span>
                         <span className="text-[9px] text-gb-muted">ر.س</span>
-                        {selected.asin && livePrices.has(selected.asin) && livePrices.get(selected.asin).price !== selected.price && (
-                          <span className="text-[8px] text-green-400 mr-1 block">live</span>
-                        )}
                       </div>
                       {!selected.isCustom && (
                         <button onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
@@ -399,13 +291,8 @@ export default function BuilderPage() {
                         </button>
                       )}
                       {!selected.isCustom && selected.asin && (
-                        <span className="text-[9px] text-green-400/70 hidden sm:flex items-center gap-0.5"><Truck size={9} /> 1-3 أيام</span>
-                      )}
-                      {selected.isCustom && selected.url ? (
-                        <a href={selected.url} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg text-gb-secondary hover:text-gb-primary transition-colors"><ExternalLink size={13} /></a>
-                      ) : !selected.isCustom ? (
                         <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg text-[#ff9900] hover:text-[#ffb340] transition-colors"><ExternalLink size={13} /></a>
-                      ) : null}
+                      )}
                       <button onClick={e => { e.stopPropagation(); openPickerModal(key); }} className="p-1.5 rounded-lg text-gb-muted hover:text-gb-primary transition-colors text-[10px] font-bold">تغيير</button>
                       <button onClick={e => { e.stopPropagation(); removeComponent(key); }} className="p-1.5 text-gb-muted hover:text-gb-accent transition-colors"><X size={14} /></button>
                     </div>
@@ -442,8 +329,6 @@ export default function BuilderPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
-                {livePriceStatus === 'loading' && <span className="flex items-center gap-1 text-[9px] text-gb-muted animate-pulse"><RefreshCw size={9} className="animate-spin" /> جاري تحديث...</span>}
-                {livePriceStatus === 'loaded' && livePrices.size > 0 && <span className="flex items-center gap-1 text-[9px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded"><Check size={8} /> أسعار محدثة</span>}
               </div>
               <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
             </div>
@@ -455,7 +340,7 @@ export default function BuilderPage() {
                   <ShoppingCart size={16} /> اشتري من أمازون <ExternalLink size={12} />
                 </a>
                 <button onClick={() => {
-                  const t = `تجميعتي:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ${c.price?.toLocaleString()} ر.س`).join('\n')}\n${totalPrice.toLocaleString()} ر.س`;
+                  const t = `تجميعتي:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع: ${totalPrice.toLocaleString()} ر.س`;
                   navigator.share ? navigator.share({title:'GamerBuild',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
                 }} className="px-4 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm hover:border-gb-primary/30 transition-all">
                   <ExternalLink size={16} />
@@ -592,7 +477,7 @@ export default function BuilderPage() {
                   </button>
                 </div>
               ) : (
-                <div ref={listContainerRef} className="flex-1 min-h-0">
+                <div className="flex-1 overflow-y-auto overscroll-contain">
                   {pickerItems.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-20 text-[#555]">
                       <SlidersHorizontal size={40} className="opacity-20 mb-4" />
@@ -600,15 +485,84 @@ export default function BuilderPage() {
                       <p className="text-xs mt-1 opacity-60">جرب تغيير الفلتر أو البحث</p>
                     </div>
                   ) : (
-                    <FixedSizeList
-                      height={listHeight}
-                      itemCount={pickerItems.length}
-                      itemSize={ITEM_HEIGHT}
-                      width="100%"
-                      overscanCount={5}
-                    >
-                      {PickerRow}
-                    </FixedSizeList>
+                    <div className="p-3 space-y-2">
+                      {pickerItems.slice(0, visibleCount).map(item => {
+                        const isSelected = components[openPicker]?.id === item.id;
+                        const imgUrl = getAmazonImageUrl(item);
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => item.compatible && handleSelect(openPicker, item)}
+                            className={`flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all ${
+                              !item.compatible ? 'opacity-30 cursor-not-allowed border-[#1e1e2e] bg-[#12121c]' :
+                              isSelected ? 'border-[#00e676]/40 bg-[#00e676]/5 cursor-pointer' :
+                              'border-[#1e1e2e] bg-[#12121c] cursor-pointer hover:border-[#2a2a3e] active:bg-[#16161f]'
+                            }`}
+                          >
+                            {/* Image — left */}
+                            <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] shrink-0 rounded-xl bg-white/90 flex items-center justify-center overflow-hidden p-1.5 sm:p-2">
+                              {imgUrl ? (
+                                <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
+                                  onError={e => { e.target.style.display = 'none'; }} />
+                              ) : (
+                                <span className="text-2xl opacity-30">{currentCat?.icon}</span>
+                              )}
+                            </div>
+
+                            {/* Info — center */}
+                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                              <div>
+                                <p className="text-[10px] sm:text-[11px] text-[#888] font-medium">{item.brand}</p>
+                                <p className="text-[12px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{item.name}</p>
+                                <p className="text-[10px] sm:text-[11px] text-[#555] mt-0.5 truncate">{specLine(openPicker, item)}</p>
+                              </div>
+
+                              <div className="flex items-center gap-2 mt-1.5">
+                                <span className="text-[16px] sm:text-[18px] font-black" style={{ color: '#00e676' }}>{item.price?.toLocaleString()}</span>
+                                <span className="text-[10px] text-[#666]">ر.س</span>
+                                {item.score ? (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
+                                ) : null}
+                              </div>
+
+                              {!item.compatible && item.reason && (
+                                <p className="text-[10px] text-red-400 flex items-center gap-1 mt-0.5"><AlertCircle size={10} /> {item.reason}</p>
+                              )}
+                            </div>
+
+                            {/* Button — right */}
+                            <div className="flex flex-col items-center justify-center gap-1.5 shrink-0">
+                              <button
+                                onClick={e => { e.stopPropagation(); item.compatible && handleSelect(openPicker, item); }}
+                                className={`min-w-[70px] sm:min-w-[80px] py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-bold transition-all border ${
+                                  isSelected
+                                    ? 'bg-[#00e676] text-[#12121c] border-[#00e676]'
+                                    : 'bg-[#1a1a2e] text-white border-[#2a2a3e] hover:border-[#00e676]/40 hover:text-[#00e676]'
+                                }`}
+                              >
+                                {isSelected ? '✓ تم' : '+ أضف'}
+                              </button>
+                              <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
+                                className="text-[9px] sm:text-[10px] text-[#ff9900] hover:underline flex items-center gap-0.5"
+                                onClick={e => e.stopPropagation()}>
+                                أمازون <ExternalLink size={8} />
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })}
+
+                      {/* Load More */}
+                      {visibleCount < pickerItems.length && (
+                        <button
+                          onClick={() => setVisibleCount(v => v + PAGE_SIZE)}
+                          className="w-full py-3 rounded-xl bg-[#1a1a2e] border border-[#2a2a3e] text-[#888] text-sm font-medium hover:text-white hover:border-[#3a3a4e] transition-all flex items-center justify-center gap-2"
+                        >
+                          <ChevronDown size={16} />
+                          عرض المزيد ({pickerItems.length - visibleCount} متبقي)
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -616,7 +570,7 @@ export default function BuilderPage() {
               {/* Footer */}
               {!customMode && pickerItems.length > 0 && (
                 <div className="shrink-0 px-4 py-2 border-t border-[#1e1e2e] bg-[#0e0e18] text-center">
-                  <p className="text-[11px] text-[#555]">{pickerItems.length} قطعة</p>
+                  <p className="text-[11px] text-[#555]">عرض {Math.min(visibleCount, pickerItems.length)} من {pickerItems.length} قطعة</p>
                 </div>
               )}
             </motion.div>
