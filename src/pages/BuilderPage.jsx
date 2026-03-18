@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle } from 'lucide-react';
-import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
+import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, getAmazonImageUrl, fullCompatCheck } from '../utils/db';
 import { fetchLivePrices } from '../utils/amazonAPI';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -242,10 +242,10 @@ export default function BuilderPage() {
                   onClick={() => selected ? null : openPickerModal(key)}
                 >
                   {/* 48x48 icon / thumbnail */}
-                  {selected?.image_url ? (
+                  {selected && getAmazonImageUrl(selected) ? (
                     <div className="w-12 h-12 rounded-xl bg-white/5 overflow-hidden shrink-0 flex items-center justify-center p-1">
-                      <img src={selected.image_url} alt="" loading="lazy" className="w-full h-full object-contain"
-                        onError={e => { e.target.parentElement.style.display = 'none'; }} />
+                      <img src={getAmazonImageUrl(selected)} alt="" loading="lazy" className="w-full h-full object-contain"
+                        onError={e => { e.target.style.display = 'none'; e.target.parentElement.innerHTML = `<span class="text-xl">${icon}</span>`; }} />
                     </div>
                   ) : selected ? (
                     <div className="w-12 h-12 rounded-xl bg-gb-primary/10 flex items-center justify-center shrink-0">
@@ -556,11 +556,11 @@ export default function BuilderPage() {
                               }`}
                             >
                               <div className="h-20 sm:h-28 bg-white/5 flex items-center justify-center p-2 sm:p-3">
-                                {item.image_url ? (
-                                  <img src={item.image_url} alt="" loading="lazy" className="max-w-full max-h-full object-contain"
+                                {getAmazonImageUrl(item) ? (
+                                  <img src={getAmazonImageUrl(item)} alt="" loading="lazy" className="max-w-full max-h-full object-contain"
                                     onError={e => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = ''); }} />
                                 ) : null}
-                                <span className={`text-2xl opacity-20 ${item.image_url ? 'hidden' : ''}`}>{currentCat.icon}</span>
+                                <span className={`text-2xl opacity-20 ${getAmazonImageUrl(item) ? 'hidden' : ''}`}>{currentCat.icon}</span>
                               </div>
 
                               <div className="p-2 sm:p-2.5">

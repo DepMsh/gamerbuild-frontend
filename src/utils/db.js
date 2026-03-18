@@ -78,19 +78,19 @@ export const COMPONENTS = {
     { id: 'mb-2', name: 'MSI MAG X870 Tomahawk WiFi', brand: 'MSI', price: 1199, asin: 'B0DG3HK897', search: 'MSI+MAG+X870+Tomahawk+WiFi', image_url: null, socket: 'AM5', chipset: 'X870', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 4, wifi: true, tier: 'high-end' },
     { id: 'mb-3', name: 'Gigabyte B850 AORUS Elite WiFi7', brand: 'Gigabyte', price: 923, asin: 'B0DQLHVQSF', search: 'Gigabyte+B850+AORUS+Elite+WiFi7', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 3, wifi: true, tier: 'mid-range' },
     { id: 'mb-4', name: 'MSI MAG B650 Tomahawk WiFi', brand: 'MSI', price: 749, asin: 'B0BHCCNSRH', search: 'MSI+MAG+B650+Tomahawk+WiFi', image_url: null, socket: 'AM5', chipset: 'B650', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 6, wifi: false, tier: 'mid-range' },
-    { id: 'mb-5', name: 'ASUS ROG Strix X670E-E WiFi', brand: 'ASUS', price: 1799, asin: null, search: 'ASUS+ROG+Strix+X670E-E+WiFi', image_url: null, socket: 'AM5', chipset: 'X670E', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'high-end' },
+    { id: 'mb-5', name: 'ASUS ROG Strix X670E-E WiFi', brand: 'ASUS', price: 1799, asin: 'B0BDTHQTJV', search: 'ASUS+ROG+Strix+X670E-E+WiFi', image_url: null, socket: 'AM5', chipset: 'X670E', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'high-end' },
     { id: 'mb-6', name: 'Gigabyte B650 AORUS Elite AX', brand: 'Gigabyte', price: 699, asin: 'B0CMJSH15D', search: 'Gigabyte+B650+AORUS+Elite+AX', image_url: null, socket: 'AM5', chipset: 'B650', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 3, wifi: false, tier: 'mid-range' },
     { id: 'mb-7', name: 'Gigabyte B850 Eagle WiFi6E', brand: 'Gigabyte', price: 699, asin: 'B0DQNW4J1G', search: 'Gigabyte+B850+Eagle+WiFi6E', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 6, wifi: false, tier: 'mid-range' },
     { id: 'mb-8', name: 'ASUS ROG Maximus Z890 Hero', brand: 'ASUS', price: 2499, asin: 'B0DT7J49K7', search: 'ASUS+ROG+Maximus+Z890+Hero', image_url: null, socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 10, wifi: false, tier: 'enthusiast' },
-    { id: 'mb-9', name: 'ASUS ROG Strix Z890-E WiFi', brand: 'ASUS', price: 1992, asin: null, search: 'ASUS+ROG+Strix+Z890-E+WiFi', image_url: null, socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'enthusiast' },
+    { id: 'mb-9', name: 'ASUS ROG Strix Z890-E WiFi', brand: 'ASUS', price: 1992, asin: 'B0DGWRK1PN', search: 'ASUS+ROG+Strix+Z890-E+WiFi', image_url: null, socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'enthusiast' },
     { id: 'mb-10', name: 'MSI MAG Z890 Tomahawk WiFi', brand: 'MSI', price: 1356, asin: 'B0DH6SF5LB', search: 'MSI+MAG+Z890+Tomahawk+WiFi', image_url: null, socket: 'LGA1851', chipset: 'Z890', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 8, wifi: false, tier: 'high-end' },
     { id: 'mb-11', name: 'MSI PRO B860M-A WiFi', brand: 'MSI', price: 599, asin: 'B0DQ66PD4L', search: 'MSI+PRO+B860M-A+WiFi', image_url: null, socket: 'LGA1851', chipset: 'B860', formFactor: 'mATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 2, wifi: true, tier: 'budget' },
-    { id: 'mb-12', name: 'MSI MAG B860 Tomahawk WiFi', brand: 'MSI', price: 849, asin: null, search: 'MSI+MAG+B860+Tomahawk+WiFi', image_url: null, socket: 'LGA1851', chipset: 'B860', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'mid-range' },
+    { id: 'mb-12', name: 'MSI MAG B860 Tomahawk WiFi', brand: 'MSI', price: 849, asin: 'B0DQBJ64KH', search: 'MSI+MAG+B860+Tomahawk+WiFi', image_url: null, socket: 'LGA1851', chipset: 'B860', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'mid-range' },
     { id: 'mb-13', name: 'ASUS ROG Maximus Z790 Hero', brand: 'ASUS', price: 2299, asin: 'B0D3D28BXG', search: 'ASUS+ROG+Maximus+Z790+Hero', image_url: null, socket: 'LGA1700', chipset: 'Z790', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 192, m2Slots: 8, wifi: false, tier: 'enthusiast' },
-    { id: 'mb-14', name: 'MSI MAG Z790 Tomahawk WiFi', brand: 'MSI', price: 1199, asin: null, search: 'MSI+MAG+Z790+Tomahawk+WiFi', image_url: null, socket: 'LGA1700', chipset: 'Z790', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'high-end' },
+    { id: 'mb-14', name: 'MSI MAG Z790 Tomahawk WiFi', brand: 'MSI', price: 1199, asin: 'B0BL8K1YH1', search: 'MSI+MAG+Z790+Tomahawk+WiFi', image_url: null, socket: 'LGA1700', chipset: 'Z790', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'high-end' },
     { id: 'mb-15', name: 'MSI PRO B760M-A WiFi', brand: 'MSI', price: 399, asin: 'B0BPB484K5', search: 'MSI+PRO+B760M-A+WiFi', image_url: null, socket: 'LGA1700', chipset: 'B760', formFactor: 'mATX', ramType: 'DDR4', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: true, tier: 'budget' },
     { id: 'mb-16', name: 'MSI MAG B550 Tomahawk', brand: 'MSI', price: 499, asin: 'B09ZJ73LDY', search: 'MSI+MAG+B550+Tomahawk', image_url: null, socket: 'AM4', chipset: 'B550', formFactor: 'ATX', ramType: 'DDR4', ramSlots: 4, maxRam: 128, m2Slots: 5, wifi: false, tier: 'budget' },
-    { id: 'mb-17', name: 'ASUS TUF Gaming B850-PLUS WiFi', brand: 'ASUS', price: 849, asin: null, search: 'ASUS+TUF+Gaming+B850-PLUS+WiFi', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'mid-range' },
+    { id: 'mb-17', name: 'ASUS TUF Gaming B850-PLUS WiFi', brand: 'ASUS', price: 849, asin: 'B0DPLPLR88', search: 'ASUS+TUF+Gaming+B850-PLUS+WiFi', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 128, m2Slots: 2, wifi: false, tier: 'mid-range' },
     { id: 'mb-18', name: 'ASUS TUF Gaming X870-PLUS WiFi', brand: 'ASUS', price: 1099, asin: 'B0DP5DQPRC', search: 'ASUS+TUF+Gaming+X870-PLUS+WiFi', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'ATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 4, wifi: true, tier: 'high-end' },
     { id: 'mb-19', name: 'Gigabyte B850M AORUS Elite WiFi', brand: 'Gigabyte', price: 699, asin: 'B0DQLJGTRM', search: 'Gigabyte+B850M+AORUS+Elite+WiFi', image_url: null, socket: 'AM5', chipset: 'B850', formFactor: 'mATX', ramType: 'DDR5', ramSlots: 4, maxRam: 256, m2Slots: 2, wifi: true, tier: 'mid-range' },
     { id: 'mb-20', name: 'MSI MAG B650M Mortar WiFi', brand: 'MSI', price: 649, asin: 'B0BHC39YG7', search: 'MSI+MAG+B650M+Mortar+WiFi', image_url: null, socket: 'AM5', chipset: 'B650', formFactor: 'mATX', ramType: 'DDR5', ramSlots: 4, maxRam: 192, m2Slots: 4, wifi: false, tier: 'budget' },
@@ -150,7 +150,7 @@ export const COMPONENTS = {
     { id: 'psu-6', name: 'Seasonic Focus GX-850', brand: 'Seasonic', price: 479, asin: 'B0C5B888CM', search: 'Seasonic+Focus+GX-850', image_url: null, watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
     { id: 'psu-7', name: 'Corsair RM750x', brand: 'Corsair', price: 399, asin: 'B0C61XRJBG', search: 'Corsair+RM750x', image_url: null, watt: 750, rating: '80+ Gold', modular: 'Non', tier: 'budget' },
     { id: 'psu-8', name: 'EVGA 700 BR', brand: 'EVGA', price: 199, asin: 'B07DTP6MWS', search: 'EVGA+700+BR', image_url: null, watt: 700, rating: '80+ Bronze', modular: 'Non', tier: 'budget' },
-    { id: 'psu-9', name: 'be quiet! Dark Power Pro 13 1000W', brand: 'be quiet!', price: 999, asin: null, search: 'be+quiet!+Dark+Power+Pro+13+1000W', image_url: null, watt: 1000, rating: null, modular: null, tier: 'enthusiast' },
+    { id: 'psu-9', name: 'be quiet! Dark Power Pro 13 1000W', brand: 'be quiet!', price: 999, asin: 'B0BV6CWS2Z', search: 'be+quiet!+Dark+Power+Pro+13+1000W', image_url: null, watt: 1000, rating: null, modular: null, tier: 'enthusiast' },
     { id: 'psu-10', name: 'Corsair HX1200i ATX 3.1', brand: 'Corsair', price: 1480, asin: 'B0F1NF61BQ', search: 'Corsair+HX1200i+ATX+3.1', image_url: null, watt: 1200, rating: '80+ Platinum', modular: 'Full', tier: 'enthusiast' },
     { id: 'psu-11', name: 'Thermaltake Toughpower GF3 1000W', brand: 'Thermaltake', price: 699, asin: 'B0BF4MCGBS', search: 'Thermaltake+Toughpower+GF3+1000W', image_url: null, watt: 750, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
     { id: 'psu-12', name: 'MSI MAG A850GL 850W', brand: 'MSI', price: 459, asin: 'B0FF7TGMD2', search: 'MSI+MAG+A850GL+850W', image_url: null, watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'budget' },
@@ -169,14 +169,14 @@ export const COMPONENTS = {
     { id: 'cool-3', name: 'Corsair iCUE LINK H150i RGB', brand: 'Corsair', price: 741, asin: 'B0C6PWQ6L3', search: 'Corsair+iCUE+LINK+H150i+RGB', image_url: null, type: 'AIO 360mm', tdpMax: 350, tier: 'enthusiast' },
     { id: 'cool-4', name: 'Noctua NH-D15 chromax.Black', brand: 'Noctua', price: 349, asin: 'B07Y87YHRH', search: 'Noctua+NH-D15+chromax.Black', image_url: null, type: 'Air Tower', tdpMax: 250, tier: 'mid-range' },
     { id: 'cool-5', name: 'Thermalright PA 120 SE ARGB', brand: 'Thermalright', price: 199, asin: 'B0DMVZ3YQ7', search: 'Thermalright+PA+120+SE+ARGB', image_url: null, type: 'Air Tower', tdpMax: 200, tier: 'budget' },
-    { id: 'cool-6', name: 'DeepCool AK400', brand: 'DeepCool', price: 99, asin: null, search: 'DeepCool+AK400', image_url: null, type: 'Air Tower', tdpMax: 200, tier: 'budget' },
+    { id: 'cool-6', name: 'DeepCool AK400', brand: 'DeepCool', price: 99, asin: 'B0B6FDGX3H', search: 'DeepCool+AK400', image_url: null, type: 'Air Tower', tdpMax: 200, tier: 'budget' },
     { id: 'cool-7', name: 'NZXT Kraken X73 RGB 360mm', brand: 'NZXT', price: 699, asin: 'B08MB7WQW9', search: 'NZXT+Kraken+X73+RGB+360mm', image_url: null, type: 'AIO 360mm', tdpMax: 350, tier: 'enthusiast' },
     { id: 'cool-8', name: 'Corsair iCUE H150i Elite 360mm', brand: 'Corsair', price: 599, asin: 'B08G1Q3GZR', search: 'Corsair+iCUE+H150i+Elite+360mm', image_url: null, type: 'AIO 360mm', tdpMax: 350, tier: 'enthusiast' },
     { id: 'cool-9', name: 'Arctic Liquid Freezer II 240', brand: 'Arctic', price: 349, asin: 'B09VH4M76W', search: 'Arctic+Liquid+Freezer+II+240', image_url: null, type: 'AIO 240mm', tdpMax: 200, tier: 'mid-range' },
     { id: 'cool-10', name: 'Cooler Master Hyper 212 Black', brand: 'CM', price: 149, asin: 'B07H25DYM3', search: 'Cooler+Master+Hyper+212+Black', image_url: null, type: 'Air Tower', tdpMax: 200, tier: 'budget' },
     { id: 'cool-11', name: 'be quiet! Dark Rock Pro 5', brand: 'be quiet!', price: 449, asin: 'B0CJY3DYQ3', search: 'be+quiet!+Dark+Rock+Pro+5', image_url: null, type: 'Air Tower', tdpMax: 250, tier: 'high-end' },
     { id: 'cool-12', name: 'Thermalright Frozen Prism 360 ARGB', brand: 'Thermalright', price: 279, asin: 'B0BWJS56BF', search: 'Thermalright+Frozen+Prism+360+ARGB', image_url: null, type: 'AIO 360mm', tdpMax: 350, tier: 'mid-range' },
-    { id: 'cool-13', name: 'NZXT Kraken 240 RGB', brand: 'NZXT', price: 549, asin: null, search: 'NZXT+Kraken+240+RGB', image_url: null, type: 'AIO 240mm', tdpMax: 200, tier: 'high-end' },
+    { id: 'cool-13', name: 'NZXT Kraken 240 RGB', brand: 'NZXT', price: 549, asin: 'B0BY3FJ4WQ', search: 'NZXT+Kraken+240+RGB', image_url: null, type: 'AIO 240mm', tdpMax: 200, tier: 'high-end' },
     { id: 'cool-14', name: 'Arctic Liquid Freezer III 240', brand: 'Arctic', price: 399, asin: 'B09VH4M76W', search: 'Arctic+Liquid+Freezer+III+240', image_url: null, type: 'AIO 240mm', tdpMax: 200, tier: 'high-end' },
     { id: 'cool-15', name: 'Noctua NH-D15 G2', brand: 'Noctua', price: 549, asin: 'B0D5B4KWMD', search: 'Noctua+NH-D15+G2', image_url: null, type: 'Air Tower', tdpMax: 250, tier: 'high-end' },
     { id: 'cool-16', name: 'ID-COOLING SE-214-XT ARGB', brand: 'ID-COOLING', price: 79, asin: 'B09Z6M8NK5', search: 'ID-COOLING+SE-214-XT+ARGB', image_url: null, type: 'Air Tower', tdpMax: 200, tier: 'budget' },
@@ -285,6 +285,17 @@ export function getRecommendedPSU(build) {
   if (needed <= 900) return 1000;
   if (needed <= 1100) return 1200;
   return 1500;
+}
+
+// ═══════ AMAZON PRODUCT IMAGES ═══════
+
+export function getAmazonImageUrl(component) {
+  if (!component) return null;
+  if (component.image_url) return component.image_url;
+  if (component.asin) {
+    return `https://m.media-amazon.com/images/P/${component.asin}._AC_SL300_.jpg`;
+  }
+  return null;
 }
 
 // ═══════ AMAZON LINKS ═══════

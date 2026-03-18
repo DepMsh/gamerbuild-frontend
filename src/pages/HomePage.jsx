@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Wrench, Cpu, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp, Zap } from 'lucide-react';
-import { PRESETS, CATEGORIES, loadPreset, calcTotal, COMPONENTS } from '../utils/db';
+import { PRESETS, CATEGORIES, loadPreset, calcTotal, COMPONENTS, getAmazonImageUrl, getById } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion } from 'framer-motion';
 
@@ -164,14 +164,14 @@ export default function HomePage() {
 
                   {/* Images row */}
                   <div className="flex items-center gap-2 mb-4">
-                    {buildComponents.cpu?.image_url && (
+                    {getAmazonImageUrl(buildComponents.cpu) && (
                       <div className="w-12 h-12 rounded-xl bg-white/[0.03] overflow-hidden flex items-center justify-center p-1.5">
-                        <img src={buildComponents.cpu.image_url} alt="" loading="lazy" className="w-full h-full object-contain" />
+                        <img src={getAmazonImageUrl(buildComponents.cpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
                       </div>
                     )}
-                    {buildComponents.gpu?.image_url && (
+                    {getAmazonImageUrl(buildComponents.gpu) && (
                       <div className="w-12 h-12 rounded-xl bg-white/[0.03] overflow-hidden flex items-center justify-center p-1.5">
-                        <img src={buildComponents.gpu.image_url} alt="" loading="lazy" className="w-full h-full object-contain" />
+                        <img src={getAmazonImageUrl(buildComponents.gpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
                       </div>
                     )}
                     <span className="text-2xl mr-auto">{preset.icon}</span>
@@ -207,8 +207,8 @@ export default function HomePage() {
               <div key={part.id} className="rounded-2xl bg-gb-card border border-gb-border overflow-hidden group card-hover">
                 {/* Image */}
                 <div className="h-24 sm:h-32 bg-white/[0.02] flex items-center justify-center p-3 relative">
-                  {part.image_url ? (
-                    <img src={part.image_url} alt="" loading="lazy" className="max-w-full max-h-full object-contain" />
+                  {getAmazonImageUrl(part) ? (
+                    <img src={getAmazonImageUrl(part)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" onError={e => { e.target.style.display='none'; }} />
                   ) : (
                     <Cpu size={32} className="text-gb-muted/30" />
                   )}
