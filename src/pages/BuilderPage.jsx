@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle } from 'lucide-react';
-import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, getAmazonImageUrl, fullCompatCheck } from '../utils/db';
+import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, getAmazonImageUrl, getAmazonImageUrlHQ, fullCompatCheck } from '../utils/db';
 import { fetchLivePrices } from '../utils/amazonAPI';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +24,7 @@ export default function BuilderPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterTier, setFilterTier] = useState('all');
+  const [visibleCount, setVisibleCount] = useState(50);
   const [livePrices, setLivePrices] = useState(new Map());
   const [livePriceStatus, setLivePriceStatus] = useState('idle');
   const livePriceFetchedRef = useRef(new Set());
@@ -109,6 +110,7 @@ export default function BuilderPage() {
     setFilterBrand('all');
     setFilterTier('all');
     setCustomMode(false);
+    setVisibleCount(50);
   };
 
   const handleSelect = (cat, item) => {
@@ -415,7 +417,7 @@ export default function BuilderPage() {
         </div>
       )}
 
-      {/* ========== FULL-SCREEN MODAL PICKER ========== */}
+      {/* ========== FULL-SCREEN PICKER — BuildCores-inspired ========== */}
       <AnimatePresence>
         {openPicker && currentCat && (
           <>
@@ -423,182 +425,204 @@ export default function BuilderPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
+              className="fixed inset-0 z-50 bg-black/80"
               onClick={() => setOpenPicker(null)}
             />
 
             <motion.div
-              initial={{ y: '100%', opacity: 0.5 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: '100%', opacity: 0 }}
-              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-              className="fixed inset-x-0 bottom-0 sm:inset-4 sm:bottom-4 sm:top-4 sm:left-auto sm:right-auto sm:mx-auto sm:max-w-4xl z-50
-                         bg-gb-bg rounded-t-2xl sm:rounded-2xl border-t sm:border border-gb-border
-                         max-h-[92vh] sm:max-h-full flex flex-col overflow-hidden shadow-2xl"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              className="fixed inset-0 z-50 bg-gb-bg flex flex-col sm:inset-2 sm:rounded-2xl sm:border sm:border-gb-border overflow-hidden"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-gb-border shrink-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-xl">{currentCat.icon}</span>
-                  <div>
-                    <h2 className="font-bold text-sm text-gb-text">{currentCat.label}</h2>
-                    <p className="text-[10px] text-gb-muted">{compatCount} متوافق</p>
+              {/* ── Header ── */}
+              <div className="shrink-0 bg-gb-bg border-b border-gb-border">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{currentCat.icon}</span>
+                    <div>
+                      <h2 className="font-display font-bold text-base text-gb-text">{currentCat.label}</h2>
+                      <p className="text-[11px] text-gb-muted">{compatCount} متوافق من {getCompatible(openPicker, components).length}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCustomMode(!customMode)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${customMode ? 'bg-gb-primary text-gb-bg' : 'bg-gb-surface text-gb-muted border border-gb-border hover:text-gb-text'}`}
+                    >
+                      + يدوي
+                    </button>
+                    <button onClick={() => setOpenPicker(null)} className="w-9 h-9 rounded-xl bg-gb-surface flex items-center justify-center text-gb-muted hover:text-gb-accent transition-colors">
+                      <X size={18} />
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setCustomMode(!customMode)}
-                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all ${customMode ? 'bg-gb-primary/15 text-gb-primary' : 'text-gb-muted hover:text-gb-text'}`}
-                  >
-                    يدوي
-                  </button>
-                  <button onClick={() => setOpenPicker(null)} className="p-2 rounded-lg text-gb-muted hover:text-gb-accent hover:bg-gb-surface transition-all">
-                    <X size={18} />
-                  </button>
-                </div>
-              </div>
 
-              {customMode ? (
-                <div className="p-4 space-y-3">
-                  <p className="text-xs text-gb-muted">أضف قطعة غير موجودة في القائمة</p>
-                  <input type="text" placeholder="اسم القطعة *" value={customInputs[openPicker]?.name || ''}
-                    onChange={e => updateCustomInput(openPicker, 'name', e.target.value)}
-                    className="w-full bg-gb-surface border border-gb-border rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:border-gb-primary/40" />
-                  <input type="number" placeholder="السعر (ر.س)" value={customInputs[openPicker]?.price || ''}
-                    onChange={e => updateCustomInput(openPicker, 'price', e.target.value)}
-                    className="w-full bg-gb-surface border border-gb-border rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:border-gb-primary/40" />
-                  <input type="url" placeholder="رابط المتجر (اختياري)" value={customInputs[openPicker]?.url || ''}
-                    onChange={e => updateCustomInput(openPicker, 'url', e.target.value)}
-                    className="w-full bg-gb-surface border border-gb-border rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:border-gb-primary/40" dir="ltr" />
-                  <button onClick={() => handleCustomAdd(openPicker)}
-                    disabled={!customInputs[openPicker]?.name?.trim()}
-                    className="w-full py-3 rounded-xl bg-gb-primary/15 text-gb-primary font-bold text-sm hover:bg-gb-primary/25 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-                    أضف
-                  </button>
-                </div>
-              ) : (
-                <>
-                  {/* Search */}
-                  <div className="px-4 pt-3 shrink-0">
+                {/* Search bar */}
+                {!customMode && (
+                  <div className="px-4 pb-3">
                     <div className="relative">
-                      <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gb-muted" />
+                      <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-gb-muted" />
                       <input
                         type="text"
-                        placeholder="ابحث عن قطعة..."
+                        placeholder={`ابحث في ${currentCat.label}...`}
                         value={searchQuery}
                         onChange={e => setSearchQuery(e.target.value)}
-                        className="w-full bg-gb-card border border-gb-border rounded-xl pr-9 pl-3 py-2.5 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:border-gb-primary/40 transition-colors"
+                        className="w-full bg-gb-surface rounded-xl pr-10 pl-4 py-2.5 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:ring-2 focus:ring-gb-primary/30 transition-all"
                         autoFocus
                       />
                     </div>
                   </div>
+                )}
 
-                  {/* Filters Row */}
-                  <div className="px-4 py-2.5 shrink-0 space-y-2">
-                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+                {/* Filter chips */}
+                {!customMode && (
+                  <div className="px-4 pb-2.5 flex flex-col gap-2">
+                    {/* Brands row */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
                       <button onClick={() => setFilterBrand('all')}
-                        className={`px-2.5 py-1 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all ${filterBrand === 'all' ? 'bg-gb-primary/15 text-gb-primary' : 'bg-gb-card text-gb-muted border border-gb-border'}`}>
+                        className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${filterBrand === 'all' ? 'bg-gb-primary text-gb-bg' : 'bg-gb-surface text-gb-muted hover:text-gb-text'}`}>
                         الكل
                       </button>
-                      {availableBrands.map(b => (
+                      {availableBrands.slice(0, 15).map(b => (
                         <button key={b} onClick={() => setFilterBrand(filterBrand === b ? 'all' : b)}
-                          className={`px-2.5 py-1 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all ${filterBrand === b ? 'bg-gb-primary/15 text-gb-primary' : 'bg-gb-card text-gb-muted border border-gb-border'}`}>
+                          className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${filterBrand === b ? 'bg-gb-primary text-gb-bg' : 'bg-gb-surface text-gb-muted hover:text-gb-text'}`}>
                           {b}
                         </button>
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1">
-                        {['all', 'budget', 'mid-range', 'high-end', 'enthusiast'].map(t => (
-                          <button key={t} onClick={() => setFilterTier(filterTier === t ? 'all' : t)}
-                            className={`px-2 py-1 rounded-lg text-[10px] font-medium whitespace-nowrap transition-all ${filterTier === t ? 'bg-gb-secondary/15 text-gb-secondary' : 'text-gb-muted'}`}>
-                            {t === 'all' ? 'كل الفئات' : tierLabels[t]}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="mr-auto flex items-center gap-2">
-                        <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                          className="text-[10px] bg-gb-card border border-gb-border rounded-lg px-2 py-1 text-gb-muted focus:outline-none">
-                          <option value="price-asc">السعر ↑</option>
-                          <option value="price-desc">السعر ↓</option>
-                          <option value="score">الأداء</option>
-                          <option value="name">الاسم</option>
-                        </select>
-                        <label className="flex items-center gap-1 text-[10px] text-gb-muted cursor-pointer whitespace-nowrap">
-                          <input type="checkbox" checked={showOnlyCompat} onChange={e => setShowOnlyCompat(e.target.checked)} className="accent-gb-primary w-3 h-3" />
-                          متوافق فقط
-                        </label>
-                      </div>
+                    {/* Tier + Sort row */}
+                    <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+                      {['all', 'budget', 'mid-range', 'high-end', 'enthusiast'].map(t => (
+                        <button key={t} onClick={() => setFilterTier(filterTier === t ? 'all' : t)}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all ${filterTier === t ? 'bg-gb-secondary text-gb-bg' : 'text-gb-muted hover:text-gb-text'}`}>
+                          {t === 'all' ? 'كل الفئات' : tierLabels[t]}
+                        </button>
+                      ))}
+                      <div className="mr-auto" />
+                      <select value={sortBy} onChange={e => setSortBy(e.target.value)}
+                        className="text-[11px] bg-gb-surface rounded-full px-3 py-1 text-gb-muted focus:outline-none cursor-pointer">
+                        <option value="price-asc">السعر ↑</option>
+                        <option value="price-desc">السعر ↓</option>
+                        <option value="score">الأداء</option>
+                        <option value="name">الاسم</option>
+                      </select>
+                      <label className="flex items-center gap-1.5 text-[11px] text-gb-muted cursor-pointer whitespace-nowrap">
+                        <input type="checkbox" checked={showOnlyCompat} onChange={e => setShowOnlyCompat(e.target.checked)} className="accent-gb-primary w-3.5 h-3.5 rounded" />
+                        متوافق
+                      </label>
                     </div>
                   </div>
+                )}
+              </div>
 
-                  {/* Grid */}
-                  <div className="flex-1 overflow-y-auto px-3 pb-4">
-                    {pickerItems.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center py-16 text-gb-muted">
-                        <SlidersHorizontal size={32} className="opacity-30 mb-3" />
-                        <p className="text-sm">لا يوجد نتائج</p>
-                        <p className="text-[10px] mt-1">جرب تغيير الفلتر أو البحث</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
-                        {pickerItems.map(item => {
-                          const isSelected = components[openPicker]?.id === item.id;
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={() => item.compatible && handleSelect(openPicker, item)}
-                              className={`rounded-xl border overflow-hidden transition-all ${
-                                !item.compatible ? 'opacity-40 border-red-500/30 cursor-not-allowed' :
-                                isSelected ? 'border-gb-primary/50 bg-gb-primary/5 ring-1 ring-gb-primary/20 cursor-pointer' :
-                                'border-gb-border bg-gb-card cursor-pointer card-hover'
-                              }`}
-                            >
-                              <div className="h-20 sm:h-28 bg-white/5 flex items-center justify-center p-2 sm:p-3">
-                                {getAmazonImageUrl(item) ? (
-                                  <img src={getAmazonImageUrl(item)} alt="" loading="lazy" className="max-w-full max-h-full object-contain"
-                                    onError={e => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = ''); }} />
-                                ) : null}
-                                <span className={`text-2xl opacity-20 ${getAmazonImageUrl(item) ? 'hidden' : ''}`}>{currentCat.icon}</span>
-                              </div>
-
-                              <div className="p-2 sm:p-2.5">
-                                <p className="text-[9px] text-gb-muted">{item.brand}</p>
-                                <p className="text-[11px] sm:text-xs font-medium text-gb-text line-clamp-2 leading-snug min-h-[2em]">{item.name}</p>
-                                <p className="text-[9px] text-gb-muted mt-0.5 truncate">{specLine(openPicker, item)}</p>
-
-                                <div className="flex items-center justify-between mt-1.5">
-                                  {item.score ? (
-                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-gb-primary/10 text-gb-primary font-bold">{item.score}</span>
-                                  ) : <span />}
-                                  <span className="text-xs sm:text-sm font-display font-bold text-gb-primary">{item.price?.toLocaleString()}</span>
-                                </div>
-
-                                {!item.compatible && item.reason && (
-                                  <p className="text-[9px] text-red-400 mt-1 truncate">{item.reason}</p>
-                                )}
-
-                                <div className="flex items-center gap-1 mt-2">
-                                  <button className={`flex-1 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
-                                    isSelected ? 'bg-gb-primary text-gb-bg' : 'bg-gb-primary/10 text-gb-primary hover:bg-gb-primary/20'
-                                  }`}>
-                                    {isSelected ? 'تم' : 'اختر'}
-                                  </button>
-                                  <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
-                                    className="p-1.5 rounded-lg bg-[#ff9900]/10 text-[#ff9900] hover:bg-[#ff9900]/20 transition-all"
-                                    onClick={e => e.stopPropagation()}>
-                                    <ExternalLink size={10} />
-                                  </a>
-                                </div>
-                              </div>
+              {/* ── Body ── */}
+              {customMode ? (
+                <div className="p-5 space-y-3 max-w-lg mx-auto w-full">
+                  <p className="text-sm text-gb-muted mb-2">أضف قطعة غير موجودة في القائمة</p>
+                  <input type="text" placeholder="اسم القطعة *" value={customInputs[openPicker]?.name || ''}
+                    onChange={e => updateCustomInput(openPicker, 'name', e.target.value)}
+                    className="w-full bg-gb-surface rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:ring-2 focus:ring-gb-primary/30" />
+                  <input type="number" placeholder="السعر (ر.س)" value={customInputs[openPicker]?.price || ''}
+                    onChange={e => updateCustomInput(openPicker, 'price', e.target.value)}
+                    className="w-full bg-gb-surface rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:ring-2 focus:ring-gb-primary/30" />
+                  <input type="url" placeholder="رابط المتجر (اختياري)" value={customInputs[openPicker]?.url || ''}
+                    onChange={e => updateCustomInput(openPicker, 'url', e.target.value)}
+                    className="w-full bg-gb-surface rounded-xl px-4 py-3 text-sm text-gb-text placeholder-gb-muted focus:outline-none focus:ring-2 focus:ring-gb-primary/30" dir="ltr" />
+                  <button onClick={() => handleCustomAdd(openPicker)}
+                    disabled={!customInputs[openPicker]?.name?.trim()}
+                    className="w-full py-3.5 rounded-xl bg-gb-primary text-gb-bg font-bold text-sm hover:opacity-90 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                    أضف للتجميعة
+                  </button>
+                </div>
+              ) : (
+                <div className="flex-1 overflow-y-auto">
+                  {pickerItems.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gb-muted">
+                      <SlidersHorizontal size={40} className="opacity-20 mb-4" />
+                      <p className="text-sm font-medium">لا يوجد نتائج</p>
+                      <p className="text-xs mt-1 opacity-60">جرب تغيير الفلتر أو البحث</p>
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-gb-border/50">
+                      {pickerItems.slice(0, visibleCount).map(item => {
+                        const isSelected = components[openPicker]?.id === item.id;
+                        const imgUrl = getAmazonImageUrl(item);
+                        return (
+                          <div
+                            key={item.id}
+                            onClick={() => item.compatible && handleSelect(openPicker, item)}
+                            className={`flex items-center gap-3 px-4 py-3 transition-all ${
+                              !item.compatible ? 'opacity-30 cursor-not-allowed' :
+                              isSelected ? 'bg-gb-primary/5 cursor-pointer' :
+                              'hover:bg-gb-surface/50 cursor-pointer active:bg-gb-surface'
+                            }`}
+                          >
+                            {/* Product image */}
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl bg-white flex items-center justify-center shrink-0 overflow-hidden p-1.5">
+                              {imgUrl ? (
+                                <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
+                                  onError={e => { e.target.style.display = 'none'; e.target.nextElementSibling && (e.target.nextElementSibling.style.display = 'flex'); }} />
+                              ) : null}
+                              <span className={`text-2xl ${imgUrl ? 'hidden' : 'flex'}`}>{currentCat.icon}</span>
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </>
+
+                            {/* Info */}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] text-gb-muted font-medium">{item.brand}</p>
+                              <p className="text-xs sm:text-sm font-bold text-gb-text leading-snug line-clamp-2">{item.name}</p>
+                              <p className="text-[10px] sm:text-[11px] text-gb-muted mt-0.5 truncate">{specLine(openPicker, item)}</p>
+
+                              <div className="flex items-center gap-2 mt-1.5">
+                                <span className="text-sm sm:text-base font-display font-black text-green-400">{item.price?.toLocaleString()} <span className="text-[10px] font-normal text-gb-muted">ر.س</span></span>
+                                {item.score ? (
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-gb-primary/10 text-gb-primary font-bold">{item.score} نقطة</span>
+                                ) : null}
+                              </div>
+
+                              {!item.compatible && item.reason && (
+                                <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1"><AlertCircle size={10} /> {item.reason}</p>
+                              )}
+                            </div>
+
+                            {/* Action */}
+                            <div className="flex flex-col items-center gap-1.5 shrink-0">
+                              <button
+                                onClick={e => { e.stopPropagation(); item.compatible && handleSelect(openPicker, item); }}
+                                className={`w-20 py-2 rounded-xl text-[11px] font-bold transition-all ${
+                                  isSelected ? 'bg-gb-primary text-gb-bg' : 'bg-gb-primary/10 text-gb-primary hover:bg-gb-primary/20'
+                                }`}
+                              >
+                                {isSelected ? '✓ تم' : 'أضف'}
+                              </button>
+                              <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
+                                className="text-[9px] text-[#ff9900] hover:underline flex items-center gap-0.5"
+                                onClick={e => e.stopPropagation()}>
+                                أمازون <ExternalLink size={8} />
+                              </a>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Footer counter + Load More ── */}
+              {!customMode && pickerItems.length > 0 && (
+                <div className="shrink-0 px-4 py-2.5 border-t border-gb-border bg-gb-bg/90 flex items-center justify-center gap-3">
+                  {visibleCount < pickerItems.length ? (
+                    <button onClick={() => setVisibleCount(v => v + 50)}
+                      className="px-4 py-1.5 rounded-lg bg-gb-primary/10 text-gb-primary text-xs font-bold hover:bg-gb-primary/20 transition-all">
+                      عرض المزيد ({Math.min(visibleCount, pickerItems.length)} / {pickerItems.length})
+                    </button>
+                  ) : (
+                    <p className="text-[11px] text-gb-muted">{pickerItems.length} قطعة</p>
+                  )}
+                </div>
               )}
             </motion.div>
           </>
