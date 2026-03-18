@@ -123,7 +123,7 @@ export default function HomePage() {
       <section className="py-5 px-4 border-y border-white/[0.04]">
         <div className="max-w-4xl mx-auto flex items-center justify-center gap-6 sm:gap-10">
           {[
-            { value: '156', label: 'قطعة' },
+            { value: '5,338', label: 'قطعة' },
             { value: '8', label: 'فئات' },
             { value: 'Amazon', label: 'أسعار' },
           ].map((s, i) => (
@@ -165,12 +165,12 @@ export default function HomePage() {
                   {/* Images row */}
                   <div className="flex items-center gap-2 mb-4">
                     {getAmazonImageUrl(buildComponents.cpu) && (
-                      <div className="w-12 h-12 rounded-xl bg-white/[0.03] overflow-hidden flex items-center justify-center p-1.5">
+                      <div className="w-14 h-14 rounded-xl bg-white/90 overflow-hidden flex items-center justify-center p-1.5">
                         <img src={getAmazonImageUrl(buildComponents.cpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
                       </div>
                     )}
                     {getAmazonImageUrl(buildComponents.gpu) && (
-                      <div className="w-12 h-12 rounded-xl bg-white/[0.03] overflow-hidden flex items-center justify-center p-1.5">
+                      <div className="w-14 h-14 rounded-xl bg-white/90 overflow-hidden flex items-center justify-center p-1.5">
                         <img src={getAmazonImageUrl(buildComponents.gpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
                       </div>
                     )}
@@ -185,7 +185,7 @@ export default function HomePage() {
 
                   <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
                     <span className="text-xs text-gb-muted">{preset.budget}</span>
-                    <span className="text-base font-display font-black text-gb-primary">{total.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
+                    <span className="text-base font-display font-black" style={{ color: '#00e676' }}>{total.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
                   </div>
                 </motion.div>
               );
@@ -206,11 +206,11 @@ export default function HomePage() {
             {popularParts.map((part) => (
               <div key={part.id} className="rounded-2xl bg-gb-card border border-gb-border overflow-hidden group card-hover">
                 {/* Image */}
-                <div className="h-24 sm:h-32 bg-white/[0.02] flex items-center justify-center p-3 relative">
+                <div className="h-24 sm:h-32 bg-white/90 flex items-center justify-center p-3 relative rounded-t-2xl">
                   {getAmazonImageUrl(part) ? (
                     <img src={getAmazonImageUrl(part)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" onError={e => { e.target.style.display='none'; }} />
                   ) : (
-                    <Cpu size={32} className="text-gb-muted/30" />
+                    <Cpu size={32} className="text-gray-300" />
                   )}
                   {/* Score badge */}
                   {part.score && (
@@ -224,7 +224,7 @@ export default function HomePage() {
                   <p className="text-[10px] text-gb-muted mb-0.5">{part.brand}</p>
                   <p className="text-[12px] sm:text-sm font-bold text-gb-text line-clamp-2 min-h-[2.4em] leading-snug">{part.name}</p>
                   <div className="flex items-center justify-between mt-3">
-                    <span className="text-sm sm:text-base font-display font-black text-gb-primary">{part.price?.toLocaleString()}</span>
+                    <span className="text-sm sm:text-base font-display font-black" style={{ color: '#00e676' }}>{part.price?.toLocaleString()}</span>
                     <Link to="/builder" className="px-3 py-1.5 rounded-lg bg-gb-primary/10 text-gb-primary text-[10px] font-bold hover:bg-gb-primary/20 transition-all flex items-center gap-1">
                       <Plus size={10} /> أضف
                     </Link>

@@ -48,6 +48,7 @@ export default function ComponentCard({
 }) {
   const Icon = typeIcons[component.type] || Cpu;
   const tierClass = tierColors[component.tier] || tierColors['mid-range'];
+  const imgUrl = getAmazonImageUrl(component);
 
   if (compact) {
     return (
@@ -55,19 +56,19 @@ export default function ComponentCard({
         ${selected ? 'bg-gb-primary/10 border-gb-primary/30' : 'bg-gb-card border-gb-border hover:border-gb-primary/20'}`}
         onClick={() => onSelect?.(component)}
       >
-        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0 overflow-hidden">
-          {getAmazonImageUrl(component) ? (
-            <img src={getAmazonImageUrl(component)} alt="" loading="lazy" className="w-full h-full object-contain p-0.5"
-              onError={e => { e.target.style.display = 'none'; e.target.parentElement.classList.add('img-fallback'); }} />
+        <div className="w-10 h-10 rounded-lg bg-white/90 flex items-center justify-center shrink-0 overflow-hidden p-0.5">
+          {imgUrl ? (
+            <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
+              onError={e => { e.target.style.display = 'none'; }} />
           ) : (
-            <Icon size={18} className="text-gb-primary" />
+            <Icon size={18} className="text-gray-400" />
           )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gb-text truncate">{component.name}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
         </div>
-        <span className="text-sm font-bold text-gb-primary whitespace-nowrap">{component.price?.toLocaleString()} ر.س</span>
+        <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>{component.price?.toLocaleString()} ر.س</span>
       </div>
     );
   }
@@ -75,7 +76,7 @@ export default function ComponentCard({
   return (
     <div className={`group relative bg-gb-card rounded-xl sm:rounded-2xl border overflow-hidden card-hover
       ${selected ? 'border-gb-primary/40 ring-1 ring-gb-primary/20' : 'border-gb-border'}`}>
-      
+
       {/* Tier badge */}
       {component.tier && (
         <div className={`absolute top-2 left-2 sm:top-3 sm:left-3 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-bold border z-10 ${tierClass}`}>
@@ -83,33 +84,32 @@ export default function ComponentCard({
         </div>
       )}
 
-      {/* Image / Icon placeholder */}
-      <div className="relative h-24 sm:h-40 bg-gradient-to-br from-gb-surface to-gb-card flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-grid opacity-30" />
-        {getAmazonImageUrl(component) ? (
-          <div className="relative z-[1] w-full h-full flex items-center justify-center bg-white/5 p-2 sm:p-3">
+      {/* Image — white background */}
+      <div className="relative h-24 sm:h-40 bg-white/90 rounded-t-xl sm:rounded-t-2xl flex items-center justify-center overflow-hidden">
+        {imgUrl ? (
+          <div className="relative z-[1] w-full h-full flex items-center justify-center p-3 sm:p-4">
             <img
-              src={getAmazonImageUrl(component)}
+              src={imgUrl}
               alt={component.name}
               loading="lazy"
               className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
-              onError={e => { e.target.closest('.bg-white\\/5').style.display = 'none'; const fallback = e.target.closest('.bg-white\\/5').nextElementSibling; if (fallback) fallback.style.display = 'flex'; }}
+              onError={e => { e.target.style.display = 'none'; const fb = e.target.closest('div').nextElementSibling; if (fb) fb.style.display = 'flex'; }}
             />
           </div>
         ) : null}
-        <div className={`${getAmazonImageUrl(component) ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
-          <Icon size={36} className="sm:hidden text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
-          <Icon size={56} className="hidden sm:block text-gb-primary/30 group-hover:text-gb-primary/50 transition-colors" strokeWidth={1} />
+        <div className={`${imgUrl ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
+          <Icon size={36} className="sm:hidden text-gray-300" strokeWidth={1} />
+          <Icon size={56} className="hidden sm:block text-gray-300" strokeWidth={1} />
         </div>
         {component.score && (
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gb-bg/80 backdrop-blur border border-gb-border flex items-center justify-center">
-            <span className="text-[10px] sm:text-sm font-display font-bold text-gb-primary">{component.score}</span>
+            <span className="text-[10px] sm:text-sm font-display font-bold text-cyan-400">{component.score}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-2.5 sm:p-4">
+      <div className="p-3 sm:p-4">
         <p className="text-[10px] sm:text-xs text-gb-muted mb-0.5 sm:mb-1 font-medium truncate">{component.brand} · {typeLabels[component.type]}</p>
         <h3 className="text-[11px] sm:text-sm font-bold text-gb-text leading-snug mb-1.5 sm:mb-3 line-clamp-2">{component.name}</h3>
 
@@ -124,7 +124,7 @@ export default function ComponentCard({
           if (c.chipset) specs.push(c.chipset);
           if (c.size && c.type) specs.push(`${c.size}GB ${c.type}`);
           if (c.speed && !c.boostClock) specs.push(`${c.speed}MHz`);
-          if (c.capacity) specs.push(c.capacity >= 1000 ? `${c.capacity/1000}TB` : `${c.capacity}GB`);
+          if (c.capacity) specs.push(typeof c.capacity === 'string' ? c.capacity : (c.capacity >= 1000 ? `${c.capacity/1000}TB` : `${c.capacity}GB`));
           if (c.watt) specs.push(`${c.watt}W`);
           if (c.rating) specs.push(c.rating);
           if (c.tdp && !c.cores) specs.push(`${c.tdp}W`);
@@ -138,13 +138,13 @@ export default function ComponentCard({
           ) : null;
         })()}
 
-        {/* Price */}
+        {/* Price — GREEN */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-lg font-display font-bold text-gb-primary">{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
+            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
             <PriceTrend componentId={component.id} />
           </div>
-          
+
           <div className="flex items-center gap-1">
             {compareMode && (
               <button
@@ -159,9 +159,7 @@ export default function ComponentCard({
             <button
               onClick={(e) => { e.stopPropagation(); onSelect?.(component); }}
               className={`p-1.5 sm:p-2 rounded-lg transition-all ${
-                selected
-                  ? 'bg-gb-primary text-gb-bg'
-                  : 'bg-gb-surface hover:bg-gb-primary/20 text-gb-muted hover:text-gb-primary'
+                selected ? 'bg-gb-primary text-gb-bg' : 'bg-gb-surface hover:bg-gb-primary/20 text-gb-muted hover:text-gb-primary'
               }`}
               title={selected ? 'تم الإضافة' : 'أضف للتجميعة'}
             >
