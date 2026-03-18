@@ -1,5 +1,5 @@
 import { Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box, Plus, Check, ArrowLeftRight, ExternalLink, HardDrive } from 'lucide-react';
-import { getAmazonLink, getAmazonImageUrl } from '../utils/db';
+import { getAmazonLink } from '../utils/db';
 import { getPriceStats } from '../utils/priceHistory';
 import ProductImage from './ProductImage';
 
@@ -48,7 +48,6 @@ export default function ComponentCard({
   compareMode = false,
 }) {
   const tierClass = tierColors[component.tier] || tierColors['mid-range'];
-  const imgUrl = getAmazonImageUrl(component);
 
   if (compact) {
     return (
@@ -56,7 +55,7 @@ export default function ComponentCard({
         ${selected ? 'bg-gb-primary/10 border-gb-primary/30' : 'bg-gb-card border-gb-border hover:border-gb-primary/20'}`}
         onClick={() => onSelect?.(component)}
       >
-        <ProductImage src={imgUrl} componentId={component.id} size="sm" className="w-10 h-10 rounded-lg shrink-0 p-0.5" />
+        <ProductImage component={component} size="sm" className="w-10 h-10 rounded-lg shrink-0 p-0.5" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gb-text truncate">{component.name}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
@@ -79,7 +78,7 @@ export default function ComponentCard({
 
       {/* Image */}
       <div className="relative">
-        <ProductImage src={imgUrl} componentId={component.id} size="lg" className="h-24 sm:h-40 w-full rounded-t-xl sm:rounded-t-2xl p-3 sm:p-4" />
+        <ProductImage component={component} size="lg" className="h-24 sm:h-40 w-full rounded-t-xl sm:rounded-t-2xl p-3 sm:p-4" />
         {component.score && (
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gb-bg/80 backdrop-blur border border-gb-border flex items-center justify-center">
             <span className="text-[10px] sm:text-sm font-display font-bold text-cyan-400">{component.score}</span>

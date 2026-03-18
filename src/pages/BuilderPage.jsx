@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown } from 'lucide-react';
-import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, getAmazonImageUrl, fullCompatCheck } from '../utils/db';
+import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
@@ -244,7 +244,7 @@ export default function BuilderPage() {
                 >
                   {/* Thumbnail */}
                   {selected ? (
-                    <ProductImage src={getAmazonImageUrl(selected)} componentId={selected.id} size="sm" className="w-12 h-12 rounded-xl shrink-0 p-1" />
+                    <ProductImage component={selected} size="sm" className="w-12 h-12 rounded-xl shrink-0 p-1" />
                   ) : (
                     <div className="w-12 h-12 rounded-xl border-2 border-dashed border-gb-border flex items-center justify-center shrink-0">
                       <Plus size={18} className="text-gb-muted" />
@@ -482,7 +482,6 @@ export default function BuilderPage() {
                     <div className="p-3 space-y-2">
                       {pickerItems.slice(0, visibleCount).map(item => {
                         const isSelected = components[openPicker]?.id === item.id;
-                        const imgUrl = getAmazonImageUrl(item);
                         return (
                           <div
                             key={item.id}
@@ -494,7 +493,7 @@ export default function BuilderPage() {
                             }`}
                           >
                             {/* Image — left */}
-                            <ProductImage src={imgUrl} componentId={item.id} className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] shrink-0 rounded-xl p-1.5 sm:p-2" />
+                            <ProductImage component={item} className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] shrink-0 rounded-xl p-1.5 sm:p-2" />
 
                             {/* Info — center */}
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
