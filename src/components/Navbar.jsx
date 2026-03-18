@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown } from 'lucide-react';
+import { Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
-// Desktop shows all, mobile bottom nav shows top 5
 const allLinks = [
   { path: '/', label: 'الرئيسية', mobileLabel: 'الرئيسية', icon: Home, mobile: true },
   { path: '/builder', label: 'جمّع جهازك', mobileLabel: 'جمّع', icon: Wrench, mobile: true },
@@ -17,83 +16,59 @@ const allLinks = [
 const mobileLinks = allLinks.filter(l => l.mobile);
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
   const location = useLocation();
   const { selectedCount, totalPrice } = useBuild();
 
-  // Close mobile menu on route change
-  useEffect(() => { setOpen(false); }, [location.pathname]);
-
-  // Prevent body scroll when menu is open
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [open]);
-
   return (
     <>
-      {/* Top bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gb-bg/80 backdrop-blur-xl border-b border-gb-border safe-top">
+      {/* Top bar — thinner, more transparent */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gb-bg/60 backdrop-blur-2xl border-b border-white/[0.04] safe-top">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+          <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center group-hover:animate-glow transition-all">
-                <Gamepad2 size={18} className="text-gb-bg" />
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center transition-all group-hover:shadow-lg group-hover:shadow-gb-primary/20">
+                <Gamepad2 size={16} className="text-gb-bg" />
               </div>
-              <span className="font-display text-base sm:text-lg font-bold tracking-wider">
+              <span className="font-display text-sm sm:text-base font-bold tracking-wider">
                 <span className="text-gb-primary">GAMER</span>
                 <span className="text-gb-text">BUILD</span>
               </span>
             </Link>
 
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop nav — underline active */}
+            <div className="hidden md:flex items-center gap-0.5">
               {allLinks.map(({ path, label, icon: Icon }) => {
                 const active = location.pathname === path;
                 return (
                   <Link
                     key={path}
                     to={path}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
-                      ${active
-                        ? 'bg-gb-primary/10 text-gb-primary border border-gb-primary/20'
-                        : 'text-gb-muted hover:text-gb-text hover:bg-gb-card'
-                      }`}
+                    className={`relative flex items-center gap-1.5 px-3 py-2 text-[13px] font-medium transition-all
+                      ${active ? 'text-gb-primary' : 'text-gb-muted hover:text-gb-text'}`}
                   >
-                    <Icon size={16} />
+                    <Icon size={14} />
                     {label}
+                    {active && (
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gb-primary" />
+                    )}
                   </Link>
                 );
               })}
             </div>
 
-            {/* Build summary pill — desktop */}
-            <div className="hidden md:flex items-center gap-3">
+            {/* Build summary pill */}
+            <div className="flex items-center">
               {selectedCount > 0 && (
                 <Link
                   to="/builder"
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-gb-card border border-gb-border hover:border-gb-primary/30 transition-all"
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gb-card/80 border border-gb-border/50 hover:border-gb-primary/30 transition-all"
                 >
-                  <div className="w-5 h-5 rounded-full bg-gb-primary/20 text-gb-primary text-xs font-bold flex items-center justify-center">
+                  <div className="w-5 h-5 rounded-full bg-gb-primary/20 text-gb-primary text-[10px] font-bold flex items-center justify-center">
                     {selectedCount}
                   </div>
-                  <span className="text-sm text-gb-muted">{totalPrice.toLocaleString()} ر.س</span>
-                </Link>
-              )}
-            </div>
-
-            {/* Mobile: build pill + menu button */}
-            <div className="flex md:hidden items-center gap-2">
-              {selectedCount > 0 && (
-                <Link
-                  to="/builder"
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gb-card border border-gb-border text-xs"
-                >
-                  <span className="w-4 h-4 rounded-full bg-gb-primary/20 text-gb-primary text-[10px] font-bold flex items-center justify-center">
-                    {selectedCount}
-                  </span>
-                  <span className="text-gb-primary font-bold">{totalPrice.toLocaleString()}</span>
+                  <span className="text-xs text-gb-primary font-display font-bold">{totalPrice.toLocaleString()}</span>
+                  <span className="text-[10px] text-gb-muted">ر.س</span>
                 </Link>
               )}
             </div>
@@ -101,9 +76,9 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile bottom navigation bar */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gb-bg/90 backdrop-blur-xl border-t border-gb-border" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-        <div className="flex items-center justify-around h-16 px-2">
+      {/* Mobile bottom nav — bigger icons, glow dot */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-gb-bg/80 backdrop-blur-2xl border-t border-white/[0.04]" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
+        <div className="flex items-center justify-around h-16 px-1">
           {mobileLinks.map(({ path, mobileLabel, icon: Icon }) => {
             const active = location.pathname === path;
             const isBuilder = path === '/builder';
@@ -111,18 +86,22 @@ export default function Navbar() {
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 rounded-xl transition-all min-h-0
+                className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 transition-all
                   ${active ? 'text-gb-primary' : 'text-gb-muted'}`}
               >
-                <div className={`relative ${isBuilder && selectedCount > 0 ? '' : ''}`}>
-                  <Icon size={20} strokeWidth={active ? 2.5 : 1.5} />
+                <div className="relative">
+                  <Icon size={22} strokeWidth={active ? 2.5 : 1.5} />
                   {isBuilder && selectedCount > 0 && (
                     <span className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-gb-accent text-white text-[8px] font-bold flex items-center justify-center">
                       {selectedCount}
                     </span>
                   )}
                 </div>
-                <span className={`text-[10px] leading-tight ${active ? 'font-bold' : 'font-medium'}`}>{mobileLabel}</span>
+                <span className={`text-[10px] leading-tight ${active ? 'font-bold' : ''}`}>{mobileLabel}</span>
+                {/* Glow dot under active */}
+                {active && (
+                  <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-gb-primary shadow-[0_0_6px_2px_rgba(0,229,255,0.5)]" />
+                )}
               </Link>
             );
           })}
