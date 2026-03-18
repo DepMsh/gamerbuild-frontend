@@ -4,6 +4,7 @@ import { Wrench, Cpu, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plu
 import { PRESETS, CATEGORIES, loadPreset, calcTotal, COMPONENTS, getAmazonImageUrl, getById } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion } from 'framer-motion';
+import ProductImage from '../components/ProductImage';
 
 const tierChips = [
   { key: 'budget', label: 'اقتصادية', color: 'from-green-400 to-emerald-500' },
@@ -164,15 +165,11 @@ export default function HomePage() {
 
                   {/* Images row */}
                   <div className="flex items-center gap-2 mb-4">
-                    {getAmazonImageUrl(buildComponents.cpu) && (
-                      <div className="w-14 h-14 rounded-xl bg-white/90 overflow-hidden flex items-center justify-center p-1.5">
-                        <img src={getAmazonImageUrl(buildComponents.cpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
-                      </div>
+                    {buildComponents.cpu && (
+                      <ProductImage src={getAmazonImageUrl(buildComponents.cpu)} componentId={buildComponents.cpu.id} size="sm" className="w-14 h-14 rounded-xl shrink-0 p-1.5" />
                     )}
-                    {getAmazonImageUrl(buildComponents.gpu) && (
-                      <div className="w-14 h-14 rounded-xl bg-white/90 overflow-hidden flex items-center justify-center p-1.5">
-                        <img src={getAmazonImageUrl(buildComponents.gpu)} alt="" loading="lazy" className="w-full h-full object-contain" onError={e => e.target.parentElement.style.display='none'} />
-                      </div>
+                    {buildComponents.gpu && (
+                      <ProductImage src={getAmazonImageUrl(buildComponents.gpu)} componentId={buildComponents.gpu.id} size="sm" className="w-14 h-14 rounded-xl shrink-0 p-1.5" />
                     )}
                     <span className="text-2xl mr-auto">{preset.icon}</span>
                   </div>
@@ -206,13 +203,8 @@ export default function HomePage() {
             {popularParts.map((part) => (
               <div key={part.id} className="rounded-2xl bg-gb-card border border-gb-border overflow-hidden group card-hover">
                 {/* Image */}
-                <div className="h-24 sm:h-32 bg-white/90 flex items-center justify-center p-3 relative rounded-t-2xl">
-                  {getAmazonImageUrl(part) ? (
-                    <img src={getAmazonImageUrl(part)} alt="" loading="lazy" className="max-w-full max-h-full object-contain" onError={e => { e.target.style.display='none'; }} />
-                  ) : (
-                    <Cpu size={32} className="text-gray-300" />
-                  )}
-                  {/* Score badge */}
+                <div className="relative">
+                  <ProductImage src={getAmazonImageUrl(part)} componentId={part.id} className="h-24 sm:h-32 w-full rounded-t-2xl p-3" />
                   {part.score && (
                     <span className="absolute top-2 left-2 w-8 h-8 rounded-full bg-gb-primary/15 text-gb-primary text-[11px] font-display font-bold flex items-center justify-center">
                       {part.score}

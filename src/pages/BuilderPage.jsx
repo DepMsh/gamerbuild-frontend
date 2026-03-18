@@ -4,6 +4,7 @@ import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazo
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
+import ProductImage from '../components/ProductImage';
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
@@ -242,15 +243,8 @@ export default function BuilderPage() {
                   onClick={() => openPickerModal(key)}
                 >
                   {/* Thumbnail */}
-                  {selected && getAmazonImageUrl(selected) ? (
-                    <div className="w-12 h-12 rounded-xl bg-white/90 overflow-hidden shrink-0 flex items-center justify-center p-1">
-                      <img src={getAmazonImageUrl(selected)} alt="" loading="lazy" className="w-full h-full object-contain"
-                        onError={e => { e.target.style.display = 'none'; }} />
-                    </div>
-                  ) : selected ? (
-                    <div className="w-12 h-12 rounded-xl bg-gb-primary/10 flex items-center justify-center shrink-0">
-                      <span className="text-xl">{icon}</span>
-                    </div>
+                  {selected ? (
+                    <ProductImage src={getAmazonImageUrl(selected)} componentId={selected.id} size="sm" className="w-12 h-12 rounded-xl shrink-0 p-1" />
                   ) : (
                     <div className="w-12 h-12 rounded-xl border-2 border-dashed border-gb-border flex items-center justify-center shrink-0">
                       <Plus size={18} className="text-gb-muted" />
@@ -500,14 +494,7 @@ export default function BuilderPage() {
                             }`}
                           >
                             {/* Image — left */}
-                            <div className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] shrink-0 rounded-xl bg-white/90 flex items-center justify-center overflow-hidden p-1.5 sm:p-2">
-                              {imgUrl ? (
-                                <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
-                                  onError={e => { e.target.style.display = 'none'; }} />
-                              ) : (
-                                <span className="text-2xl opacity-30">{currentCat?.icon}</span>
-                              )}
-                            </div>
+                            <ProductImage src={imgUrl} componentId={item.id} className="w-[80px] h-[80px] sm:w-[100px] sm:h-[100px] shrink-0 rounded-xl p-1.5 sm:p-2" />
 
                             {/* Info — center */}
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">

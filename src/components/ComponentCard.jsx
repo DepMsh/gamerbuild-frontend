@@ -1,6 +1,7 @@
 import { Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box, Plus, Check, ArrowLeftRight, ExternalLink, HardDrive } from 'lucide-react';
 import { getAmazonLink, getAmazonImageUrl } from '../utils/db';
 import { getPriceStats } from '../utils/priceHistory';
+import ProductImage from './ProductImage';
 
 const typeIcons = {
   cpu: Cpu,
@@ -46,7 +47,6 @@ export default function ComponentCard({
   compact = false,
   compareMode = false,
 }) {
-  const Icon = typeIcons[component.type] || Cpu;
   const tierClass = tierColors[component.tier] || tierColors['mid-range'];
   const imgUrl = getAmazonImageUrl(component);
 
@@ -56,14 +56,7 @@ export default function ComponentCard({
         ${selected ? 'bg-gb-primary/10 border-gb-primary/30' : 'bg-gb-card border-gb-border hover:border-gb-primary/20'}`}
         onClick={() => onSelect?.(component)}
       >
-        <div className="w-10 h-10 rounded-lg bg-white/90 flex items-center justify-center shrink-0 overflow-hidden p-0.5">
-          {imgUrl ? (
-            <img src={imgUrl} alt="" loading="lazy" className="w-full h-full object-contain"
-              onError={e => { e.target.style.display = 'none'; }} />
-          ) : (
-            <Icon size={18} className="text-gray-400" />
-          )}
-        </div>
+        <ProductImage src={imgUrl} componentId={component.id} size="sm" className="w-10 h-10 rounded-lg shrink-0 p-0.5" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-gb-text truncate">{component.name}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
@@ -84,23 +77,9 @@ export default function ComponentCard({
         </div>
       )}
 
-      {/* Image — white background */}
-      <div className="relative h-24 sm:h-40 bg-white/90 rounded-t-xl sm:rounded-t-2xl flex items-center justify-center overflow-hidden">
-        {imgUrl ? (
-          <div className="relative z-[1] w-full h-full flex items-center justify-center p-3 sm:p-4">
-            <img
-              src={imgUrl}
-              alt={component.name}
-              loading="lazy"
-              className="max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
-              onError={e => { e.target.style.display = 'none'; const fb = e.target.closest('div').nextElementSibling; if (fb) fb.style.display = 'flex'; }}
-            />
-          </div>
-        ) : null}
-        <div className={`${imgUrl ? 'hidden' : 'flex'} items-center justify-center w-full h-full`}>
-          <Icon size={36} className="sm:hidden text-gray-300" strokeWidth={1} />
-          <Icon size={56} className="hidden sm:block text-gray-300" strokeWidth={1} />
-        </div>
+      {/* Image */}
+      <div className="relative">
+        <ProductImage src={imgUrl} componentId={component.id} size="lg" className="h-24 sm:h-40 w-full rounded-t-xl sm:rounded-t-2xl p-3 sm:p-4" />
         {component.score && (
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gb-bg/80 backdrop-blur border border-gb-border flex items-center justify-center">
             <span className="text-[10px] sm:text-sm font-display font-bold text-cyan-400">{component.score}</span>
