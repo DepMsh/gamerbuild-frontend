@@ -1,16 +1,15 @@
 /**
  * sync-amazon.cjs
- * Fetches PC components from Amazon PA-API and saves to src/utils/db-amazon.js
+ * Fetches PC components from Amazon Creators API and saves to src/utils/db-amazon.js
  *
  * Usage: node scripts/sync-amazon.cjs
  *
  * Requires .env.local with:
- *   AMAZON_ACCESS_KEY=...
- *   AMAZON_SECRET_KEY=...
+ *   AMAZON_CLIENT_ID=amzn1.application-oa2-client.xxx
+ *   AMAZON_CLIENT_SECRET=amzn1.oa2-cs.v1.xxx
  *   AMAZON_PARTNER_TAG=meshal039-21
  */
 
-const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -28,86 +27,75 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-const ACCESS_KEY = process.env.AMAZON_ACCESS_KEY;
-const SECRET_KEY = process.env.AMAZON_SECRET_KEY;
+const CLIENT_ID = process.env.AMAZON_CLIENT_ID;
+const CLIENT_SECRET = process.env.AMAZON_CLIENT_SECRET;
 const PARTNER_TAG = process.env.AMAZON_PARTNER_TAG || 'meshal039-21';
 
-if (!ACCESS_KEY || !SECRET_KEY) {
-  console.error('ERROR: Missing AMAZON_ACCESS_KEY or AMAZON_SECRET_KEY in .env.local');
+if (!CLIENT_ID || !CLIENT_SECRET) {
+  console.error('ERROR: Missing AMAZON_CLIENT_ID or AMAZON_CLIENT_SECRET in .env.local');
   process.exit(1);
 }
 
-// --- PA-API Config ---
-const HOST = 'webservices.amazon.sa';
-const REGION = 'eu-west-1';
-const SERVICE = 'ProductAdvertisingAPI';
+// --- Creators API Config ---
+// Saudi Arabia is in EU region -> use api.amazon.co.uk for token
+const TOKEN_URL = 'https://api.amazon.co.uk/auth/o2/token';
+const API_BASE = 'https://creatorsapi.amazon/catalog/v1';
 
-// --- AWS Sig V4 Signing ---
-function hmac(key, data) {
-  return crypto.createHmac('sha256', key).update(data).digest();
-}
+// --- Token Cache ---
+let cachedToken = null;
+let tokenExpiresAt = 0;
 
-function sha256(data) {
-  return crypto.createHash('sha256').update(data).digest('hex');
-}
+async function getAccessToken() {
+  if (cachedToken && Date.now() < tokenExpiresAt) {
+    return cachedToken;
+  }
 
-function getSigningKey(secretKey, dateStamp) {
-  const kDate = hmac('AWS4' + secretKey, dateStamp);
-  const kRegion = hmac(kDate, REGION);
-  const kService = hmac(kRegion, SERVICE);
-  return hmac(kService, 'aws4_request');
-}
+  const body = new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: CLIENT_ID,
+    client_secret: CLIENT_SECRET,
+    scope: 'creatorsapi::default',
+  });
 
-async function paapiRequest(operation, payload) {
-  payload.PartnerTag = PARTNER_TAG;
-  payload.PartnerType = 'Associates';
-  payload.Marketplace = 'www.amazon.sa';
-
-  const apiPath = `/paapi5/${operation.toLowerCase()}`;
-  const target = `com.amazon.paapi5.v1.ProductAdvertisingAPIv1.${operation}`;
-
-  const now = new Date();
-  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
-  const dateStamp = amzDate.substring(0, 8);
-
-  const body = JSON.stringify(payload);
-  const bodyHash = sha256(body);
-
-  const headers = {
-    'content-encoding': 'amz-1.0',
-    'content-type': 'application/json; charset=utf-8',
-    'host': HOST,
-    'x-amz-date': amzDate,
-    'x-amz-target': target,
-  };
-
-  const signedHeaderKeys = Object.keys(headers).sort();
-  const signedHeaders = signedHeaderKeys.join(';');
-  const canonicalHeaders = signedHeaderKeys.map(k => `${k}:${headers[k]}\n`).join('');
-
-  const canonicalRequest = [
-    'POST', apiPath, '', canonicalHeaders, signedHeaders, bodyHash
-  ].join('\n');
-
-  const credentialScope = `${dateStamp}/${REGION}/${SERVICE}/aws4_request`;
-  const stringToSign = [
-    'AWS4-HMAC-SHA256', amzDate, credentialScope, sha256(canonicalRequest)
-  ].join('\n');
-
-  const signingKey = getSigningKey(SECRET_KEY, dateStamp);
-  const signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
-  const authorization = `AWS4-HMAC-SHA256 Credential=${ACCESS_KEY}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
-
-  const res = await fetch(`https://${HOST}${apiPath}`, {
+  const res = await fetch(TOKEN_URL, {
     method: 'POST',
-    headers: { ...headers, Authorization: authorization },
-    body,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.access_token) {
+    const errMsg = data.error_description || data.error || JSON.stringify(data);
+    throw new Error(`OAuth token failed (${res.status}): ${errMsg}`);
+  }
+
+  cachedToken = data.access_token;
+  tokenExpiresAt = Date.now() + (data.expires_in ? (data.expires_in - 30) * 1000 : 3570000);
+  return cachedToken;
+}
+
+async function creatorsApiRequest(operation, payload) {
+  payload.partnerTag = PARTNER_TAG;
+  payload.partnerType = 'Associates';
+  payload.marketplace = 'www.amazon.sa';
+
+  const token = await getAccessToken();
+
+  const res = await fetch(`${API_BASE}/${operation}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Authorization': `Bearer ${token}`,
+      'x-marketplace': 'www.amazon.sa',
+    },
+    body: JSON.stringify(payload),
   });
 
   const data = await res.json();
   if (!res.ok) {
-    const msg = data?.Errors?.[0]?.Message || data?.__type || JSON.stringify(data);
-    throw new Error(`PA-API ${operation} ${res.status}: ${msg}`);
+    const msg = data?.errors?.[0]?.message || data?.Errors?.[0]?.Message || JSON.stringify(data);
+    throw new Error(`Creators API ${operation} ${res.status}: ${msg}`);
   }
   return data;
 }
@@ -155,28 +143,31 @@ function sleep(ms) {
 }
 
 function formatItem(item) {
-  const info = item.ItemInfo || {};
-  const title = info.Title?.DisplayValue || '';
-  const brand = info.ByLineInfo?.Brand?.DisplayValue || '';
-  const features = info.Features?.DisplayValues || [];
-  const price = item.Offers?.Listings?.[0]?.Price;
-  const image = item.Images?.Primary?.Large || item.Images?.Primary?.Medium;
+  const info = item.itemInfo || item.ItemInfo || {};
+  const title = info.title?.displayValue || info.Title?.DisplayValue || '';
+  const brand = info.byLineInfo?.brand?.displayValue || info.ByLineInfo?.Brand?.DisplayValue || '';
+  const features = info.features?.displayValues || info.Features?.DisplayValues || [];
+  const offers = item.offersV2 || item.offers || item.Offers || {};
+  const listing = offers.listings?.[0] || offers.Listings?.[0] || {};
+  const price = listing.price || listing.Price;
+  const images = item.images || item.Images || {};
+  const primaryImg = images.primary || images.Primary || {};
+  const image = primaryImg.large || primaryImg.Large || primaryImg.medium || primaryImg.Medium;
 
   return {
-    asin: item.ASIN,
+    asin: item.asin || item.ASIN,
     name: title,
     brand,
-    price: price ? parseFloat(price.Amount) : null,
-    currency: price?.Currency || 'SAR',
-    image_url: image?.URL || null,
-    url: item.DetailPageURL,
+    price: price ? parseFloat(price.amount || price.Amount) : null,
+    currency: price?.currency || price?.Currency || 'SAR',
+    image_url: image?.url || image?.URL || null,
+    url: item.detailPageURL || item.DetailPageURL,
     features,
   };
 }
 
-function detectCategory(item, category) {
+function detectCategory(item) {
   const name = item.name.toLowerCase();
-  // Filter out clearly irrelevant results
   const irrelevant = ['cable', 'adapter', 'stand', 'cleaning', 'mouse', 'keyboard', 'monitor', 'headset', 'chair'];
   return !irrelevant.some(word => name.includes(word));
 }
@@ -241,10 +232,22 @@ function guessSpecs(item, category) {
 
 // --- Main ---
 async function main() {
-  console.log('Amazon PA-API Sync Script');
-  console.log('========================');
+  console.log('Amazon Creators API Sync Script');
+  console.log('===============================');
   console.log(`Partner Tag: ${PARTNER_TAG}`);
-  console.log(`Host: ${HOST}\n`);
+  console.log(`Token URL: ${TOKEN_URL}`);
+  console.log(`API Base: ${API_BASE}\n`);
+
+  // Test token first
+  console.log('Requesting OAuth access token...');
+  try {
+    await getAccessToken();
+    console.log('Token acquired successfully!\n');
+  } catch (err) {
+    console.error(`FATAL: ${err.message}`);
+    console.error('\nCheck your AMAZON_CLIENT_ID and AMAZON_CLIENT_SECRET in .env.local');
+    process.exit(1);
+  }
 
   const allResults = {};
   let totalCount = 0;
@@ -258,30 +261,31 @@ async function main() {
       console.log(`  Searching: "${query}"...`);
 
       try {
-        const data = await paapiRequest('SearchItems', {
-          Keywords: query,
-          SearchIndex: 'Computers',
-          ItemCount: 10,
-          Resources: [
-            'Images.Primary.Large',
-            'Images.Primary.Medium',
-            'ItemInfo.Title',
-            'ItemInfo.ByLineInfo',
-            'ItemInfo.Features',
-            'ItemInfo.ProductInfo',
-            'Offers.Listings.Price',
+        const data = await creatorsApiRequest('searchItems', {
+          keywords: query,
+          searchIndex: 'Computers',
+          itemCount: 10,
+          resources: [
+            'images.primary.large',
+            'images.primary.medium',
+            'itemInfo.title',
+            'itemInfo.byLineInfo',
+            'itemInfo.features',
+            'itemInfo.productInfo',
+            'offersV2.listings.price',
           ],
         });
 
-        const items = (data.SearchResult?.Items || []).map(formatItem);
+        const searchResult = data.searchResult || data.SearchResult || {};
+        const rawItems = searchResult.items || searchResult.Items || [];
+        const items = rawItems.map(formatItem);
         const filtered = items.filter(item => {
           if (seenAsins.has(item.asin)) return false;
-          if (!detectCategory(item, category)) return false;
+          if (!detectCategory(item)) return false;
           seenAsins.add(item.asin);
           return true;
         });
 
-        // Add specs guessed from name
         for (const item of filtered) {
           item.specs = guessSpecs(item, category);
           item.category = category;
@@ -310,7 +314,7 @@ async function main() {
   console.log(`\n\nGenerating db-amazon.js with ${totalCount} total items...`);
 
   let js = `// Auto-generated by sync-amazon.cjs on ${new Date().toISOString()}\n`;
-  js += `// Source: Amazon PA-API (amazon.sa)\n`;
+  js += `// Source: Amazon Creators API (amazon.sa)\n`;
   js += `// DO NOT EDIT MANUALLY - re-run 'node scripts/sync-amazon.cjs' to update\n\n`;
   js += `export const AMAZON_PRODUCTS = {\n`;
 

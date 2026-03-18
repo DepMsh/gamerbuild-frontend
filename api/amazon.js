@@ -37,49 +37,48 @@ export default async function handler(req, res) {
           valid: Object.keys(CATEGORY_KEYWORDS),
         });
       }
-      // Use the first keyword set; caller can specify q for more specific searches
       keywords = categoryKeywords[0];
     }
 
+    // Creators API uses camelCase field names
     const payload = {
-      Keywords: keywords,
-      SearchIndex: 'Computers',
-      ItemCount: 10,
-      Resources: [
-        'Images.Primary.Large',
-        'Images.Primary.Medium',
-        'ItemInfo.Title',
-        'ItemInfo.ByLineInfo',
-        'ItemInfo.Features',
-        'ItemInfo.ProductInfo',
-        'Offers.Listings.Price',
-        'BrowseNodeInfo',
+      keywords,
+      searchIndex: 'Computers',
+      itemCount: 10,
+      resources: [
+        'images.primary.large',
+        'images.primary.medium',
+        'itemInfo.title',
+        'itemInfo.byLineInfo',
+        'itemInfo.features',
+        'itemInfo.productInfo',
+        'offersV2.listings.price',
+        'browseNodeInfo.browseNodes',
       ],
     };
 
-    // Support pagination
     if (page && parseInt(page) > 1) {
-      payload.ItemPage = parseInt(page);
+      payload.itemPage = parseInt(page);
     }
 
-    const data = await paapiRequest('SearchItems', payload);
+    const data = await paapiRequest('searchItems', payload);
 
-    const items = (data.SearchResult?.Items || []).map(formatItem);
+    // Handle both camelCase (Creators API) and PascalCase (legacy) responses
+    const searchResult = data.searchResult || data.SearchResult || {};
+    const rawItems = searchResult.items || searchResult.Items || [];
+    const items = rawItems.map(formatItem);
 
     return res.status(200).json({
       category: category || null,
       query: keywords,
       count: items.length,
-      total: data.SearchResult?.TotalResultCount || 0,
+      total: searchResult.totalResultCount || searchResult.TotalResultCount || 0,
       items,
     });
   } catch (err) {
     console.error('Amazon API error:', err.message);
-    return res.status(err.message.includes('429') ? 429 : 500).json({
+    return res.status(err.message.includes('429') || err.message.includes('TooManyRequests') ? 429 : 500).json({
       error: err.message,
-      hint: err.message.includes('InvalidParameterValue')
-        ? 'Check that your PA-API credentials are correct (not OAuth2 credentials)'
-        : undefined,
     });
   }
 }

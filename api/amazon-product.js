@@ -27,27 +27,31 @@ export default async function handler(req, res) {
   const asins = asin.split(',').map(a => a.trim()).filter(Boolean).slice(0, 10);
 
   try {
+    // Creators API uses camelCase field names
     const payload = {
-      ItemIds: asins,
-      ItemIdType: 'ASIN',
-      Resources: [
-        'Images.Primary.Large',
-        'Images.Primary.Medium',
-        'Images.Variants.Large',
-        'ItemInfo.Title',
-        'ItemInfo.ByLineInfo',
-        'ItemInfo.Features',
-        'ItemInfo.ProductInfo',
-        'ItemInfo.TechnicalInfo',
-        'Offers.Listings.Price',
-        'Offers.Listings.DeliveryInfo.IsPrimeEligible',
+      itemIds: asins,
+      itemIdType: 'ASIN',
+      resources: [
+        'images.primary.large',
+        'images.primary.medium',
+        'images.variants.large',
+        'itemInfo.title',
+        'itemInfo.byLineInfo',
+        'itemInfo.features',
+        'itemInfo.productInfo',
+        'itemInfo.technicalInfo',
+        'offersV2.listings.price',
+        'offersV2.listings.availability',
       ],
     };
 
-    const data = await paapiRequest('GetItems', payload);
+    const data = await paapiRequest('getItems', payload);
 
-    const items = (data.ItemsResult?.Items || []).map(formatItem);
-    const errors = data.ItemsResult?.Errors || [];
+    // Handle both camelCase and PascalCase responses
+    const itemsResult = data.itemsResult || data.ItemsResult || {};
+    const rawItems = itemsResult.items || itemsResult.Items || [];
+    const items = rawItems.map(formatItem);
+    const errors = itemsResult.errors || itemsResult.Errors || [];
 
     return res.status(200).json({
       count: items.length,
@@ -56,7 +60,7 @@ export default async function handler(req, res) {
     });
   } catch (err) {
     console.error('Amazon Product API error:', err.message);
-    return res.status(err.message.includes('429') ? 429 : 500).json({
+    return res.status(err.message.includes('429') || err.message.includes('TooManyRequests') ? 429 : 500).json({
       error: err.message,
     });
   }

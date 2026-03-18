@@ -1,132 +1,156 @@
-import crypto from 'crypto';
+/**
+ * Amazon Creators API v3 (Login with Amazon / OAuth 2.0)
+ *
+ * Replaces PA-API v5 (AWS Sig V4) with the new Creators API:
+ * - Token endpoint: https://api.amazon.com/auth/o2/token (v3.1 NA)
+ *                   https://api.amazon.co.uk/auth/o2/token (v3.2 EU — covers .sa)
+ * - API endpoint:   https://creatorsapi.amazon/catalog/v1/{operation}
+ * - Auth: Bearer token + x-marketplace header
+ * - Scope: creatorsapi::default
+ */
 
-const HOST = 'webservices.amazon.sa';
-const REGION = 'eu-west-1';
-const SERVICE = 'ProductAdvertisingAPI';
+// --- Token Cache (in-memory, survives across requests in same Lambda instance) ---
+let cachedToken = null;
+let tokenExpiresAt = 0;
 
-function hmac(key, data) {
-  return crypto.createHmac('sha256', key).update(data).digest();
-}
+// Saudi Arabia is in the EU region for Amazon (v3.2)
+const TOKEN_URL = 'https://api.amazon.co.uk/auth/o2/token';
+const API_BASE = 'https://creatorsapi.amazon/catalog/v1';
 
-function sha256(data) {
-  return crypto.createHash('sha256').update(data).digest('hex');
-}
+/**
+ * Get an OAuth 2.0 access token using client credentials.
+ * Caches for ~59 minutes (token is valid for 60 min).
+ */
+async function getAccessToken() {
+  if (cachedToken && Date.now() < tokenExpiresAt) {
+    return cachedToken;
+  }
 
-function getSigningKey(secretKey, dateStamp) {
-  const kDate = hmac('AWS4' + secretKey, dateStamp);
-  const kRegion = hmac(kDate, REGION);
-  const kService = hmac(kRegion, SERVICE);
-  return hmac(kService, 'aws4_request');
+  const clientId = process.env.AMAZON_CLIENT_ID;
+  const clientSecret = process.env.AMAZON_CLIENT_SECRET;
+
+  if (!clientId || !clientSecret) {
+    throw new Error('Missing AMAZON_CLIENT_ID or AMAZON_CLIENT_SECRET environment variables');
+  }
+
+  const body = new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: clientId,
+    client_secret: clientSecret,
+    scope: 'creatorsapi::default',
+  });
+
+  const res = await fetch(TOKEN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: body.toString(),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || !data.access_token) {
+    const errMsg = data.error_description || data.error || JSON.stringify(data);
+    throw new Error(`OAuth token request failed (${res.status}): ${errMsg}`);
+  }
+
+  cachedToken = data.access_token;
+  // Cache for 59.5 minutes (token typically valid for 60 min)
+  tokenExpiresAt = Date.now() + (data.expires_in ? (data.expires_in - 30) * 1000 : 3570000);
+
+  return cachedToken;
 }
 
 /**
- * Signs and sends a PA-API v5 request.
- * @param {string} operation - e.g. 'SearchItems' or 'GetItems'
- * @param {object} payload - request body (without PartnerTag/PartnerType/Marketplace)
+ * Sends a Creators API request.
+ * @param {string} operation - 'searchItems', 'getItems', 'getVariations', 'getBrowseNodes'
+ * @param {object} payload - request body (camelCase fields)
  * @returns {Promise<object>} parsed JSON response
  */
 export async function paapiRequest(operation, payload) {
-  const accessKey = process.env.AMAZON_ACCESS_KEY;
-  const secretKey = process.env.AMAZON_SECRET_KEY;
   const partnerTag = process.env.AMAZON_PARTNER_TAG || 'meshal039-21';
 
-  if (!accessKey || !secretKey) {
-    throw new Error('Missing AMAZON_ACCESS_KEY or AMAZON_SECRET_KEY environment variables');
-  }
+  // Add required fields (Creators API uses camelCase)
+  payload.partnerTag = partnerTag;
+  payload.partnerType = 'Associates';
+  payload.marketplace = 'www.amazon.sa';
 
-  // Add required fields
-  payload.PartnerTag = partnerTag;
-  payload.PartnerType = 'Associates';
-  payload.Marketplace = 'www.amazon.sa';
+  const token = await getAccessToken();
+  const url = `${API_BASE}/${operation}`;
 
-  const path = `/paapi5/${operation.toLowerCase()}`;
-  const target = `com.amazon.paapi5.v1.ProductAdvertisingAPIv1.${operation}`;
-
-  const now = new Date();
-  const amzDate = now.toISOString().replace(/[:-]|\.\d{3}/g, '');
-  const dateStamp = amzDate.substring(0, 8);
-
-  const body = JSON.stringify(payload);
-  const bodyHash = sha256(body);
-
-  // Headers must be lowercase and sorted
-  const headers = {
-    'content-encoding': 'amz-1.0',
-    'content-type': 'application/json; charset=utf-8',
-    'host': HOST,
-    'x-amz-date': amzDate,
-    'x-amz-target': target,
-  };
-
-  const signedHeaderKeys = Object.keys(headers).sort();
-  const signedHeaders = signedHeaderKeys.join(';');
-  const canonicalHeaders = signedHeaderKeys.map(k => `${k}:${headers[k]}\n`).join('');
-
-  // Canonical request
-  const canonicalRequest = [
-    'POST',
-    path,
-    '', // no query string
-    canonicalHeaders,
-    signedHeaders,
-    bodyHash,
-  ].join('\n');
-
-  // String to sign
-  const credentialScope = `${dateStamp}/${REGION}/${SERVICE}/aws4_request`;
-  const stringToSign = [
-    'AWS4-HMAC-SHA256',
-    amzDate,
-    credentialScope,
-    sha256(canonicalRequest),
-  ].join('\n');
-
-  // Signature
-  const signingKey = getSigningKey(secretKey, dateStamp);
-  const signature = crypto.createHmac('sha256', signingKey).update(stringToSign).digest('hex');
-
-  // Authorization header
-  const authorization = `AWS4-HMAC-SHA256 Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
-
-  const response = await fetch(`https://${HOST}${path}`, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
-      ...headers,
-      Authorization: authorization,
+      'Content-Type': 'application/json; charset=utf-8',
+      'Authorization': `Bearer ${token}`,
+      'x-marketplace': 'www.amazon.sa',
     },
-    body,
+    body: JSON.stringify(payload),
   });
 
   const data = await response.json();
 
   if (!response.ok) {
-    const errMsg = data?.Errors?.[0]?.Message || data?.__type || JSON.stringify(data);
-    throw new Error(`PA-API ${operation} failed (${response.status}): ${errMsg}`);
+    // If token expired, clear cache and retry once
+    if (response.status === 401) {
+      cachedToken = null;
+      tokenExpiresAt = 0;
+      const retryToken = await getAccessToken();
+      const retryRes = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': `Bearer ${retryToken}`,
+          'x-marketplace': 'www.amazon.sa',
+        },
+        body: JSON.stringify(payload),
+      });
+      const retryData = await retryRes.json();
+      if (!retryRes.ok) {
+        const errMsg = retryData?.errors?.[0]?.message || retryData?.__type || JSON.stringify(retryData);
+        throw new Error(`Creators API ${operation} failed (${retryRes.status}): ${errMsg}`);
+      }
+      return retryData;
+    }
+
+    const errMsg = data?.errors?.[0]?.message || data?.Errors?.[0]?.Message || data?.__type || JSON.stringify(data);
+    throw new Error(`Creators API ${operation} failed (${response.status}): ${errMsg}`);
   }
 
   return data;
 }
 
 /**
- * Formats a PA-API item into a simplified product object.
+ * Formats a Creators API item into a simplified product object.
+ * Handles both Creators API (camelCase) and PA-API (PascalCase) response formats.
  */
 export function formatItem(item) {
-  const info = item.ItemInfo || {};
-  const title = info.Title?.DisplayValue || '';
-  const brand = info.ByLineInfo?.Brand?.DisplayValue || '';
-  const features = info.Features?.DisplayValues || [];
-  const price = item.Offers?.Listings?.[0]?.Price;
-  const image = item.Images?.Primary?.Large || item.Images?.Primary?.Medium;
+  // Creators API uses camelCase; PA-API uses PascalCase
+  const info = item.itemInfo || item.ItemInfo || {};
+  const title = info.title?.displayValue || info.Title?.DisplayValue || '';
+  const brand = info.byLineInfo?.brand?.displayValue || info.ByLineInfo?.Brand?.DisplayValue || '';
+  const features = info.features?.displayValues || info.Features?.DisplayValues || [];
+
+  // Creators API uses offersV2; legacy uses Offers
+  const offers = item.offersV2 || item.offers || item.Offers || {};
+  const listing = offers.listings?.[0] || offers.Listings?.[0] || {};
+  const price = listing.price || listing.Price;
+
+  const images = item.images || item.Images || {};
+  const primaryImg = images.primary || images.Primary || {};
+  const image = primaryImg.large || primaryImg.Large || primaryImg.medium || primaryImg.Medium;
+
+  const asin = item.asin || item.ASIN;
+  const detailUrl = item.detailPageURL || item.DetailPageURL;
 
   return {
-    asin: item.ASIN,
+    asin,
     name: title,
     brand,
-    price: price ? parseFloat(price.Amount) : null,
-    currency: price?.Currency || 'SAR',
-    price_display: price?.DisplayAmount || null,
-    image_url: image?.URL || null,
-    url: item.DetailPageURL,
+    price: price ? parseFloat(price.amount || price.Amount) : null,
+    currency: price?.currency || price?.Currency || 'SAR',
+    price_display: price?.displayAmount || price?.DisplayAmount || null,
+    image_url: image?.url || image?.URL || null,
+    url: detailUrl,
     features,
   };
 }
