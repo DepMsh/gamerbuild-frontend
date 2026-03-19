@@ -148,18 +148,20 @@ export default function BuilderPage() {
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-36 md:pb-10 px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-5 sm:mb-6">
-          <div>
-            <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
-            <p className="text-gb-muted text-xs mt-0.5">اختر القطع — بيظهر لك بس المتوافقة</p>
+        {/* Header — sticky on mobile */}
+        <div className="sticky top-14 sm:top-16 z-30 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 sm:py-0 sm:static sm:z-auto bg-gb-bg/95 backdrop-blur-xl sm:backdrop-blur-none sm:bg-transparent mb-5 sm:mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
+              <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
+            </div>
+            {selectedCount > 0 && (
+              <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/10 hover:border-red-500/30 hover:bg-red-500/5 transition-all">
+                <Trash2 size={12} />
+                مسح الكل
+              </button>
+            )}
           </div>
-          {selectedCount > 0 && (
-            <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/10 hover:border-red-500/30 hover:bg-red-500/5 transition-all">
-              <Trash2 size={12} />
-              مسح الكل
-            </button>
-          )}
         </div>
 
         {/* Progress bar — 8 circles */}
@@ -352,24 +354,23 @@ export default function BuilderPage() {
 
       {/* ========== STICKY MOBILE BOTTOM BAR ========== */}
       {selectedCount >= 1 && (
-        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-gb-bg/90 backdrop-blur-xl border-t border-gb-border px-4 py-3"
+        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-gb-bg/95 backdrop-blur-xl border-t border-gb-border px-4 py-2.5"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2.5">
-              <button onClick={() => setShowClearConfirm(true)} className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all" title="مسح الكل">
-                <Trash2 size={16} />
-              </button>
-              <div>
-                <p className="text-[10px] text-gb-muted">{selectedCount}/8 قطع</p>
-                <p className="text-lg font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></p>
-              </div>
-            </div>
-            <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
-              target="_blank" rel="noreferrer"
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all">
-              <ShoppingCart size={15} /> اشتري من أمازون
-            </a>
+          {/* Top row: clear | count | price */}
+          <div className="flex items-center justify-between mb-2">
+            <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1 text-[11px] text-red-400/70 active:text-red-400">
+              <Trash2 size={11} />
+              مسح الكل
+            </button>
+            <span className="text-[11px] text-gb-muted">{selectedCount}/8 قطع</span>
+            <span className="text-base font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
           </div>
+          {/* Bottom row: Amazon button */}
+          <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
+            target="_blank" rel="noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all">
+            <ShoppingCart size={15} /> اشتري من أمازون
+          </a>
         </div>
       )}
 
