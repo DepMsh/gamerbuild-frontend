@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown, Trash2 } from 'lucide-react';
-import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
+import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck, getDisplayName } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
@@ -256,7 +256,7 @@ export default function BuilderPage() {
                     {selected ? (
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{selected.name.startsWith(selected.brand) ? selected.name : `${selected.brand} ${selected.name}`}</p>
+                          <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{(() => { const dn = getDisplayName(selected, key); return dn.startsWith(selected.brand) ? dn : `${selected.brand} ${dn}`; })()}</p>
                           {selected.isCustom && <span className="text-[8px] px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 font-bold shrink-0">مخصص</span>}
                         </div>
                         <p className="text-[10px] sm:text-xs text-gb-muted truncate">{specLine(key, selected)}</p>
@@ -502,7 +502,7 @@ export default function BuilderPage() {
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                               <div>
                                 {!item.name.startsWith(item.brand) && <p className="text-[10px] sm:text-[11px] text-[#888] font-medium">{item.brand}</p>}
-                                <p className="text-[12px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{item.name}</p>
+                                <p className="text-[12px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{getDisplayName(item, openPicker)}</p>
                                 <p className="text-[10px] sm:text-[11px] text-[#555] mt-0.5 truncate">{specLine(openPicker, item)}</p>
                               </div>
 

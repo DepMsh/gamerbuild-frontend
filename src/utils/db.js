@@ -5617,6 +5617,64 @@ export function calcTotal(build) {
   return Object.values(build).reduce((sum, c) => sum + (c?.price || 0), 0);
 }
 
+// Rich display name — appends key specs not already in the name
+const addSpec = (name, spec) => {
+  if (!spec) return '';
+  const s = String(spec);
+  if (name.toLowerCase().includes(s.toLowerCase())) return '';
+  return ` ${s}`;
+};
+
+export function getDisplayName(component, category) {
+  if (!component) return '';
+  const name = component.name || '';
+  const cat = category || component.type || '';
+  switch (cat) {
+    case 'cpu': {
+      const clock = component.boostClock ? `${component.boostClock} GHz` : '';
+      const cores = component.cores ? `${component.cores}-Core` : '';
+      return `${name}${addSpec(name, clock)}${addSpec(name, cores)}`.trim();
+    }
+    case 'gpu': {
+      const vram = component.vram ? `${component.vram}GB` : '';
+      return `${name}${addSpec(name, vram)}`.trim();
+    }
+    case 'motherboard': {
+      const chipset = component.chipset || '';
+      const ff = component.formFactor || '';
+      const ddr = component.ramType || '';
+      return `${name}${addSpec(name, chipset)}${addSpec(name, ff)}${addSpec(name, ddr)}`.trim();
+    }
+    case 'ram': {
+      const size = component.size ? `${component.size}GB` : '';
+      const type = component.type || '';
+      const speed = component.speed ? `${component.speed}MHz` : '';
+      return `${name}${addSpec(name, size)}${addSpec(name, type)}${addSpec(name, speed)}`.trim();
+    }
+    case 'ssd': {
+      const cap = component.capacity || '';
+      const iface = component.interface || '';
+      return `${name}${addSpec(name, cap)}${addSpec(name, iface)}`.trim();
+    }
+    case 'psu': {
+      const watt = component.watt ? `${component.watt}W` : '';
+      const rating = component.rating || '';
+      return `${name}${addSpec(name, watt)}${addSpec(name, rating)}`.trim();
+    }
+    case 'cooler': {
+      const ctype = component.type || '';
+      const tdp = component.tdpMax ? `${component.tdpMax}W TDP` : '';
+      return `${name}${addSpec(name, ctype)}${addSpec(name, tdp)}`.trim();
+    }
+    case 'case': {
+      const cff = component.formFactor || '';
+      return `${name}${addSpec(name, cff)}`.trim();
+    }
+    default:
+      return name;
+  }
+}
+
 // Full compatibility check
 export function fullCompatCheck(build) {
   const errors = [], warnings = [], ok = [];
