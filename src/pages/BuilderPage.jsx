@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown } from 'lucide-react';
+import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown, Trash2 } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -39,6 +39,7 @@ export default function BuilderPage() {
   const [filterBrand, setFilterBrand] = useState('all');
   const [filterTier, setFilterTier] = useState('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
     if (openPicker) document.body.style.overflow = 'hidden';
@@ -154,7 +155,8 @@ export default function BuilderPage() {
             <p className="text-gb-muted text-xs mt-0.5">اختر القطع — بيظهر لك بس المتوافقة</p>
           </div>
           {selectedCount > 0 && (
-            <button onClick={clearBuild} className="text-xs text-gb-muted hover:text-gb-accent px-3 py-1.5 rounded-lg border border-gb-border hover:border-gb-accent/30 transition-all">
+            <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/10 hover:border-red-500/30 hover:bg-red-500/5 transition-all">
+              <Trash2 size={12} />
               مسح الكل
             </button>
           )}
@@ -349,10 +351,15 @@ export default function BuilderPage() {
       {selectedCount >= 1 && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-gb-bg/90 backdrop-blur-xl border-t border-gb-border px-4 py-3"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] text-gb-muted">{selectedCount}/8 قطع</p>
-              <p className="text-lg font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></p>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2.5">
+              <button onClick={() => setShowClearConfirm(true)} className="p-2 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-500/10 transition-all" title="مسح الكل">
+                <Trash2 size={16} />
+              </button>
+              <div>
+                <p className="text-[10px] text-gb-muted">{selectedCount}/8 قطع</p>
+                <p className="text-lg font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></p>
+              </div>
             </div>
             <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
               target="_blank" rel="noreferrer"
@@ -559,6 +566,43 @@ export default function BuilderPage() {
                   <p className="text-[11px] text-[#555]">عرض {Math.min(visibleCount, pickerItems.length)} من {pickerItems.length} قطعة</p>
                 </div>
               )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* ========== CLEAR CONFIRMATION DIALOG ========== */}
+      <AnimatePresence>
+        {showClearConfirm && (
+          <>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[60] bg-black/70" onClick={() => setShowClearConfirm(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+              className="fixed z-[60] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(320px,90vw)] bg-gb-card border border-gb-border rounded-2xl p-6 text-center shadow-2xl"
+            >
+              <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
+                <Trash2 size={22} className="text-red-400" />
+              </div>
+              <h3 className="text-base font-bold text-gb-text mb-2">متأكد تبي تمسح كل القطع؟</h3>
+              <p className="text-xs text-gb-muted mb-5">بيتم حذف {selectedCount} قطع من تجميعتك</p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="flex-1 py-2.5 rounded-xl bg-gb-surface border border-gb-border text-gb-text text-sm font-medium hover:bg-gb-surface/80 transition-all"
+                >
+                  لا
+                </button>
+                <button
+                  onClick={() => { clearBuild(); setShowClearConfirm(false); }}
+                  className="flex-1 py-2.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500/25 transition-all"
+                >
+                  أيه امسح
+                </button>
+              </div>
             </motion.div>
           </>
         )}
