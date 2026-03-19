@@ -146,21 +146,13 @@ export default function BuilderPage() {
   }, [searchQuery, filterBrand, filterTier, sortBy, showOnlyCompat]);
 
   return (
-    <div className="min-h-screen pt-20 sm:pt-24 pb-36 md:pb-10 px-3 sm:px-4">
+    <div className="min-h-screen pt-24 sm:pt-28 pb-36 md:pb-10 px-3 sm:px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header — sticky on mobile */}
         <div className="sticky top-14 sm:top-16 z-30 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 sm:py-0 sm:static sm:z-auto bg-gb-bg/95 backdrop-blur-xl sm:backdrop-blur-none sm:bg-transparent mb-5 sm:mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
-              <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
-            </div>
-            {selectedCount > 0 && (
-              <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1.5 text-xs text-red-400/70 hover:text-red-400 px-3 py-1.5 rounded-lg border border-red-500/10 hover:border-red-500/30 hover:bg-red-500/5 transition-all">
-                <Trash2 size={12} />
-                مسح الكل
-              </button>
-            )}
+          <div>
+            <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
+            <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
           </div>
         </div>
 
@@ -586,7 +578,7 @@ export default function BuilderPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ type: 'spring', damping: 25, stiffness: 400 }}
-              className="fixed z-[60] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(320px,90vw)] bg-gb-card border border-gb-border rounded-2xl p-6 text-center shadow-2xl"
+              className="fixed z-[60] top-1/2 inset-x-0 mx-auto -translate-y-1/2 w-[min(320px,calc(100vw-2rem))] bg-gb-card border border-gb-border rounded-2xl p-6 text-center shadow-2xl"
             >
               <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4">
                 <Trash2 size={22} className="text-red-400" />
