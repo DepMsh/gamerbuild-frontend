@@ -1,7 +1,8 @@
+import { useState } from 'react';
 import { useBuild } from '../hooks/BuildContext';
-import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap } from '../utils/engine';
+import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor } from '../utils/engine';
 import { getAllComponents } from '../utils/db';
-import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp } from 'lucide-react';
+import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 function checkCompat(components) {
@@ -23,9 +24,17 @@ function checkCompat(components) {
   return { issues, warnings };
 }
 
+const resolutions = [
+  { key: '1080p', label: '1080p', desc: 'Full HD' },
+  { key: '1440p', label: '1440p', desc: 'QHD' },
+  { key: '4K', label: '4K', desc: 'Ultra HD' },
+];
+
 export default function AnalysisPage() {
   const { components, selectedCount } = useBuild();
-  const bn = analyzeBottleneck(components.cpu, components.gpu);
+  const [resolution, setResolution] = useState('1080p');
+
+  const bn = analyzeBottleneck(components.cpu, components.gpu, resolution);
   const compatResult = checkCompat(components);
   const score = calcBuildScore(components, compatResult, bn);
   const recs = getRecommendations(components);
@@ -51,16 +60,34 @@ export default function AnalysisPage() {
     );
   }
 
-  const cpuScore = components.cpu?.score || 0;
+  const gamingCpu = getGamingCpuScore(components.cpu);
   const gpuScore = components.gpu?.score || 0;
-  const maxScore = Math.max(cpuScore, gpuScore, 1);
+  const bnColor = severityColor(bn?.severity);
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-2xl mx-auto">
-        <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-6">التحليل الذكي</h1>
+        <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-4">التحليل الذكي</h1>
 
-        {/* Score Circle — 200px with glow */}
+        {/* Resolution Selector */}
+        <div className="flex items-center justify-center gap-1 p-1 bg-gb-card rounded-xl border border-gb-border mb-6">
+          {resolutions.map(r => (
+            <button
+              key={r.key}
+              onClick={() => setResolution(r.key)}
+              className={`flex-1 flex flex-col items-center py-2.5 rounded-lg text-center transition-all ${
+                resolution === r.key
+                  ? 'bg-gb-primary/15 border border-gb-primary/30 text-gb-primary'
+                  : 'text-gb-muted hover:text-gb-text'
+              }`}
+            >
+              <span className="text-sm font-bold">{r.label}</span>
+              <span className="text-[9px] opacity-60">{r.desc}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Score Circle */}
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -95,8 +122,8 @@ export default function AnalysisPage() {
             className="bg-gb-card rounded-xl border border-gb-border p-3 sm:p-4 text-center"
           >
             <Cpu size={20} className="text-gb-primary mx-auto mb-2" />
-            <p className="text-lg sm:text-xl font-display font-bold text-gb-text">{cpuScore}</p>
-            <p className="text-[10px] text-gb-muted">Gaming</p>
+            <p className="text-lg sm:text-xl font-display font-bold text-gb-text">{gamingCpu}</p>
+            <p className="text-[10px] text-gb-muted">CPU Gaming</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -106,7 +133,7 @@ export default function AnalysisPage() {
           >
             <MonitorPlay size={20} className="text-gb-secondary mx-auto mb-2" />
             <p className="text-lg sm:text-xl font-display font-bold text-gb-text">{gpuScore}</p>
-            <p className="text-[10px] text-gb-muted">Productivity</p>
+            <p className="text-[10px] text-gb-muted">GPU</p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -137,22 +164,22 @@ export default function AnalysisPage() {
             {/* CPU bar */}
             <div className="mb-3">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-gb-text font-medium">CPU — {components.cpu.name}</span>
-                <span className="text-xs font-display text-gb-primary font-bold">{cpuScore}/100</span>
+                <span className="text-xs text-gb-text font-medium truncate max-w-[70%]">CPU — {components.cpu.name}</span>
+                <span className="text-xs font-display text-gb-primary font-bold">{gamingCpu}/100</span>
               </div>
               <div className="h-3 rounded-full bg-gb-bg overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: `${cpuScore}%` }}
+                  animate={{ width: `${gamingCpu}%` }}
                   transition={{ duration: 0.8, delay: 0.6 }}
                   className="h-full rounded-full bg-gradient-to-r from-gb-primary to-gb-primary/60"
                 />
               </div>
             </div>
             {/* GPU bar */}
-            <div>
+            <div className="mb-3">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs text-gb-text font-medium">GPU — {components.gpu.name}</span>
+                <span className="text-xs text-gb-text font-medium truncate max-w-[70%]">GPU — {components.gpu.name}</span>
                 <span className="text-xs font-display text-gb-secondary font-bold">{gpuScore}/100</span>
               </div>
               <div className="h-3 rounded-full bg-gb-bg overflow-hidden">
@@ -164,6 +191,11 @@ export default function AnalysisPage() {
                 />
               </div>
             </div>
+            {/* Resolution note */}
+            <p className="text-[10px] text-gb-muted/60 flex items-center gap-1 mt-1">
+              <Monitor size={10} />
+              في {resolution} {resolution === '4K' ? 'الكرت يشتغل أكثر' : resolution === '1080p' ? 'المعالج يشتغل أكثر' : 'التوزيع متوازن بينهم'}
+            </p>
           </motion.div>
         )}
 
@@ -174,36 +206,48 @@ export default function AnalysisPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
             className={`rounded-xl p-4 sm:p-5 mb-4 border ${
-              bn.severity === 'good'
+              bn.severity === 'none'
                 ? 'bg-green-500/5 border-green-500/20'
-                : bn.severity === 'warn'
+                : bn.severity === 'minor'
                 ? 'bg-yellow-500/5 border-yellow-500/20'
+                : bn.severity === 'moderate'
+                ? 'bg-orange-500/5 border-orange-500/20'
                 : 'bg-red-500/5 border-red-500/20'
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="w-8 h-8 rounded-lg flex items-center justify-center text-sm"
-                style={{ backgroundColor: (bn.severity === 'good' ? '#00e676' : bn.severity === 'warn' ? '#ffd740' : '#ff5252') + '15' }}>
-                {bn.severity === 'good' ? '✅' : '⚠️'}
+                style={{ backgroundColor: bnColor + '15' }}>
+                {bn.severity === 'none' ? '✅' : bn.severity === 'minor' ? '🟡' : '⚠️'}
               </span>
-              <span className="font-bold text-sm" style={{ color: bn.severity === 'good' ? '#00e676' : bn.severity === 'warn' ? '#ffd740' : '#ff5252' }}>
-                {bn.label}
+              <span className="font-bold text-sm" style={{ color: bnColor }}>
+                {bn.severity === 'none' ? 'تجميعة متوازنة ✓' :
+                 bn.severity === 'minor' ? 'عنق زجاجة بسيط' :
+                 bn.severity === 'moderate' ? `عنق زجاجة: ${bn.limitingComponent}` :
+                 `عنق زجاجة شديد: ${bn.limitingComponent}`}
               </span>
+              {bn.percent > 0 && (
+                <span className="text-[10px] font-display font-bold mr-auto" style={{ color: bnColor }}>
+                  {bn.percent}%
+                </span>
+              )}
             </div>
-            <p className="text-xs text-gb-muted mb-3">{bn.msg}</p>
-            <div className="h-2.5 rounded-full bg-gb-surface overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(bn.pct * 2.5, 100)}%` }}
-                transition={{ duration: 0.8, delay: 0.7 }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: bn.severity === 'good' ? '#00e676' : bn.severity === 'warn' ? '#ffd740' : '#ff5252' }}
-              />
-            </div>
+            <p className="text-xs text-gb-muted mb-3">{bn.description}</p>
+            {bn.percent > 0 && (
+              <div className="h-2.5 rounded-full bg-gb-surface overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(bn.percent * 1.5, 100)}%` }}
+                  transition={{ duration: 0.8, delay: 0.7 }}
+                  className="h-full rounded-full"
+                  style={{ backgroundColor: bnColor }}
+                />
+              </div>
+            )}
           </motion.div>
         )}
 
-        {/* Recommendations — colored left border */}
+        {/* Recommendations */}
         {recs.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

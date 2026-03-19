@@ -12,38 +12,127 @@ export const GAMES = [
   { name: "Hogwarts Legacy", icon: "🧙", needs: { "4K": 88, "1440p": 72, "1080p": 52 } },
 ];
 
-// Bottleneck analysis
-export function analyzeBottleneck(cpu, gpu) {
-  if (!cpu?.score || !gpu?.score) return null;
-  const diff = cpu.score - gpu.score;
-  const abs = Math.abs(diff);
+// ═══════ GAMING CPU SCORE ═══════
+// The raw CPU scores in the DB are multi-threaded benchmarks (Threadripper 3990X=100, 7800X3D=17).
+// For GAMING, single-thread perf + 6-8 cores + cache matter most.
+// This function normalizes to a 0-100 gaming scale comparable to GPU scores.
 
-  if (abs <= 12) return {
-    label: "متوازنة",
-    msg: "أداء متوازن ممتاز — لا عنق زجاجة",
-    severity: "good",
-    pct: abs,
-    type: "balanced"
-  };
+export function getGamingCpuScore(cpu) {
+  if (!cpu) return 50;
+  const name = (cpu.name || '').toLowerCase();
+  const clock = cpu.boostClock || 4.0;
+  const cores = cpu.cores || 4;
 
-  if (diff > 0) return {
-    label: "عنق زجاجة: GPU",
-    msg: `المعالج أقوى بـ ~${abs}% — كرت الشاشة يبطّئ الأداء`,
-    severity: abs > 25 ? "bad" : "warn",
-    pct: abs,
-    type: "gpu"
-  };
+  // Base from clock speed (single-thread perf is king for gaming)
+  let score = Math.max(0, ((clock - 3.0) / 3.0)) * 50;
+
+  // Core count (diminishing returns after 8 for gaming)
+  score += Math.min(cores, 8) * 2 + Math.max(0, cores - 8) * 0.25;
+
+  // Architecture bonuses for known gaming-excellent CPUs
+  if (name.includes('x3d')) score += 15; // 3D V-Cache is massive for gaming
+  if (name.includes('9800x3d') || name.includes('9950x3d')) score += 5;
+  if (name.includes('14900') || name.includes('13900') || name.includes('285k')) score += 8;
+  if (name.includes('14700') || name.includes('13700') || name.includes('12700')) score += 3;
+
+  // Threadripper penalty (great multi-core, bad per-core for gaming)
+  if (name.includes('threadripper')) score -= 20;
+
+  return Math.min(Math.max(Math.round(score), 10), 100);
+}
+
+// ═══════ BOTTLENECK ANALYSIS ═══════
+// Resolution-aware algorithm using normalized gaming CPU scores
+
+export function analyzeBottleneck(cpu, gpu, resolution = '1080p') {
+  if (!cpu || !gpu) return null;
+
+  const gamingCpu = getGamingCpuScore(cpu);
+  const gpuScore = gpu.score || 50;
+
+  // Resolution affects which component matters more
+  let cpuWeight, gpuWeight;
+  if (resolution === '4K') {
+    cpuWeight = 0.20; gpuWeight = 0.80; // GPU dominant at 4K
+  } else if (resolution === '1440p') {
+    cpuWeight = 0.40; gpuWeight = 0.60;
+  } else {
+    cpuWeight = 0.55; gpuWeight = 0.45; // CPU matters more at 1080p
+  }
+
+  // Effective scores weighted by resolution
+  const effectiveCpu = gamingCpu / cpuWeight;
+  const effectiveGpu = gpuScore / gpuWeight;
+  const ratio = effectiveCpu / effectiveGpu;
+
+  let bottleneckPercent = 0;
+  let limitingComponent = null;
+
+  if (ratio < 0.80) {
+    bottleneckPercent = (1 - ratio) * 33;
+    limitingComponent = 'CPU';
+  } else if (ratio > 1.30) {
+    bottleneckPercent = (1 - (1 / ratio)) * 30;
+    limitingComponent = 'GPU';
+  }
+
+  // High-end CPU correction: X3D, i9, Ultra 9 should almost never bottleneck
+  const cpuName = (cpu.name || '').toLowerCase();
+  const isHighEndCPU = cpuName.includes('x3d') || cpuName.includes('9900') || cpuName.includes('9950') ||
+    cpuName.includes('14900') || cpuName.includes('13900') || cpuName.includes('285k') || gamingCpu >= 75;
+
+  if (limitingComponent === 'CPU' && isHighEndCPU) {
+    bottleneckPercent = Math.max(0, bottleneckPercent - 30);
+  }
+
+  // Budget CPU + high-end GPU = real bottleneck
+  const isBudgetCPU = gamingCpu < 35;
+  const isHighEndGPU = gpuScore >= 70;
+  if (isBudgetCPU && isHighEndGPU) {
+    bottleneckPercent = Math.max(bottleneckPercent, 35);
+    limitingComponent = 'CPU';
+  }
+
+  // Cap at reasonable values
+  bottleneckPercent = Math.min(Math.round(bottleneckPercent), 60);
+
+  // Determine severity
+  let severity, description;
+  if (bottleneckPercent <= 5) {
+    severity = 'none';
+    limitingComponent = null;
+    description = 'تجميعة متوازنة — أداء ممتاز بين المعالج والكرت';
+  } else if (bottleneckPercent <= 15) {
+    severity = 'minor';
+    description = limitingComponent === 'CPU'
+      ? 'عنق زجاجة بسيط من المعالج — لن تلاحظه في أغلب الألعاب'
+      : 'عنق زجاجة بسيط من الكرت — لن تلاحظه في أغلب الألعاب';
+  } else if (bottleneckPercent <= 35) {
+    severity = 'moderate';
+    description = limitingComponent === 'CPU'
+      ? 'عنق زجاجة — المعالج يحد من أداء الكرت. يُنصح بترقية المعالج'
+      : 'عنق زجاجة — الكرت يحد من الأداء. يُنصح بترقية كرت الشاشة';
+  } else {
+    severity = 'severe';
+    description = limitingComponent === 'CPU'
+      ? 'عنق زجاجة شديد — المعالج ضعيف جداً مقارنة بالكرت'
+      : 'عنق زجاجة شديد — الكرت ضعيف جداً مقارنة بالمعالج';
+  }
 
   return {
-    label: "عنق زجاجة: CPU",
-    msg: `كرت الشاشة أقوى بـ ~${abs}% — المعالج يبطّئ الأداء`,
-    severity: abs > 25 ? "bad" : "warn",
-    pct: abs,
-    type: "cpu"
+    percent: bottleneckPercent,
+    limitingComponent,
+    severity,
+    description,
+    gamingCpuScore: gamingCpu,
+    gpuScore,
+    resolution,
+    balanced: bottleneckPercent <= 10,
   };
 }
 
-// Build score (0-100)
+// ═══════ BUILD SCORE ═══════
+
 export function calcBuildScore(components, compatResult, bottleneck) {
   const filled = Object.values(components).filter(Boolean).length;
   if (filled === 0) return 0;
@@ -52,20 +141,25 @@ export function calcBuildScore(components, compatResult, bottleneck) {
   // Part completion (30 pts)
   score += Math.round((filled / 7) * 30);
   // Compatibility (30 pts)
-  score += (compatResult?.issues?.length === 0) ? 30 : (compatResult?.issues?.length === 1 ? 15 : 0);
+  const errors = compatResult?.errors?.length || compatResult?.issues?.length || 0;
+  score += errors === 0 ? 30 : (errors === 1 ? 15 : 0);
   // Balance (25 pts)
-  if (bottleneck?.severity === "good") score += 25;
-  else if (bottleneck?.severity === "warn") score += 12;
+  if (bottleneck?.severity === 'none') score += 25;
+  else if (bottleneck?.severity === 'minor') score += 20;
+  else if (bottleneck?.severity === 'moderate') score += 10;
   // Warnings (15 pts)
-  score += (compatResult?.warnings?.length === 0) ? 15 : 5;
+  const warnings = compatResult?.warnings?.length || 0;
+  score += warnings === 0 ? 15 : 5;
 
   return Math.min(score, 100);
 }
 
-// FPS prediction per game
+// ═══════ FPS PREDICTION ═══════
+
 export function predictFPS(components, game) {
-  if (!components.cpu?.score || !components.gpu?.score) return null;
-  const avg = (components.cpu.score + components.gpu.score) / 2;
+  if (!components.cpu || !components.gpu?.score) return null;
+  const gamingCpu = getGamingCpuScore(components.cpu);
+  const avg = (gamingCpu + components.gpu.score) / 2;
   const results = {};
 
   for (const [setting, req] of Object.entries(game.needs)) {
@@ -78,24 +172,26 @@ export function predictFPS(components, game) {
   return results;
 }
 
-// Smart recommendations
+// ═══════ SMART RECOMMENDATIONS ═══════
+
 export function getRecommendations(components) {
-  if (!components.cpu?.score || !components.gpu?.score) return [];
-  const avg = (components.cpu.score + components.gpu.score) / 2;
+  if (!components.cpu || !components.gpu?.score) return [];
+  const gamingCpu = getGamingCpuScore(components.cpu);
+  const avg = (gamingCpu + components.gpu.score) / 2;
   const recs = [];
   const bn = analyzeBottleneck(components.cpu, components.gpu);
 
-  if (avg >= 90) {
+  if (avg >= 80) {
     recs.push({ icon: "🟢", text: "ممتازة لـ 4K Ultra في كل الألعاب" });
     recs.push({ icon: "🟢", text: "ممتازة للستريم + القيمنق بنفس الوقت" });
-  } else if (avg >= 80) {
+  } else if (avg >= 65) {
     recs.push({ icon: "🟢", text: "ممتازة لـ 1440p Ultra" });
     recs.push({ icon: "🟡", text: "4K ممكنة بتنازلات على الإعدادات" });
-  } else if (avg >= 65) {
+  } else if (avg >= 50) {
     recs.push({ icon: "🟢", text: "قوية لـ 1080p Ultra" });
     recs.push({ icon: "🟡", text: "1440p High — سلسة في أغلب الألعاب" });
     recs.push({ icon: "🔴", text: "غير مناسبة لـ 4K الثقيل" });
-  } else if (avg >= 50) {
+  } else if (avg >= 35) {
     recs.push({ icon: "🟢", text: "كافية لـ 1080p High في التنافسية" });
     recs.push({ icon: "🔴", text: "1440p غير مريحة في AAA" });
   } else {
@@ -103,14 +199,15 @@ export function getRecommendations(components) {
     recs.push({ icon: "🟢", text: "الألعاب الخفيفة سلسة" });
   }
 
-  if (bn?.type === "gpu") recs.push({ icon: "⬆️", text: "ارفع كرت الشاشة أولاً — المعالج ممتاز" });
-  else if (bn?.type === "cpu") recs.push({ icon: "⬆️", text: "ارفع المعالج أولاً — الكرت ممتاز" });
+  if (bn?.limitingComponent === 'GPU') recs.push({ icon: "⬆️", text: "ارفع كرت الشاشة أولاً — المعالج ممتاز" });
+  else if (bn?.limitingComponent === 'CPU') recs.push({ icon: "⬆️", text: "ارفع المعالج أولاً — الكرت ممتاز" });
   else if (bn) recs.push({ icon: "✅", text: "لا تغيّر شيء الآن — التوازن ممتاز" });
 
   return recs;
 }
 
-// Compare worth-it analysis
+// ═══════ COMPARE WORTH-IT ═══════
+
 export function compareWorthIt(a, b) {
   if (!a?.score || !b?.score) return null;
   const perfDiff = Math.round(((b.score - a.score) / a.score) * 100);
@@ -126,21 +223,22 @@ export function compareWorthIt(a, b) {
   return { perfDiff, priceDiff, ratio, verdict, color };
 }
 
-// Upgrade roadmap
+// ═══════ UPGRADE ROADMAP ═══════
+
 export function getUpgradeRoadmap(components, allComponents) {
   if (!components.cpu || !components.gpu) return [];
   const bn = analyzeBottleneck(components.cpu, components.gpu);
   const items = [];
 
-  if (bn?.type === "gpu" || bn?.type === "balanced") {
+  if (bn?.limitingComponent === 'GPU' || !bn?.limitingComponent) {
     const betterGPUs = allComponents
       .filter(c => c.type === 'gpu' && c.score > components.gpu.score)
       .sort((a, b) => a.price - b.price);
 
     if (betterGPUs.length) {
       items.push({
-        priority: bn?.type === "gpu" ? 1 : 2,
-        label: bn?.type === "gpu" ? "كرت الشاشة (الأولوية)" : "كرت الشاشة (تحسين)",
+        priority: bn?.limitingComponent === 'GPU' ? 1 : 2,
+        label: bn?.limitingComponent === 'GPU' ? "كرت الشاشة (الأولوية)" : "كرت الشاشة (تحسين)",
         icon: "🎨",
         current: components.gpu,
         options: [
@@ -152,8 +250,7 @@ export function getUpgradeRoadmap(components, allComponents) {
     }
   }
 
-  if (bn?.type === "cpu" || bn?.type === "balanced") {
-    // Same socket CPUs first
+  if (bn?.limitingComponent === 'CPU' || !bn?.limitingComponent) {
     const sameSocket = allComponents
       .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.socket === components.cpu.socket)
       .sort((a, b) => a.price - b.price);
@@ -170,8 +267,8 @@ export function getUpgradeRoadmap(components, allComponents) {
 
     if (opts.length) {
       items.push({
-        priority: bn?.type === "cpu" ? 1 : 2,
-        label: bn?.type === "cpu" ? "المعالج (الأولوية)" : "المعالج (تحسين)",
+        priority: bn?.limitingComponent === 'CPU' ? 1 : 2,
+        label: bn?.limitingComponent === 'CPU' ? "المعالج (الأولوية)" : "المعالج (تحسين)",
         icon: "🧠",
         current: components.cpu,
         options: opts
@@ -182,7 +279,8 @@ export function getUpgradeRoadmap(components, allComponents) {
   return items.sort((a, b) => a.priority - b.priority);
 }
 
-// Chat responses
+// ═══════ CHAT RESPONSES ═══════
+
 export function getChatResponse(message, components, recommendations, roadmap) {
   const lower = message.toLowerCase();
 
@@ -201,7 +299,7 @@ export function getChatResponse(message, components, recommendations, roadmap) {
   if (lower.includes("عنق") || lower.includes("bottleneck")) {
     const bn = analyzeBottleneck(components.cpu, components.gpu);
     if (!bn) return "اختر معالج وكرت شاشة أولاً 🔍";
-    return `${bn.severity === "good" ? "✅" : "⚠️"} ${bn.label}\n${bn.msg}`;
+    return `${bn.severity === 'none' ? "✅" : "⚠️"} ${bn.severity === 'none' ? 'تجميعة متوازنة' : `عنق زجاجة: ${bn.limitingComponent}`}\n${bn.description}`;
   }
 
   if (lower.includes("أشتري") || lower.includes("متجر") || lower.includes("شراء")) {
@@ -215,11 +313,13 @@ export function getChatResponse(message, components, recommendations, roadmap) {
   return "جرب تسألني عن:\n📊 قيّم تجميعتي\n🔧 وش أرقّي أول\n🔍 عنق الزجاجة\n🛒 وين أشتري\n💰 الميزانيات";
 }
 
-// Color helpers
+// ═══════ COLOR HELPERS ═══════
+
 export function severityColor(sev) {
-  if (sev === "good") return "#00e676";
-  if (sev === "warn") return "#ffd740";
-  return "#ff5252";
+  if (sev === 'none') return '#00e676';
+  if (sev === 'minor') return '#ffd740';
+  if (sev === 'moderate') return '#ff9100';
+  return '#ff5252';
 }
 
 export function fpsColor(level) {
