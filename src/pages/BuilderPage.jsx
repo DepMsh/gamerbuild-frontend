@@ -328,6 +328,9 @@ export default function BuilderPage() {
               </div>
               <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
             </div>
+            {selectedCount >= 1 && (
+              <p className="text-[9px] text-gb-muted/60 text-left mt-1.5">* الأسعار تقديرية وقد تختلف عن سعر أمازون الفعلي</p>
+            )}
             {selectedCount >= 2 && (
               <div className="mt-3 flex gap-2">
                 <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}

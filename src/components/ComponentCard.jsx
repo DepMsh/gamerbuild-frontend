@@ -157,6 +157,7 @@ export default function ComponentCard({
           اشتري من أمازون
           <ExternalLink size={10} />
         </a>
+        <p className="text-[8px] sm:text-[9px] text-gb-muted/50 text-center mt-1.5 leading-tight">* سعر تقديري — اضغط لمعرفة السعر الحالي</p>
       </div>
     </div>
   );
