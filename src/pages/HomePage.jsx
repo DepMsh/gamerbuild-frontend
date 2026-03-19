@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Wrench, Cpu, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp, Zap } from 'lucide-react';
+import { Wrench, Cpu, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp, Zap, ChevronLeft } from 'lucide-react';
 import { PRESETS, CATEGORIES, loadPreset, calcTotal, COMPONENTS } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import { motion } from 'framer-motion';
@@ -12,6 +12,13 @@ const tierChips = [
   { key: 'highEnd', label: 'عالية', color: 'from-purple-400 to-violet-500' },
   { key: 'enthusiast', label: 'خرافية', color: 'from-pink-400 to-red-500' },
 ];
+
+const presetCardStyles = {
+  budget:     { bg: 'from-green-950/80 via-emerald-950/60 to-gb-card', border: 'border-green-500/20 hover:border-green-400/40', glow: 'group-hover:shadow-green-500/10', text: 'from-green-400 to-emerald-300' },
+  midRange:   { bg: 'from-blue-950/80 via-cyan-950/60 to-gb-card', border: 'border-blue-500/20 hover:border-blue-400/40', glow: 'group-hover:shadow-blue-500/10', text: 'from-blue-400 to-cyan-300' },
+  highEnd:    { bg: 'from-purple-950/80 via-violet-950/60 to-gb-card', border: 'border-purple-500/20 hover:border-purple-400/40', glow: 'group-hover:shadow-purple-500/10', text: 'from-purple-400 to-violet-300' },
+  enthusiast: { bg: 'from-pink-950/80 via-red-950/60 to-gb-card', border: 'border-pink-500/20 hover:border-pink-400/40', glow: 'group-hover:shadow-pink-500/10', text: 'from-pink-400 to-red-300' },
+};
 
 const featureCards = [
   { icon: Shield, title: 'فحص توافق', desc: 'تأكد تلقائي من توافق كل القطع', gradient: 'from-green-500/20 to-emerald-500/10', iconColor: 'text-green-400', borderColor: 'border-green-500/20' },
@@ -136,7 +143,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========== PRESETS — horizontal swipeable cards ========== */}
+      {/* ========== PRESETS — clean text-only cards ========== */}
       <section className="py-12 sm:py-16 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between mb-6">
@@ -144,45 +151,50 @@ export default function HomePage() {
             <Link to="/builder" className="text-xs text-gb-muted hover:text-gb-primary transition-colors">تصفح الكل</Link>
           </div>
 
-          {/* Horizontal scroll */}
           <div ref={presetsRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory -mx-4 px-4">
             {PRESETS.map((preset) => {
               const buildComponents = loadPreset(preset.key);
               const total = calcTotal(buildComponents);
-              const tierStyle = tierChips.find(t => t.key === preset.key);
+              const style = presetCardStyles[preset.key] || presetCardStyles.budget;
               return (
                 <motion.div
                   key={preset.key}
                   whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.97 }}
                   onClick={() => handleLoadBuild(preset.key)}
-                  className="shrink-0 w-[280px] sm:w-[320px] snap-start cursor-pointer rounded-2xl bg-gb-card border border-gb-border p-5 sm:p-6 relative overflow-hidden group"
+                  className={`group shrink-0 w-[260px] sm:w-[300px] snap-start cursor-pointer rounded-2xl bg-gradient-to-br ${style.bg} border ${style.border} p-6 sm:p-7 relative overflow-hidden transition-all duration-300 shadow-lg ${style.glow} group-hover:shadow-xl`}
                 >
-                  {/* Gradient border on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                    <div className="absolute inset-0 rounded-2xl border border-gb-primary/30" />
-                  </div>
+                  {/* Subtle grid overlay */}
+                  <div className="absolute inset-0 bg-grid opacity-[0.03] pointer-events-none" />
 
-                  {/* Images row */}
-                  <div className="flex items-center gap-2 mb-4">
-                    {buildComponents.cpu && (
-                      <ProductImage component={buildComponents.cpu} size="sm" className="w-14 h-14 rounded-xl shrink-0 p-1.5" />
-                    )}
-                    {buildComponents.gpu && (
-                      <ProductImage component={buildComponents.gpu} size="sm" className="w-14 h-14 rounded-xl shrink-0 p-1.5" />
-                    )}
-                    <span className="text-2xl mr-auto">{preset.icon}</span>
-                  </div>
+                  <div className="relative z-10">
+                    {/* Icon + Tier label */}
+                    <div className="flex items-center justify-between mb-5">
+                      <span className="text-4xl">{preset.icon}</span>
+                      <span className="text-[10px] px-2.5 py-1 rounded-full bg-white/[0.06] text-gb-muted font-medium">{preset.budget}</span>
+                    </div>
 
-                  <h3 className={`text-base sm:text-lg font-bold mb-1 bg-gradient-to-l ${tierStyle?.color || 'from-cyan-400 to-blue-500'} bg-clip-text text-transparent`}>
-                    {preset.name}
-                  </h3>
-                  <p className="text-[11px] text-gb-muted truncate">{buildComponents.cpu?.name}</p>
-                  <p className="text-[11px] text-gb-muted truncate mb-4">{buildComponents.gpu?.name}</p>
+                    {/* Name */}
+                    <h3 className={`font-display text-xl sm:text-2xl font-black mb-2 bg-gradient-to-l ${style.text} bg-clip-text text-transparent`}>
+                      {preset.name}
+                    </h3>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
-                    <span className="text-xs text-gb-muted">{preset.budget}</span>
-                    <span className="text-base font-display font-black" style={{ color: '#00e676' }}>{total.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
+                    {/* Description */}
+                    <p className="text-xs text-gb-muted leading-relaxed mb-6">{preset.desc}</p>
+
+                    {/* Price */}
+                    <div className="flex items-end justify-between pt-4 border-t border-white/[0.06]">
+                      <div>
+                        <p className="text-[10px] text-gb-muted mb-0.5">المجموع</p>
+                        <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>
+                          {total.toLocaleString()} <span className="text-xs text-gb-muted font-body">ر.س</span>
+                        </span>
+                      </div>
+                      <span className="flex items-center gap-1 text-[11px] text-gb-muted group-hover:text-gb-primary transition-colors font-medium">
+                        اختر هذي التجميعة
+                        <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
               );
