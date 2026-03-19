@@ -386,32 +386,32 @@ export default function BuilderPage() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              style={{ paddingTop: 'env(safe-area-inset-top, 44px)' }}
               className="fixed inset-0 z-50 bg-[#0a0a14] flex flex-col sm:inset-2 sm:rounded-2xl sm:border sm:border-[#1e1e2e] overflow-hidden"
             >
               {/* ── Header ── */}
-              <div className="shrink-0 bg-[#0e0e18] border-b border-[#1e1e2e]">
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{currentCat.icon}</span>
-                    <div>
-                      <h2 className="font-display font-bold text-base text-white">{currentCat.label}</h2>
-                      <p className="text-[11px] text-[#666]">{compatCount} متوافق من {getCompatible(openPicker, components).length}</p>
-                    </div>
+              <div className="shrink-0 sticky top-0 z-10 bg-[#0a0a14]">
+                <div className="flex items-center justify-between px-4 min-h-[56px]">
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-xl">{currentCat.icon}</span>
+                    <h2 className="font-display font-bold text-base text-white">{currentCat.label}</h2>
+                    <span className="text-[11px] text-[#555] font-medium">{compatCount} متوافق</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setCustomMode(!customMode)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${customMode ? 'bg-cyan-500 text-[#0a0a14]' : 'bg-[#1a1a2e] text-[#888] border border-[#2a2a3e] hover:text-white'}`}>
+                      className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all ${customMode ? 'bg-cyan-500 text-[#0a0a14]' : 'text-[#666] hover:text-white'}`}>
                       + يدوي
                     </button>
-                    <button onClick={() => setOpenPicker(null)} className="w-9 h-9 rounded-xl bg-[#1a1a2e] flex items-center justify-center text-[#666] hover:text-red-400 transition-colors">
-                      <X size={18} />
+                    <button onClick={() => setOpenPicker(null)} className="w-10 h-10 rounded-xl bg-[#1a1a2e] flex items-center justify-center text-[#888] hover:text-red-400 transition-colors">
+                      <X size={20} />
                     </button>
                   </div>
                 </div>
+                <div className="border-b border-[#1e1e2e]" />
 
                 {/* Search */}
                 {!customMode && (
-                  <div className="px-4 pb-3">
+                  <div className="px-4 pt-3 pb-3">
                     <div className="relative">
                       <Search size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#555]" />
                       <input type="text" placeholder={`ابحث في ${currentCat.label}...`}
