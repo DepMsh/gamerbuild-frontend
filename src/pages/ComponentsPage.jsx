@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box } from 'lucide-react';
-import { getAllComponents, COMPONENTS } from '../utils/db';
+import { getAllComponents, getSortedComponents } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import ComponentCard from '../components/ComponentCard';
 
@@ -16,6 +16,7 @@ const typeFilters = [
 ];
 
 const sortOptions = [
+  { key: 'smart', label: 'الترتيب الافتراضي' },
   { key: 'price-asc', label: 'السعر: الأقل' },
   { key: 'price-desc', label: 'السعر: الأعلى' },
   { key: 'score-desc', label: 'الأداء: الأعلى' },
@@ -25,12 +26,12 @@ const sortOptions = [
 export default function ComponentsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState('price-asc');
+  const [sortBy, setSortBy] = useState('smart');
   const [brandFilter, setBrandFilter] = useState('all');
   const { components: buildComponents, setComponent } = useBuild();
 
   const allComponents = useMemo(() => {
-    let list = typeFilter === 'all' ? getAllComponents() : COMPONENTS[typeFilter] || [];
+    let list = typeFilter === 'all' ? getAllComponents() : getSortedComponents(typeFilter);
 
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
@@ -41,21 +42,23 @@ export default function ComponentsPage() {
       list = list.filter(c => c.brand === brandFilter);
     }
 
-    list.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-asc': return (a.price || 0) - (b.price || 0);
-        case 'price-desc': return (b.price || 0) - (a.price || 0);
-        case 'score-desc': return (b.score || 0) - (a.score || 0);
-        case 'name': return a.name.localeCompare(b.name);
-        default: return 0;
-      }
-    });
+    if (sortBy !== 'smart') {
+      list = [...list].sort((a, b) => {
+        switch (sortBy) {
+          case 'price-asc': return (a.price || 0) - (b.price || 0);
+          case 'price-desc': return (b.price || 0) - (a.price || 0);
+          case 'score-desc': return (b.score || 0) - (a.score || 0);
+          case 'name': return a.name.localeCompare(b.name);
+          default: return 0;
+        }
+      });
+    }
 
     return list;
   }, [typeFilter, searchQuery, sortBy, brandFilter]);
 
   const brands = useMemo(() => {
-    const source = typeFilter === 'all' ? getAllComponents() : COMPONENTS[typeFilter] || [];
+    const source = typeFilter === 'all' ? getAllComponents() : getSortedComponents(typeFilter);
     return [...new Set(source.map(c => c.brand))];
   }, [typeFilter]);
 

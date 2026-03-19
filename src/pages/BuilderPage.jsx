@@ -30,7 +30,7 @@ const PAGE_SIZE = 50;
 export default function BuilderPage() {
   const { components, setComponent, removeComponent, clearBuild, totalPrice, selectedCount } = useBuild();
   const [openPicker, setOpenPicker] = useState(null);
-  const [sortBy, setSortBy] = useState('price-asc');
+  const [sortBy, setSortBy] = useState('smart');
   const [showOnlyCompat, setShowOnlyCompat] = useState(true);
   const [priceHistoryOpen, setPriceHistoryOpen] = useState(null);
   const [customMode, setCustomMode] = useState(false);
@@ -57,9 +57,11 @@ export default function BuilderPage() {
     }
     if (filterBrand !== 'all') items = items.filter(c => c.brand === filterBrand);
     if (filterTier !== 'all') items = items.filter(c => c.tier === filterTier);
+    // Incompatible items always at the end
     items.sort((a, b) => {
       if (!a.compatible && b.compatible) return 1;
       if (a.compatible && !b.compatible) return -1;
+      if (sortBy === 'smart') return 0; // keep getSortedComponents order
       switch (sortBy) {
         case 'price-asc': return a.price - b.price;
         case 'price-desc': return b.price - a.price;
@@ -445,6 +447,7 @@ export default function BuilderPage() {
                       <div className="mr-auto" />
                       <select value={sortBy} onChange={e => setSortBy(e.target.value)}
                         className="text-[11px] bg-[#1a1a2e] border border-[#2a2a3e] rounded-full px-3 py-1 text-[#888] focus:outline-none cursor-pointer">
+                        <option value="smart">الترتيب الافتراضي</option>
                         <option value="price-asc">السعر ↑</option>
                         <option value="price-desc">السعر ↓</option>
                         <option value="score">الأداء</option>

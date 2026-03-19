@@ -5493,7 +5493,7 @@ export const PRESETS = [
 // ═══════ SMART COMPATIBILITY ═══════
 
 export function getCompatible(category, currentBuild) {
-  const items = COMPONENTS[category] || [];
+  const items = getSortedComponents(category);
   if (!currentBuild) return items.map(c => ({ ...c, compatible: true, reason: null }));
 
   return items.map(component => {
@@ -5594,11 +5594,258 @@ export function getById(id) {
   return null;
 }
 
+// ═══════ SMART SORTING ═══════
+
+function cpuLineOrder(name) {
+  const n = name.toLowerCase();
+  // AMD Ryzen 9000 X3D → 9000 → 7000 X3D → 7000 → 5000 X3D → 5000 → 3000 → 2000 → 1000
+  // Intel Ultra → 14th → 13th → 12th → 11th → 10th
+  // Threadripper / EPYC last
+  if (n.includes('threadripper') || n.includes('epyc')) return 90;
+  // AMD generations
+  if (n.includes('ryzen')) {
+    if (/9[0-9]{3}x3d/.test(n)) return 1;
+    if (/9[0-9]{3}/.test(n))    return 2;
+    if (/7[0-9]{3}x3d/.test(n)) return 3;
+    if (/7[0-9]{3}/.test(n))    return 4;
+    if (/5[0-9]{3}x3d/.test(n)) return 5;
+    if (/5[0-9]{3}/.test(n))    return 6;
+    if (/4[0-9]{3}/.test(n))    return 7;
+    if (/3[0-9]{3}/.test(n))    return 8;
+    if (/2[0-9]{3}/.test(n))    return 9;
+    if (/1[0-9]{3}/.test(n))    return 10;
+    return 11;
+  }
+  // Intel generations
+  if (n.includes('core ultra'))  return 20;
+  if (/i[3579]-1[5]/.test(n))   return 21;
+  if (/i[3579]-14/.test(n))     return 22;
+  if (/i[3579]-13/.test(n))     return 23;
+  if (/i[3579]-12/.test(n))     return 24;
+  if (/i[3579]-11/.test(n))     return 25;
+  if (/i[3579]-10/.test(n))     return 26;
+  if (n.includes('intel'))       return 30;
+  return 50;
+}
+
+function cpuTierOrder(name) {
+  const n = name.toLowerCase();
+  if (/ryzen 9|core (ultra 9|i9)/.test(n)) return 0;
+  if (/ryzen 7|core (ultra 7|i7)/.test(n)) return 1;
+  if (/ryzen 5|core (ultra 5|i5)/.test(n)) return 2;
+  if (/ryzen 3|core (i3)/.test(n))         return 3;
+  return 4;
+}
+
+function sortCPU(a, b) {
+  const lineA = cpuLineOrder(a.name), lineB = cpuLineOrder(b.name);
+  if (lineA !== lineB) return lineA - lineB;
+  const tierA = cpuTierOrder(a.name), tierB = cpuTierOrder(b.name);
+  if (tierA !== tierB) return tierA - tierB;
+  return (b.score || 0) - (a.score || 0);
+}
+
+function gpuChipsetOrder(name) {
+  const n = name.toLowerCase();
+  // NVIDIA: RTX 50 → 40 → 30 → 20, GTX 16 → 10
+  if (n.includes('rtx 50'))  return 1;
+  if (n.includes('rtx 40'))  return 2;
+  if (n.includes('rtx 30'))  return 3;
+  if (n.includes('rtx 20'))  return 4;
+  if (n.includes('gtx 16'))  return 5;
+  if (n.includes('gtx 10'))  return 6;
+  // AMD: RX 9000 → 7000 → 6000 → 5000
+  if (n.includes('rx 9'))    return 10;
+  if (n.includes('rx 7'))    return 11;
+  if (n.includes('rx 6'))    return 12;
+  if (n.includes('rx 5'))    return 13;
+  // Intel Arc
+  if (n.includes('arc'))     return 20;
+  return 50;
+}
+
+function gpuModelNumber(name) {
+  // Extract the model number (e.g., 5090, 4080, 7900) for sub-sorting within a series
+  const m = name.match(/\b(\d{4})\b/);
+  return m ? -parseInt(m[1]) : 0; // negative so higher model = first
+}
+
+function sortGPU(a, b) {
+  const serA = gpuChipsetOrder(a.name), serB = gpuChipsetOrder(b.name);
+  if (serA !== serB) return serA - serB;
+  const modA = gpuModelNumber(a.name), modB = gpuModelNumber(b.name);
+  if (modA !== modB) return modA - modB;
+  // Ti/XT variants first within same model
+  const tiA = /\bti\b|xt\b/i.test(a.name) ? 0 : 1;
+  const tiB = /\bti\b|xt\b/i.test(b.name) ? 0 : 1;
+  if (tiA !== tiB) return tiA - tiB;
+  return a.brand.localeCompare(b.brand);
+}
+
+function mbSocketOrder(socket) {
+  const s = (socket || '').toUpperCase();
+  if (s === 'LGA1851') return 1;
+  if (s === 'AM5')     return 2;
+  if (s === 'LGA1700') return 3;
+  if (s === 'AM4')     return 4;
+  if (s === 'LGA1200') return 5;
+  return 10;
+}
+
+function mbChipsetOrder(chipset) {
+  const c = (chipset || '').toUpperCase();
+  // AM5 chipsets
+  if (c === 'X870E') return 1;
+  if (c === 'X870')  return 2;
+  if (c === 'X670E') return 3;
+  if (c === 'X670')  return 4;
+  if (c === 'B650E') return 5;
+  if (c === 'B650')  return 6;
+  if (c === 'A620')  return 7;
+  // LGA1851
+  if (c === 'Z890')  return 10;
+  if (c === 'B860')  return 11;
+  if (c === 'H810')  return 12;
+  // LGA1700
+  if (c === 'Z790')  return 15;
+  if (c === 'Z690')  return 16;
+  if (c === 'B760')  return 17;
+  if (c === 'B660')  return 18;
+  if (c === 'H770')  return 19;
+  if (c === 'H670')  return 20;
+  if (c === 'H610')  return 21;
+  // AM4
+  if (c === 'X570')  return 25;
+  if (c === 'B550')  return 26;
+  if (c === 'B450')  return 27;
+  if (c === 'A520')  return 28;
+  if (c === 'X470')  return 29;
+  if (c === 'B350')  return 30;
+  return 50;
+}
+
+function sortMB(a, b) {
+  const sockA = mbSocketOrder(a.socket), sockB = mbSocketOrder(b.socket);
+  if (sockA !== sockB) return sockA - sockB;
+  const chipA = mbChipsetOrder(a.chipset), chipB = mbChipsetOrder(b.chipset);
+  if (chipA !== chipB) return chipA - chipB;
+  return a.brand.localeCompare(b.brand);
+}
+
+function sortRAM(a, b) {
+  // DDR5 before DDR4
+  const ddrA = a.type === 'DDR5' ? 0 : 1;
+  const ddrB = b.type === 'DDR5' ? 0 : 1;
+  if (ddrA !== ddrB) return ddrA - ddrB;
+  // Higher speed first
+  if ((b.speed || 0) !== (a.speed || 0)) return (b.speed || 0) - (a.speed || 0);
+  // Larger size first
+  if ((b.size || 0) !== (a.size || 0)) return (b.size || 0) - (a.size || 0);
+  return a.brand.localeCompare(b.brand);
+}
+
+function ssdInterfaceOrder(iface) {
+  const i = (iface || '').toLowerCase();
+  if (i.includes('gen5')) return 1;
+  if (i.includes('gen4')) return 2;
+  if (i.includes('gen3')) return 3;
+  if (i.includes('sata')) return 4;
+  return 5;
+}
+
+function parseCapacityGB(cap) {
+  if (!cap) return 0;
+  const s = cap.toString().toLowerCase();
+  const m = s.match(/([\d.]+)\s*(tb|gb)/);
+  if (!m) return 0;
+  return m[2] === 'tb' ? parseFloat(m[1]) * 1024 : parseFloat(m[1]);
+}
+
+function sortSSD(a, b) {
+  const ifaceA = ssdInterfaceOrder(a.interface), ifaceB = ssdInterfaceOrder(b.interface);
+  if (ifaceA !== ifaceB) return ifaceA - ifaceB;
+  const capA = parseCapacityGB(a.capacity), capB = parseCapacityGB(b.capacity);
+  if (capB !== capA) return capB - capA;
+  return a.brand.localeCompare(b.brand);
+}
+
+function psuRatingOrder(rating) {
+  const r = (rating || '').toLowerCase();
+  if (r.includes('titanium')) return 1;
+  if (r.includes('platinum')) return 2;
+  if (r.includes('gold'))     return 3;
+  if (r.includes('silver'))   return 4;
+  if (r.includes('bronze'))   return 5;
+  return 6;
+}
+
+function sortPSU(a, b) {
+  // Higher wattage first
+  if ((b.watt || 0) !== (a.watt || 0)) return (b.watt || 0) - (a.watt || 0);
+  // Better rating first
+  const rA = psuRatingOrder(a.rating), rB = psuRatingOrder(b.rating);
+  if (rA !== rB) return rA - rB;
+  return a.brand.localeCompare(b.brand);
+}
+
+function coolerSizeOrder(cooler) {
+  const t = (cooler.type || '').toLowerCase();
+  const s = (cooler.size || '').toLowerCase();
+  if (t === 'aio') {
+    if (s.includes('420')) return 1;
+    if (s.includes('360')) return 2;
+    if (s.includes('280')) return 3;
+    if (s.includes('240')) return 4;
+    if (s.includes('120')) return 5;
+    return 6;
+  }
+  return 10; // Air coolers after AIO
+}
+
+function sortCooler(a, b) {
+  const sizeA = coolerSizeOrder(a), sizeB = coolerSizeOrder(b);
+  if (sizeA !== sizeB) return sizeA - sizeB;
+  // Within same type/size, sort by TDP desc
+  if ((b.tdpMax || 0) !== (a.tdpMax || 0)) return (b.tdpMax || 0) - (a.tdpMax || 0);
+  return a.brand.localeCompare(b.brand);
+}
+
+function caseFormOrder(ff) {
+  const f = (ff || '').toLowerCase();
+  if (f.includes('full'))     return 1;
+  if (f.includes('e-atx'))    return 1;
+  if (f.includes('mid'))      return 2;
+  if (f.includes('mini tower')) return 3;
+  if (f.includes('mini-itx') || f.includes('mini itx')) return 4;
+  return 5;
+}
+
+function sortCase(a, b) {
+  const ffA = caseFormOrder(a.formFactor), ffB = caseFormOrder(b.formFactor);
+  if (ffA !== ffB) return ffA - ffB;
+  return a.brand.localeCompare(b.brand);
+}
+
+const SORT_FNS = {
+  cpu: sortCPU, gpu: sortGPU, motherboard: sortMB, ram: sortRAM,
+  ssd: sortSSD, psu: sortPSU, cooler: sortCooler, case: sortCase,
+};
+
+const sortCache = {};
+export function getSortedComponents(category) {
+  if (sortCache[category]) return sortCache[category];
+  const items = COMPONENTS[category];
+  if (!items) return [];
+  const sorted = [...items].sort(SORT_FNS[category] || ((a, b) => (b.score || 0) - (a.score || 0)));
+  sortCache[category] = sorted;
+  return sorted;
+}
+
 // Get all components flat
 export function getAllComponents() {
   const all = [];
   for (const [type, items] of Object.entries(COMPONENTS))
-    items.forEach(item => all.push({ ...item, type }));
+    getSortedComponents(type).forEach(item => all.push({ ...item, type }));
   return all;
 }
 
