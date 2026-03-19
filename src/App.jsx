@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { BuildProvider } from './hooks/BuildContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import ChatAssistant from './components/ChatAssistant';
 import HomePage from './pages/HomePage';
 import BuilderPage from './pages/BuilderPage';
 import ComponentsPage from './pages/ComponentsPage';
@@ -31,7 +30,6 @@ export default function App() {
             </Routes>
           </main>
           <Footer />
-          <ChatAssistant />
         </div>
       </BrowserRouter>
     </BuildProvider>
