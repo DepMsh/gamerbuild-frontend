@@ -12,7 +12,7 @@ export default function Footer() {
                 <Gamepad2 size={18} className="text-gb-bg" />
               </div>
               <span className="font-display text-base font-bold tracking-wider">
-                <span className="text-gb-primary">GAMER</span><span className="text-gb-text">BUILD</span>
+                <span className="text-gb-primary">PC</span><span className="text-gb-text">BUX</span>
               </span>
             </div>
             <p className="text-gb-muted text-sm leading-relaxed">
@@ -48,7 +48,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-gb-border flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gb-muted text-xs">
-            © 2026 GamerBuild — صنع بـ ❤️ في السعودية
+            © 2026 PCBux — صنع بـ ❤️ في السعودية
           </p>
           <div className="flex items-center gap-4">
             <a href="https://github.com/DepMsh/gamerbuild-backend" target="_blank" rel="noreferrer" className="text-gb-muted hover:text-gb-primary transition-colors">

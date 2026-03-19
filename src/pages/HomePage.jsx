@@ -1,24 +1,8 @@
-import { useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Wrench, Cpu, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp, Zap, ChevronLeft } from 'lucide-react';
-import { PRESETS, CATEGORIES, loadPreset, calcTotal, COMPONENTS } from '../utils/db';
-import { useBuild } from '../hooks/BuildContext';
+import { Link } from 'react-router-dom';
+import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp } from 'lucide-react';
+import { COMPONENTS } from '../utils/db';
 import { motion } from 'framer-motion';
 import ProductImage from '../components/ProductImage';
-
-const tierChips = [
-  { key: 'budget', label: 'اقتصادية', color: 'from-green-400 to-emerald-500' },
-  { key: 'midRange', label: 'متوسطة', color: 'from-blue-400 to-cyan-500' },
-  { key: 'highEnd', label: 'عالية', color: 'from-purple-400 to-violet-500' },
-  { key: 'enthusiast', label: 'خرافية', color: 'from-pink-400 to-red-500' },
-];
-
-const presetCardStyles = {
-  budget:     { bg: 'from-green-950/80 via-emerald-950/60 to-gb-card', border: 'border-green-500/20 hover:border-green-400/40', glow: 'group-hover:shadow-green-500/10', text: 'from-green-400 to-emerald-300' },
-  midRange:   { bg: 'from-blue-950/80 via-cyan-950/60 to-gb-card', border: 'border-blue-500/20 hover:border-blue-400/40', glow: 'group-hover:shadow-blue-500/10', text: 'from-blue-400 to-cyan-300' },
-  highEnd:    { bg: 'from-purple-950/80 via-violet-950/60 to-gb-card', border: 'border-purple-500/20 hover:border-purple-400/40', glow: 'group-hover:shadow-purple-500/10', text: 'from-purple-400 to-violet-300' },
-  enthusiast: { bg: 'from-pink-950/80 via-red-950/60 to-gb-card', border: 'border-pink-500/20 hover:border-pink-400/40', glow: 'group-hover:shadow-pink-500/10', text: 'from-pink-400 to-red-300' },
-};
 
 const featureCards = [
   { icon: Shield, title: 'فحص توافق', desc: 'تأكد تلقائي من توافق كل القطع', gradient: 'from-green-500/20 to-emerald-500/10', iconColor: 'text-green-400', borderColor: 'border-green-500/20' },
@@ -34,18 +18,6 @@ const popularParts = [
 ].slice(0, 6);
 
 export default function HomePage() {
-  const { loadBuild } = useBuild();
-  const navigate = useNavigate();
-  const presetsRef = useRef(null);
-
-  const handleLoadBuild = (tierKey) => {
-    const buildComponents = loadPreset(tierKey);
-    if (Object.keys(buildComponents).length > 0) {
-      loadBuild(buildComponents);
-      navigate('/builder');
-    }
-  };
-
   return (
     <div className="min-h-screen">
       {/* ========== HERO ========== */}
@@ -95,7 +67,6 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mb-8"
           >
             <Link
               to="/builder"
@@ -104,25 +75,6 @@ export default function HomePage() {
               <Wrench size={22} />
               ابدأ التجميع
             </Link>
-          </motion.div>
-
-          {/* Quick tier chips */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-wrap items-center justify-center gap-2"
-          >
-            {tierChips.map(({ key, label, color }) => (
-              <button
-                key={key}
-                onClick={() => handleLoadBuild(key)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold text-white/90 bg-gradient-to-l ${color} bg-opacity-20 border border-white/10 hover:border-white/20 hover:scale-105 transition-all`}
-                style={{ background: 'transparent' }}
-              >
-                <span className={`bg-gradient-to-l ${color} bg-clip-text text-transparent`}>{label}</span>
-              </button>
-            ))}
           </motion.div>
         </div>
       </section>
@@ -143,63 +95,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========== PRESETS — clean text-only cards ========== */}
+      {/* ========== START YOUR BUILD CTA ========== */}
       <section className="py-12 sm:py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text">تجميعات جاهزة</h2>
-            <Link to="/builder" className="text-xs text-gb-muted hover:text-gb-primary transition-colors">تصفح الكل</Link>
-          </div>
-
-          <div ref={presetsRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory -mx-4 px-4">
-            {PRESETS.map((preset) => {
-              const buildComponents = loadPreset(preset.key);
-              const total = calcTotal(buildComponents);
-              const style = presetCardStyles[preset.key] || presetCardStyles.budget;
-              return (
-                <motion.div
-                  key={preset.key}
-                  whileHover={{ y: -4 }}
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => handleLoadBuild(preset.key)}
-                  className={`group shrink-0 w-[260px] sm:w-[300px] snap-start cursor-pointer rounded-2xl bg-gradient-to-br ${style.bg} border ${style.border} p-6 sm:p-7 relative overflow-hidden transition-all duration-300 shadow-lg ${style.glow} group-hover:shadow-xl`}
-                >
-                  {/* Subtle grid overlay */}
-                  <div className="absolute inset-0 bg-grid opacity-[0.03] pointer-events-none" />
-
-                  <div className="relative z-10">
-                    {/* Icon + Tier label */}
-                    <div className="flex items-center justify-between mb-5">
-                      <span className="text-4xl">{preset.icon}</span>
-                      <span className="text-[10px] px-2.5 py-1 rounded-full bg-white/[0.06] text-gb-muted font-medium">{preset.budget}</span>
-                    </div>
-
-                    {/* Name */}
-                    <h3 className={`font-display text-xl sm:text-2xl font-black mb-2 bg-gradient-to-l ${style.text} bg-clip-text text-transparent`}>
-                      {preset.name}
-                    </h3>
-
-                    {/* Description */}
-                    <p className="text-xs text-gb-muted leading-relaxed mb-6">{preset.desc}</p>
-
-                    {/* Price */}
-                    <div className="flex items-end justify-between pt-4 border-t border-white/[0.06]">
-                      <div>
-                        <p className="text-[10px] text-gb-muted mb-0.5">المجموع</p>
-                        <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>
-                          {total.toLocaleString()} <span className="text-xs text-gb-muted font-body">ر.س</span>
-                        </span>
-                      </div>
-                      <span className="flex items-center gap-1 text-[11px] text-gb-muted group-hover:text-gb-primary transition-colors font-medium">
-                        اختر هذي التجميعة
-                        <ChevronLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-3">ابدأ تجميعتك</h2>
+          <p className="text-sm text-gb-muted mb-8 max-w-md mx-auto">اختر القطع واحدة واحدة — النظام يفحص التوافق تلقائياً ويعطيك أفضل سعر</p>
+          <Link
+            to="/builder"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gb-primary/10 border border-gb-primary/20 text-gb-primary font-bold text-sm hover:bg-gb-primary/20 hover:border-gb-primary/40 transition-all"
+          >
+            <Wrench size={18} />
+            جمّع جهازك الحين
+          </Link>
         </div>
       </section>
 
@@ -225,7 +132,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="p-3 sm:p-4">
-                  <p className="text-[10px] text-gb-muted mb-0.5">{part.brand}</p>
+                  <p className="text-[10px] text-gb-muted mb-0.5">{part.name.startsWith(part.brand) ? '' : part.brand}</p>
                   <p className="text-[12px] sm:text-sm font-bold text-gb-text line-clamp-2 min-h-[2.4em] leading-snug">{part.name}</p>
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-sm sm:text-base font-display font-black" style={{ color: '#00e676' }}>{part.price?.toLocaleString()}</span>
@@ -243,7 +150,7 @@ export default function HomePage() {
       {/* ========== FEATURES 2x2 ========== */}
       <section className="py-12 sm:py-16 px-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-6 text-center">ليش GamerBuild؟</h2>
+          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
 
           <div className="grid grid-cols-2 gap-3 sm:gap-4 stagger-children">
             {featureCards.map((f, i) => (

@@ -31,8 +31,8 @@ export default function Navbar() {
                 <Gamepad2 size={16} className="text-gb-bg" />
               </div>
               <span className="font-display text-sm sm:text-base font-bold tracking-wider">
-                <span className="text-gb-primary">GAMER</span>
-                <span className="text-gb-text">BUILD</span>
+                <span className="text-gb-primary">PC</span>
+                <span className="text-gb-text">BUX</span>
               </span>
             </Link>
 

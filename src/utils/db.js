@@ -5528,11 +5528,14 @@ export function getCompatible(category, currentBuild) {
 // ═══════ WATTAGE CALCULATOR ═══════
 
 export function estimateWattage(build) {
-  let total = 50;
-  if (build.cpu) total += build.cpu.tdp || 0;
-  if (build.gpu) total += build.gpu.tdp || 0;
+  let total = 50; // base
+  if (build.cpu?.tdp) total += build.cpu.tdp;
+  else if (build.cpu) total += 125; // assume 125W if unknown CPU
+  if (build.gpu?.tdp) total += build.gpu.tdp;
+  else if (build.gpu) total += 200; // assume 200W if unknown GPU
   if (build.ram) total += 10;
   if (build.ssd) total += 10;
+  if (build.cooler) total += 15;
   return Math.ceil(total * 1.2);
 }
 
@@ -5617,62 +5620,73 @@ export function calcTotal(build) {
 // Full compatibility check
 export function fullCompatCheck(build) {
   const errors = [], warnings = [], ok = [];
-  let hasCustom = false;
 
-  // Detect custom components and warn
-  const entries = Object.entries(build).filter(([, v]) => v);
-  for (const [cat, comp] of entries) {
-    if (comp.isCustom) {
-      hasCustom = true;
-      if (cat === 'cpu' && !comp.socket) warnings.push('معالج مخصص — لا يمكن التحقق من توافق السوكت');
-      if (cat === 'gpu' && (comp.vram == null || comp.tdp == null)) warnings.push('كرت شاشة مخصص — تحقق من التوافق يدوياً');
-      if (cat === 'motherboard' && !comp.socket) warnings.push('لوحة أم مخصصة — لا يمكن التحقق من توافق السوكت');
-      if (cat === 'psu' && !comp.watt) warnings.push('باور مخصص — تحقق من الواط يدوياً');
-      if (cat === 'ram' && !comp.type) warnings.push('رام مخصصة — تحقق من توافق DDR يدوياً');
-      if (cat === 'cooler' && !comp.tdpMax) warnings.push('تبريد مخصص — تحقق من كفاية التبريد يدوياً');
-    }
-  }
-
+  // 1. CPU + Motherboard socket check
   if (build.cpu && build.motherboard) {
-    if (build.cpu.isCustom || build.motherboard.isCustom) {
-      if (build.cpu.socket && build.motherboard.socket) {
-        if (build.cpu.socket !== build.motherboard.socket)
-          errors.push(`سوكت المعالج (${build.cpu.socket}) ≠ اللوحة (${build.motherboard.socket})`);
-        else ok.push('السوكت متوافق');
+    if (build.cpu.socket && build.motherboard.socket) {
+      if (build.cpu.socket !== build.motherboard.socket) {
+        errors.push(`سوكت المعالج (${build.cpu.socket}) غير متوافق مع اللوحة الأم (${build.motherboard.socket})`);
+      } else {
+        ok.push('سوكت المعالج متوافق مع اللوحة الأم ✓');
       }
     } else {
-      if (build.cpu.socket !== build.motherboard.socket)
-        errors.push(`سوكت المعالج (${build.cpu.socket}) ≠ اللوحة (${build.motherboard.socket})`);
-      else ok.push('السوكت متوافق');
+      warnings.push('لا يمكن التحقق من توافق السوكت — مواصفات ناقصة');
     }
   }
 
+  // 2. RAM + Motherboard DDR type check
   if (build.ram && build.motherboard) {
-    if (!build.ram.isCustom && !build.motherboard.isCustom) {
-      if (build.ram.type !== build.motherboard.ramType)
-        errors.push(`الرام ${build.ram.type} ≠ اللوحة ${build.motherboard.ramType}`);
-      else ok.push('الرام متوافقة');
+    if (build.ram.type && build.motherboard.ramType) {
+      if (build.ram.type !== build.motherboard.ramType) {
+        errors.push(`الرام ${build.ram.type} غير متوافقة مع اللوحة الأم (${build.motherboard.ramType})`);
+      } else {
+        ok.push('نوع الرام متوافق مع اللوحة الأم ✓');
+      }
     }
   }
 
-  const needed = estimateWattage(build);
+  // 3. PSU wattage check — STRICT
   if (build.psu) {
-    if (!build.psu.isCustom) {
-      if (build.psu.watt < needed)
-        errors.push(`الباور ${build.psu.watt}W < المطلوب ~${needed}W`);
-      else if (build.psu.watt < needed * 1.1)
-        warnings.push(`الباور يكفي بالكاد — يفضل ${getRecommendedPSU(build)}W`);
-      else ok.push('الباور كافي');
+    const needed = estimateWattage(build);
+    const psuWatt = build.psu.watt || 0;
+    if (psuWatt > 0 && psuWatt < needed) {
+      errors.push(`الباور (${psuWatt}W) أقل من المطلوب (~${needed}W) — خطر على القطع!`);
+    } else if (psuWatt > 0 && psuWatt < needed * 1.15) {
+      warnings.push(`الباور (${psuWatt}W) يكفي بالكاد — يُفضل ${getRecommendedPSU(build)}W أو أعلى`);
+    } else if (psuWatt > 0) {
+      ok.push(`الباور كافي (${psuWatt}W لتجميعة ~${needed}W) ✓`);
     }
   }
 
+  // 4. Cooler TDP check
   if (build.cpu && build.cooler) {
-    if (!build.cpu.isCustom && !build.cooler.isCustom) {
-      if (build.cooler.tdpMax < build.cpu.tdp)
-        warnings.push(`التبريد (${build.cooler.tdpMax}W) ضعيف للمعالج (${build.cpu.tdp}W)`);
-      else ok.push('التبريد كافي');
+    const cpuTdp = build.cpu.tdp || 0;
+    const coolerMax = build.cooler.tdpMax || 0;
+    if (cpuTdp > 0 && coolerMax > 0 && coolerMax < cpuTdp) {
+      warnings.push(`التبريد (${coolerMax}W) قد لا يكفي للمعالج (${cpuTdp}W TDP)`);
+    } else if (cpuTdp > 0 && coolerMax > 0) {
+      ok.push('التبريد كافي للمعالج ✓');
     }
   }
 
-  return { errors, warnings, ok, hasCustom };
+  // 5. Check for missing CRITICAL specs (custom/unknown parts)
+  if (build.cpu && !build.cpu.socket) {
+    warnings.push('المعالج بدون سوكت محدد — تحقق من التوافق يدوياً');
+  }
+  if (build.motherboard && !build.motherboard.socket) {
+    warnings.push('اللوحة الأم بدون سوكت محدد — تحقق من التوافق يدوياً');
+  }
+  if (build.gpu && !build.gpu.tdp) {
+    warnings.push('كرت الشاشة بدون TDP محدد — تحقق من الواط يدوياً');
+  }
+  if (build.psu && !build.psu.watt) {
+    warnings.push('الباور بدون واط محدد — تحقق من كفاية الطاقة يدوياً');
+  }
+
+  // 6. If NO checks could be performed (all specs missing), warn
+  if (errors.length === 0 && warnings.length === 0 && ok.length === 0) {
+    warnings.push('لا توجد بيانات كافية لفحص التوافق');
+  }
+
+  return { errors, warnings, ok };
 }

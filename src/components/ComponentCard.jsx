@@ -57,7 +57,7 @@ export default function ComponentCard({
       >
         <ProductImage component={component} size="sm" className="w-10 h-10 rounded-lg shrink-0 p-0.5" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-gb-text truncate">{component.name}</p>
+          <p className="text-sm font-medium text-gb-text truncate">{component.name.startsWith(component.brand) ? component.name : `${component.brand} ${component.name}`}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
         </div>
         <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>{component.price?.toLocaleString()} ر.س</span>
@@ -88,7 +88,7 @@ export default function ComponentCard({
 
       {/* Content */}
       <div className="p-3 sm:p-4">
-        <p className="text-[10px] sm:text-xs text-gb-muted mb-0.5 sm:mb-1 font-medium truncate">{component.brand} · {typeLabels[component.type]}</p>
+        <p className="text-[10px] sm:text-xs text-gb-muted mb-0.5 sm:mb-1 font-medium truncate">{component.name.startsWith(component.brand) ? '' : `${component.brand} · `}{typeLabels[component.type]}</p>
         <h3 className="text-[11px] sm:text-sm font-bold text-gb-text leading-snug mb-1.5 sm:mb-3 line-clamp-2">{component.name}</h3>
 
         {/* Key specs */}

@@ -35,7 +35,7 @@ export default function AnalysisPage() {
   const scoreColor = score >= 80 ? '#00e676' : score >= 50 ? '#ffd740' : '#ff5252';
   const scoreLabel = score >= 80 ? 'ممتازة' : score >= 60 ? 'جيدة' : score >= 40 ? 'تحتاج تعديل' : 'ضعيفة';
 
-  if (selectedCount < 2) {
+  if (!components.cpu || !components.gpu) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
         <div className="max-w-2xl mx-auto text-center py-20">
@@ -44,7 +44,7 @@ export default function AnalysisPage() {
               <TrendingUp size={36} className="text-gb-muted" />
             </div>
             <h2 className="font-display text-xl font-bold text-gb-text mb-2">التحليل الذكي</h2>
-            <p className="text-gb-muted text-sm">اختر معالج وكرت شاشة على الأقل في صفحة التجميعة</p>
+            <p className="text-gb-muted text-sm">اختر المعالج وكرت الشاشة لتحليل الأداء</p>
           </motion.div>
         </div>
       </div>

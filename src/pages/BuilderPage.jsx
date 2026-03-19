@@ -211,17 +211,17 @@ export default function BuilderPage() {
         {selectedCount >= 2 && (
           <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
             className={`mb-4 p-3 rounded-xl border flex items-start gap-2.5 text-xs sm:text-sm ${
-              hasIssues ? 'bg-red-500/5 border-red-500/20' : compat.warnings.length > 0 ? 'bg-yellow-500/5 border-yellow-500/20' : compat.hasCustom ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-green-500/5 border-green-500/20'
+              hasIssues ? 'bg-red-500/5 border-red-500/20' : compat.warnings.length > 0 ? 'bg-yellow-500/5 border-yellow-500/20' : compat.ok.length > 0 ? 'bg-green-500/5 border-green-500/20' : 'bg-yellow-500/5 border-yellow-500/20'
             }`}>
             {hasIssues ? <ShieldAlert size={16} className="text-red-400 shrink-0 mt-0.5" />
               : compat.warnings.length > 0 ? <AlertTriangle size={16} className="text-yellow-400 shrink-0 mt-0.5" />
-              : compat.hasCustom ? <AlertTriangle size={16} className="text-yellow-400 shrink-0 mt-0.5" />
-              : <ShieldCheck size={16} className="text-green-400 shrink-0 mt-0.5" />}
+              : compat.ok.length > 0 ? <ShieldCheck size={16} className="text-green-400 shrink-0 mt-0.5" />
+              : <AlertTriangle size={16} className="text-yellow-400 shrink-0 mt-0.5" />}
             <div>
               {compat.errors.map((e, i) => <p key={i} className="text-red-400">{e}</p>)}
               {compat.warnings.map((w, i) => <p key={i} className="text-yellow-400">{w}</p>)}
-              {!hasIssues && compat.warnings.length === 0 && !compat.hasCustom && <p className="text-green-400">كل القطع متوافقة</p>}
-              {!hasIssues && compat.warnings.length === 0 && compat.hasCustom && <p className="text-yellow-400">بعض القطع مخصصة — تحقق من التوافق يدوياً</p>}
+              {compat.ok.map((o, i) => <p key={i} className="text-green-400">{o}</p>)}
+              {!hasIssues && compat.warnings.length === 0 && compat.ok.length === 0 && <p className="text-yellow-400">لا يمكن التحقق الكامل من التوافق</p>}
             </div>
           </motion.div>
         )}
@@ -256,7 +256,7 @@ export default function BuilderPage() {
                     {selected ? (
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{selected.brand} {selected.name}</p>
+                          <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{selected.name.startsWith(selected.brand) ? selected.name : `${selected.brand} ${selected.name}`}</p>
                           {selected.isCustom && <span className="text-[8px] px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 font-bold shrink-0">مخصص</span>}
                         </div>
                         <p className="text-[10px] sm:text-xs text-gb-muted truncate">{specLine(key, selected)}</p>
@@ -334,7 +334,7 @@ export default function BuilderPage() {
                 </a>
                 <button onClick={() => {
                   const t = `تجميعتي:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع: ${totalPrice.toLocaleString()} ر.س`;
-                  navigator.share ? navigator.share({title:'GamerBuild',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
+                  navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
                 }} className="px-4 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm hover:border-gb-primary/30 transition-all">
                   <ExternalLink size={16} />
                 </button>
@@ -501,7 +501,7 @@ export default function BuilderPage() {
                             {/* Info — center */}
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                               <div>
-                                <p className="text-[10px] sm:text-[11px] text-[#888] font-medium">{item.brand}</p>
+                                {!item.name.startsWith(item.brand) && <p className="text-[10px] sm:text-[11px] text-[#888] font-medium">{item.brand}</p>}
                                 <p className="text-[12px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{item.name}</p>
                                 <p className="text-[10px] sm:text-[11px] text-[#555] mt-0.5 truncate">{specLine(openPicker, item)}</p>
                               </div>
