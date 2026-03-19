@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gamerbuild-v4';
+const CACHE_NAME = 'pcbux-v5';
 const OFFLINE_URL = '/';
 
 const PRECACHE_URLS = [

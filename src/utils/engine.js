@@ -1,4 +1,4 @@
-// GamerBuild Smart Engine
+// PCBux Smart Engine
 // Ported from the original app + enhanced
 
 export const GAMES = [

@@ -1,4 +1,4 @@
-// GamerBuild Component Database — Massive Import from docyx/pc-part-dataset
+// PCBux Component Database — Massive Import from docyx/pc-part-dataset
 // Affiliate Tag: meshal039-21
 // All prices in SAR (estimated from USD × 3.75)
 // Generated: 2026-03-18T18:29:26.053Z

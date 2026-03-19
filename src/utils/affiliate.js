@@ -1,4 +1,4 @@
-// GamerBuild Affiliate System
+// PCBux Affiliate System
 // Amazon Associates Tag: meshal039-21
 
 const AMAZON_TAG = 'meshal039-21';

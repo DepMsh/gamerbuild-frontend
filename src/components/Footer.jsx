@@ -51,7 +51,7 @@ export default function Footer() {
             © 2026 PCBux — صنع بـ ❤️ في السعودية
           </p>
           <div className="flex items-center gap-4">
-            <a href="https://github.com/DepMsh/gamerbuild-backend" target="_blank" rel="noreferrer" className="text-gb-muted hover:text-gb-primary transition-colors">
+            <a href="https://github.com/DepMsh/pcbux" target="_blank" rel="noreferrer" className="text-gb-muted hover:text-gb-primary transition-colors">
               <Github size={18} />
             </a>
             <a href="#" className="text-gb-muted hover:text-gb-primary transition-colors">

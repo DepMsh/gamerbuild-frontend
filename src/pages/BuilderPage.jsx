@@ -81,6 +81,11 @@ export default function BuilderPage() {
     return getCompatible(openPicker, components).filter(c => c.compatible).length;
   }, [openPicker, components]);
 
+  const totalCatCount = useMemo(() => {
+    if (!openPicker) return 0;
+    return getCompatible(openPicker, components).length;
+  }, [openPicker, components]);
+
   const openPickerModal = (cat) => {
     setOpenPicker(cat);
     setSearchQuery('');
@@ -387,7 +392,7 @@ export default function BuilderPage() {
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl">{currentCat.icon}</span>
                     <h2 className="font-display font-bold text-base text-white">{currentCat.label}</h2>
-                    <span className="text-[11px] text-[#555] font-medium">{compatCount} متوافق</span>
+                    <span className="text-[11px] text-[#555] font-medium">{compatCount} متوافق من {totalCatCount}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setCustomMode(!customMode)}

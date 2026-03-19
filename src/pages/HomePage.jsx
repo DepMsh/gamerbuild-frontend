@@ -98,14 +98,14 @@ export default function HomePage() {
       {/* ========== START YOUR BUILD CTA ========== */}
       <section className="py-12 sm:py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-3">ابدأ تجميعتك</h2>
-          <p className="text-sm text-gb-muted mb-8 max-w-md mx-auto">اختر القطع واحدة واحدة — النظام يفحص التوافق تلقائياً ويعطيك أفضل سعر</p>
+          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-3">جمّع جهازك المثالي</h2>
+          <p className="text-sm text-gb-muted mb-8 max-w-md mx-auto">اختر من أكثر من 5,000 قطعة — النظام يفحص التوافق تلقائياً ويعطيك أفضل سعر</p>
           <Link
             to="/builder"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gb-primary/10 border border-gb-primary/20 text-gb-primary font-bold text-sm hover:bg-gb-primary/20 hover:border-gb-primary/40 transition-all"
           >
             <Wrench size={18} />
-            جمّع جهازك الحين
+            ابدأ التجميع
           </Link>
         </div>
       </section>

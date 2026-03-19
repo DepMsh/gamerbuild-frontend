@@ -1,4 +1,4 @@
-// GamerBuild - Real Saudi Store Prices Database
+// PCBux - Real Saudi Store Prices Database
 // Last updated: March 2026
 // Sources: Amazon.sa, Jarir, Extra, Noon, Microless Saudi
 

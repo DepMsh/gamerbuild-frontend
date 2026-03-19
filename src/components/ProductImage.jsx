@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Zap, Fan, Box } from 'lucide-react';
 
 // Brand-specific REAL product photos (Amazon /images/I/ format — verified working)
 const BRAND_FALLBACKS = {
@@ -273,7 +274,16 @@ const BRAND_FALLBACKS = {
   },
 };
 
-const CAT_EMOJI = { cpu: '🧠', gpu: '🎮', motherboard: '📟', ram: '💾', ssd: '💿', psu: '⚡', cooler: '❄️', case: '📦' };
+const CAT_ICON = {
+  cpu: { Icon: Cpu, color: '#22d3ee' },
+  gpu: { Icon: MonitorSpeaker, color: '#a78bfa' },
+  motherboard: { Icon: CircuitBoard, color: '#fbbf24' },
+  ram: { Icon: MemoryStick, color: '#fb7185' },
+  ssd: { Icon: HardDrive, color: '#818cf8' },
+  psu: { Icon: Zap, color: '#60a5fa' },
+  cooler: { Icon: Fan, color: '#2dd4bf' },
+  case: { Icon: Box, color: '#c084fc' },
+};
 
 const CAT_GRADIENT = {
   cpu: 'from-teal-900/60 to-teal-950/80',
@@ -330,9 +340,9 @@ export default function ProductImage({ component, src, componentId, className = 
   const cat = getCatKey(comp);
 
   const sources = component ? buildSources(component) : (src ? [src] : []);
-  const emoji = CAT_EMOJI[cat] || '📦';
+  const iconCfg = CAT_ICON[cat] || CAT_ICON.cpu;
   const gradient = CAT_GRADIENT[cat] || CAT_GRADIENT.cpu;
-  const emojiSize = size === 'sm' ? 'text-xl' : size === 'lg' ? 'text-5xl' : 'text-3xl';
+  const iconSize = size === 'sm' ? 20 : size === 'lg' ? 48 : 32;
 
   const handleError = () => {
     setSrcIndex(i => i + 1);
@@ -345,11 +355,12 @@ export default function ProductImage({ component, src, componentId, className = 
     }
   };
 
-  // All sources exhausted — show styled emoji fallback
+  // All sources exhausted — show styled Lucide icon fallback
   if (srcIndex >= sources.length) {
+    const FallbackIcon = iconCfg.Icon;
     return (
       <div className={`bg-gradient-to-br ${gradient} flex items-center justify-center ${className}`}>
-        <span className={`${emojiSize} opacity-80 select-none`}>{emoji}</span>
+        <FallbackIcon size={iconSize} style={{ color: iconCfg.color }} className="opacity-60" strokeWidth={1.5} />
       </div>
     );
   }
@@ -369,4 +380,4 @@ export default function ProductImage({ component, src, componentId, className = 
   );
 }
 
-export { BRAND_FALLBACKS, CAT_EMOJI, getCatKey };
+export { BRAND_FALLBACKS, CAT_ICON, getCatKey };
