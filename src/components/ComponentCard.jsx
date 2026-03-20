@@ -1,5 +1,6 @@
 import { Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box, Plus, Check, ArrowLeftRight, ExternalLink, HardDrive } from 'lucide-react';
 import { getAmazonLink, getDisplayName } from '../utils/db';
+import { track } from '../utils/analytics';
 import { getPriceStats } from '../utils/priceHistory';
 import ProductImage from './ProductImage';
 
@@ -152,7 +153,7 @@ export default function ComponentCard({
           href={getAmazonLink(component)}
           target="_blank"
           rel="noreferrer"
-          onClick={(e) => { e.stopPropagation(); }}
+          onClick={(e) => { e.stopPropagation(); track.clickAmazon(component.name, component.price); }}
           className="mt-2.5 flex items-center justify-center gap-1.5 w-full min-h-[40px] sm:min-h-[44px] py-2 sm:py-2.5 rounded-xl bg-gb-primary text-gb-bg text-[11px] sm:text-sm font-bold hover:shadow-[0_0_16px_rgba(0,229,255,0.3)] transition-all active:scale-[0.97]"
         >
           🛒 شيك السعر على أمازون

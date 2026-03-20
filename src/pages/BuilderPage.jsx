@@ -7,6 +7,7 @@ import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
 import ProductImage from '../components/ProductImage';
+import { track } from '../utils/analytics';
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
@@ -236,10 +237,15 @@ export default function BuilderPage() {
   const bottleneckPct = bn?.percent || 0;
   const selectedParts = Object.values(components).filter(Boolean);
 
+  useEffect(() => {
+    if (hasCorePartsSelected) track.completeBuild(totalPrice);
+  }, [hasCorePartsSelected]);
+
   const handleShareUrl = () => {
     const url = getShareUrl();
     if (url) {
       navigator.clipboard.writeText(url);
+      track.shareBuild();
       alert('تم نسخ رابط التجميعة! 📋');
     }
   };
@@ -368,6 +374,7 @@ export default function BuilderPage() {
             <div className="space-y-2 mb-4">
               {selectedParts.map(part => (
                 <a key={part.id} href={getAmazonLink(part)} target="_blank" rel="noopener noreferrer"
+                   onClick={() => track.clickAmazon(part.name, part.price)}
                    className="flex items-center justify-between bg-[#0f1019] rounded-lg px-3 py-2.5 border border-[#1a1a2e] hover:border-[#00e5ff]/30 transition-colors">
                   <span className="text-xs text-white/70 truncate flex-1 ml-2">{part.name}</span>
                   <span className="text-[#00e5ff] text-xs font-bold whitespace-nowrap">🛒 شيك السعر</span>
@@ -454,7 +461,7 @@ export default function BuilderPage() {
                         </button>
                       )}
                       {!selected.isCustom && selected.asin && (
-                        <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} className="p-1.5 rounded-lg text-[#ff9900] hover:text-[#ffb340] transition-colors"><ExternalLink size={13} /></a>
+                        <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => { e.stopPropagation(); track.clickAmazon(selected.name, selected.price); }} className="p-1.5 rounded-lg text-[#ff9900] hover:text-[#ffb340] transition-colors"><ExternalLink size={13} /></a>
                       )}
                       <button onClick={e => { e.stopPropagation(); openPickerModal(key); }} className="p-1.5 rounded-lg text-gb-muted hover:text-gb-primary transition-colors text-[10px] font-bold">تغيير</button>
                       <button onClick={e => { e.stopPropagation(); removeComponent(key); }} className="p-1.5 text-gb-muted hover:text-gb-accent transition-colors"><X size={14} /></button>
@@ -515,6 +522,7 @@ export default function BuilderPage() {
                         <span className="text-[11px] font-display font-bold" style={{ color: '#00e676' }}>~{comp.price?.toLocaleString()}</span>
                         {!comp.isCustom && (
                           <a href={getAmazonLink(comp)} target="_blank" rel="noreferrer"
+                            onClick={() => track.clickAmazon(comp.name, comp.price)}
                             className="px-2 py-1 rounded-lg bg-gb-primary/15 text-gb-primary text-[10px] font-bold hover:bg-gb-primary/25 transition-all whitespace-nowrap flex items-center gap-0.5">
                             شيك السعر <ExternalLink size={8} />
                           </a>
@@ -527,6 +535,7 @@ export default function BuilderPage() {
                 <div className="flex gap-2">
                   <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
                     target="_blank" rel="noreferrer"
+                    onClick={() => track.clickAmazon('buy_all', totalPrice)}
                     className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all active:scale-[0.97]">
                     <ShoppingCart size={16} /> اشتري من أمازون <ExternalLink size={12} />
                   </a>
@@ -733,7 +742,7 @@ export default function BuilderPage() {
                               </button>
                               <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
                                 className="text-[9px] sm:text-[10px] text-gb-primary hover:underline flex items-center gap-0.5 font-bold"
-                                onClick={e => e.stopPropagation()}>
+                                onClick={e => { e.stopPropagation(); track.clickAmazon(item.name, item.price); }}>
                                 🛒 شيك السعر <ExternalLink size={8} />
                               </a>
                             </div>

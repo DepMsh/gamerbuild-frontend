@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
 import { getById } from '../utils/db';
 import { encodeBuild, decodeBuild, generateBuildCode } from '../utils/buildShare';
+import { track } from '../utils/analytics';
 
 const BuildContext = createContext();
 
@@ -49,6 +50,7 @@ export function BuildProvider({ children }) {
 
   const setComponent = useCallback((category, component) => {
     dispatch({ type: 'SET_COMPONENT', category, component });
+    if (component?.name) track.selectPart(category, component.name);
   }, []);
 
   const removeComponent = useCallback((category) => {
@@ -61,6 +63,7 @@ export function BuildProvider({ children }) {
 
   const clearBuild = useCallback(() => {
     dispatch({ type: 'CLEAR_BUILD' });
+    track.clearBuild();
   }, []);
 
   const loadPreset = useCallback((presetName) => {
@@ -79,6 +82,7 @@ export function BuildProvider({ children }) {
       if (comp) newComponents[category] = comp;
     });
     dispatch({ type: 'LOAD_BUILD', components: newComponents });
+    track.loadPreset(presetName);
   }, []);
 
   const loadFromEncoded = useCallback((encoded) => {
@@ -91,6 +95,7 @@ export function BuildProvider({ children }) {
     });
     if (Object.values(newComponents).some(Boolean)) {
       dispatch({ type: 'LOAD_BUILD', components: newComponents });
+      track.openSharedBuild();
       return true;
     }
     return false;
@@ -121,6 +126,7 @@ export function BuildProvider({ children }) {
     saved.unshift(buildData);
     if (saved.length > 20) saved.pop();
     localStorage.setItem('pcbux_builds', JSON.stringify(saved));
+    track.saveBuild();
     return buildData;
   }, [state.components, state.totalPrice]);
 

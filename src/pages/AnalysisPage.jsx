@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
+import { track } from '../utils/analytics';
 import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof } from '../utils/engine';
 import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents } from '../utils/db';
@@ -43,6 +44,7 @@ const resolutions = [
 export default function AnalysisPage() {
   const { components, selectedCount } = useBuild();
   const [resolution, setResolution] = useState('1080p');
+  useEffect(() => { if (components.cpu && components.gpu) track.viewAnalysis(); }, []);
   const [openCards, setOpenCards] = useState({ thermal: true, future: true, downgrade: true });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
 

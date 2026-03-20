@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Tag, ExternalLink, Clock, TrendingDown, ShoppingCart, Zap } from 'lucide-react';
 import { getAllComponents, getAmazonLink } from '../utils/db';
+import { track } from '../utils/analytics';
 
 // Generate Amazon deals from component database
 function generateDeals() {
@@ -110,6 +111,7 @@ export default function DealsPage() {
                 </div>
 
                 <a href={getAmazonLink(deal.component)} target="_blank" rel="noreferrer"
+                  onClick={() => track.clickAmazon(deal.component.name, deal.component.price)}
                   className="mt-3 flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-[#ff9900] text-gb-bg font-bold text-xs hover:bg-[#e8890a] transition-all">
                   <ShoppingCart size={14} /> اشتري من أمازون <ExternalLink size={11} />
                 </a>

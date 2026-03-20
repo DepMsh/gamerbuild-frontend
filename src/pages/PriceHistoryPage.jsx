@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, ExternalLink, TrendingDown, TrendingUp, Minus, SlidersHorizontal } from 'lucide-react';
 import { getAllComponents, getAmazonLink } from '../utils/db';
+import { track } from '../utils/analytics';
 import { getPriceStats } from '../utils/priceHistory';
 import PriceChart from '../components/PriceChart';
 
@@ -167,6 +168,7 @@ function PriceCard({ component, stats, expanded, onToggle }) {
           href={getAmazonLink(component)}
           target="_blank"
           rel="noreferrer"
+          onClick={() => track.clickAmazon(component.name, component.price)}
           className="flex items-center justify-center gap-1 w-full py-2 rounded-lg bg-[#ff9900]/10 border border-[#ff9900]/20 text-[#ff9900] text-[10px] sm:text-xs font-bold hover:bg-[#ff9900]/20 transition-all"
         >
           اشتري من أمازون <ExternalLink size={10} />
