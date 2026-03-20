@@ -287,6 +287,12 @@ export default function BuilderPage() {
           </div>
         </div>
 
+        {/* Price disclaimer banner */}
+        <div className="flex items-center gap-2 px-3 py-2 mb-4 rounded-xl bg-red-500/10 border border-red-500/20">
+          <AlertTriangle size={14} className="text-red-400 shrink-0" />
+          <p className="text-[11px] text-red-300/90">الأسعار المعروضة <span className="font-bold">تقريبية</span> — اضغط "شيك السعر" على كل قطعة للسعر الفعلي والمحدّث من أمازون السعودية.</p>
+        </div>
+
         {/* Progress bar — 8 circles + gradient bar */}
         <div className="mb-5 px-2">
           <div className="flex items-center justify-between relative">
