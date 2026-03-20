@@ -321,9 +321,9 @@ export default function BuilderPage() {
                 {saveSuccess ? '✅ تم!' : '💾 احفظ'}
               </button>
             </div>
-            <a href="/analysis" className="block text-center bg-white/5 text-white/50 rounded-xl py-2.5 text-sm font-bold">
+            <Link to="/analysis" className="block text-center bg-white/5 text-white/50 rounded-xl py-2.5 text-sm font-bold">
               📊 تحليل مفصّل
-            </a>
+            </Link>
 
             <p className="text-[10px] text-white/20 text-center mt-3">💡 الأسعار تقريبية — اضغط "شيك السعر" للسعر الفعلي</p>
           </div>
