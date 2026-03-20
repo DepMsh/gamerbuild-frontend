@@ -63,6 +63,8 @@ export default function BuilderPage() {
   const [filterTier, setFilterTier] = useState('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [stickyDropdown, setStickyDropdown] = useState(false);
+  const [buyAllBlocked, setBuyAllBlocked] = useState(false);
 
   useEffect(() => {
     const encoded = searchParams.get('b');
@@ -228,6 +230,22 @@ export default function BuilderPage() {
     setTimeout(() => setSaveSuccess(false), 2000);
   };
 
+  const handleBuyAll = () => {
+    const parts = Object.values(components).filter(Boolean);
+    const links = parts.map(p => getAmazonLink(p));
+    track.clickAmazon('buy_all', totalPrice);
+    if (links.length === 0) return;
+    const first = window.open(links[0], '_blank');
+    if (!first) {
+      setBuyAllBlocked(true);
+      setTimeout(() => setBuyAllBlocked(false), 5000);
+      return;
+    }
+    links.slice(1).forEach((link, i) => {
+      setTimeout(() => window.open(link, '_blank'), (i + 1) * 400);
+    });
+  };
+
   // Reset visible count when filters change
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
@@ -359,17 +377,49 @@ export default function BuilderPage() {
               </div>
             </div>
 
-            {/* Per-part Amazon links */}
+            {/* Per-part Amazon links with prices */}
             <div className="space-y-2 mb-4">
               {selectedParts.map(part => (
-                <a key={part.id} href={getAmazonLink(part)} target="_blank" rel="noopener noreferrer"
-                   onClick={() => track.clickAmazon(part.name, part.price)}
-                   className="flex items-center justify-between bg-[#0f1019] rounded-lg px-3 py-2.5 border border-[#1a1a2e] hover:border-[#00e5ff]/30 transition-colors">
-                  <span className="text-xs text-white/70 truncate flex-1 ml-2">{part.name}</span>
-                  <span className="text-[#00e5ff] text-xs font-bold whitespace-nowrap">🛒 شيك السعر</span>
-                </a>
+                <div key={part.id} className="flex items-center gap-2 bg-[#0f1019] rounded-xl px-3 py-2.5 border border-[#1a1a2e]">
+                  <span className="text-xs text-white/70 truncate flex-1">{part.name}</span>
+                  {part.price > 0 && (
+                    <div className="flex items-center gap-1 shrink-0">
+                      <span className="text-[11px] font-mono font-bold text-[#00e5ff]">~{part.price.toLocaleString()}</span>
+                      <span className="text-[9px] text-white/30">ر.س</span>
+                    </div>
+                  )}
+                  {!part.isCustom ? (
+                    <a href={getAmazonLink(part)} target="_blank" rel="noopener noreferrer"
+                       onClick={() => track.clickAmazon(part.name, part.price)}
+                       className="shrink-0 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#ff9900] to-[#e8890a] text-[#0a0a14] text-[10px] font-bold hover:scale-105 hover:brightness-110 transition-all whitespace-nowrap flex items-center gap-1">
+                      🛒 أمازون
+                    </a>
+                  ) : (
+                    <span className="shrink-0 text-[10px] text-white/20">مخصص</span>
+                  )}
+                </div>
               ))}
             </div>
+
+            {/* Buy All CTA */}
+            <button
+              onClick={handleBuyAll}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold text-base mb-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(0,229,255,0.25)] active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center justify-center gap-2">
+                <ShoppingCart size={20} />
+                <span>اشتر كل القطع من أمازون</span>
+              </div>
+              <div className="text-[10px] text-black/50 mt-0.5">
+                يفتح {selectedParts.filter(p => !p.isCustom).length} صفحات — كل قطعة بصفحتها على أمازون السعودية
+              </div>
+            </button>
+
+            {buyAllBlocked && (
+              <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3 mb-3 text-center">
+                <p className="text-xs text-yellow-400">المتصفح منع فتح النوافذ — اضغط على كل قطعة لفتحها</p>
+              </div>
+            )}
 
             {/* Action buttons — share, save, analyze */}
             <div className="flex gap-2 mb-2">
@@ -384,7 +434,7 @@ export default function BuilderPage() {
               📊 تحليل مفصّل
             </Link>
 
-            <p className="text-[10px] text-white/20 text-center mt-3">💡 الأسعار تقريبية — اضغط "شيك السعر" للسعر الفعلي</p>
+            <p className="text-[10px] text-white/20 text-center mt-3">💡 الأسعار تقريبية — اضغط على كل قطعة للسعر الفعلي من أمازون</p>
 
             <button
               onClick={() => { if (window.confirm('متأكد تبي تحذف التجميعة وتبدأ من جديد؟')) clearBuild(); }}
@@ -503,39 +553,35 @@ export default function BuilderPage() {
                 {/* Per-part Amazon links */}
                 <div className="space-y-1.5">
                   {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
-                    <div key={cat} className="flex items-center justify-between gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-xs">{catIcons[cat]}</span>
-                        <span className="text-[11px] text-gb-text truncate">{comp.name}</span>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[11px] font-display font-bold" style={{ color: '#00e676' }}>~{comp.price?.toLocaleString()}</span>
-                        {!comp.isCustom && (
-                          <a href={getAmazonLink(comp)} target="_blank" rel="noreferrer"
-                            onClick={() => track.clickAmazon(comp.name, comp.price)}
-                            className="px-2 py-1 rounded-lg bg-gb-primary/15 text-gb-primary text-[10px] font-bold hover:bg-gb-primary/25 transition-all whitespace-nowrap flex items-center gap-0.5">
-                            شيك السعر <ExternalLink size={8} />
-                          </a>
-                        )}
-                      </div>
+                    <div key={cat} className="flex items-center gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
+                      <span className="text-xs shrink-0">{catIcons[cat]}</span>
+                      <span className="text-[11px] text-gb-text truncate flex-1">{comp.name}</span>
+                      <span className="text-[11px] font-display font-bold shrink-0" style={{ color: '#00e676' }}>~{comp.price?.toLocaleString()}</span>
+                      {!comp.isCustom && (
+                        <a href={getAmazonLink(comp)} target="_blank" rel="noopener noreferrer"
+                          onClick={() => track.clickAmazon(comp.name, comp.price)}
+                          className="shrink-0 px-2.5 py-1 rounded-lg bg-[#ff9900]/90 text-[#0a0a14] text-[10px] font-bold hover:bg-[#ff9900] hover:scale-105 transition-all whitespace-nowrap flex items-center gap-0.5">
+                          🛒 أمازون
+                        </a>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                <div className="flex gap-2">
-                  <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
-                    target="_blank" rel="noreferrer"
-                    onClick={() => track.clickAmazon('buy_all', totalPrice)}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all active:scale-[0.97]">
-                    <ShoppingCart size={16} /> اشتري من أمازون <ExternalLink size={12} />
-                  </a>
-                  <button onClick={() => {
-                    const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${totalPrice.toLocaleString()} ر.س\n\npcbux.com`;
-                    navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
-                  }} className="px-4 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm hover:border-gb-primary/30 transition-all">
-                    <ExternalLink size={16} />
-                  </button>
-                </div>
+                <button onClick={handleBuyAll}
+                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-[#0a0a14] font-bold text-sm hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(0,229,255,0.2)] active:scale-[0.97] transition-all">
+                  <ShoppingCart size={16} /> اشتر كل القطع من أمازون
+                </button>
+                {buyAllBlocked && (
+                  <p className="text-xs text-yellow-400 text-center">المتصفح منع فتح النوافذ — اضغط على كل قطعة</p>
+                )}
+
+                <button onClick={() => {
+                  const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${totalPrice.toLocaleString()} ر.س\n\npcbux.com`;
+                  navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
+                }} className="w-full py-2.5 rounded-xl bg-gb-card border border-gb-border text-gb-text text-xs hover:border-gb-primary/30 transition-all flex items-center justify-center gap-2">
+                  <ExternalLink size={14} /> شارك التجميعة
+                </button>
               </div>
             )}
           </div>
@@ -545,16 +591,64 @@ export default function BuilderPage() {
 
       {/* ========== STICKY MOBILE BOTTOM BAR ========== */}
       {selectedCount >= 1 && (
-        <div className="fixed bottom-14 left-0 right-0 z-40 bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm md:hidden">
-          <span className="text-[#00e676] font-bold font-mono">~{totalPrice.toLocaleString()} ر.س</span>
-          <div className="flex items-center gap-1">
-            {CATEGORIES.map(({ key }) => (
-              <div key={key} className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                components[key] ? 'bg-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.5)]' : 'bg-white/10'
-              }`} />
-            ))}
+        <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden">
+          {/* Expandable dropdown */}
+          <AnimatePresence>
+            {stickyDropdown && (
+              <>
+                <motion.div
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-[-1]"
+                  onClick={() => setStickyDropdown(false)}
+                />
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="mx-3 mb-2 bg-[#0a0a12]/95 backdrop-blur-xl border border-[#00e5ff]/20 rounded-xl shadow-2xl overflow-hidden max-h-[60vh] overflow-y-auto"
+                >
+                  <div className="p-3 space-y-1.5">
+                    {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
+                      <div key={cat} className="flex items-center gap-2 px-2 py-1.5">
+                        <ProductImage component={comp} size="sm" className="w-8 h-8 rounded-lg shrink-0 p-0.5" />
+                        <span className="text-[11px] text-white/70 truncate flex-1">{comp.name}</span>
+                        <span className="text-[10px] font-mono font-bold text-[#00e676] shrink-0">~{comp.price?.toLocaleString()}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-[#1a1a2e] p-3">
+                    <button onClick={() => { handleBuyAll(); setStickyDropdown(false); }}
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.97] transition-all">
+                      <ShoppingCart size={16} /> اشتر الكل من أمازون
+                    </button>
+                    <div className="flex items-center justify-between mt-2 px-1">
+                      <span className="text-[10px] text-white/30">{selectedCount} قطع</span>
+                      <span className="text-sm font-display font-bold text-[#00e676]">~{totalPrice.toLocaleString()} ر.س</span>
+                    </div>
+                  </div>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
+          {/* Bar */}
+          <div
+            onClick={() => setStickyDropdown(!stickyDropdown)}
+            className="bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm cursor-pointer active:bg-[#1a1a2e]/50 transition-colors"
+          >
+            <span className="text-[#00e676] font-bold font-mono">~{totalPrice.toLocaleString()} ر.س</span>
+            <div className="flex items-center gap-1">
+              {CATEGORIES.map(({ key }) => (
+                <div key={key} className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                  components[key] ? 'bg-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.5)]' : 'bg-white/10'
+                }`} />
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-white/40">⚡ {wattage}W</span>
+              <ChevronDown size={14} className={`text-white/30 transition-transform ${stickyDropdown ? 'rotate-180' : ''}`} />
+            </div>
           </div>
-          <span className="text-white/40">⚡ {wattage}W</span>
         </div>
       )}
 
