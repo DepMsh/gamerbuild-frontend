@@ -92,8 +92,9 @@ export default function BuilderPage() {
     const encoded = searchParams.get('b');
     const preset = searchParams.get('preset');
     if (encoded) {
-      const loaded = loadFromEncoded(encoded);
-      if (loaded) setIsSharedBuild(true);
+      loadFromEncoded(encoded).then(loaded => {
+        if (loaded) setIsSharedBuild(true);
+      });
     } else if (preset) {
       loadPreset(preset);
     }
@@ -400,8 +401,10 @@ export default function BuilderPage() {
                 <div className="text-[10px] text-white/40">ر.س تقريبي</div>
               </div>
               <div>
-                <div className="text-[#00e5ff] font-bold font-mono text-xl">{bottleneckPct}%</div>
-                <div className="text-[10px] text-white/40">بوتلنك</div>
+                <div className={`font-bold font-mono text-xl ${bottleneckPct <= 5 ? 'text-[#00e676]' : bottleneckPct <= 15 ? 'text-[#ffc107]' : 'text-[#ff9800]'}`}>
+                  {bottleneckPct <= 5 ? '✅' : bottleneckPct <= 15 ? '🟡' : '⚠️'}
+                </div>
+                <div className="text-[10px] text-white/40">التوازن</div>
               </div>
             </div>
 

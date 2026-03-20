@@ -8,7 +8,7 @@ import { getAllComponents } from '../utils/db';
 const QUICK_ACTIONS = [
   { q: "قيّم تجميعتي", icon: "📊" },
   { q: "وش أرقّي أول", icon: "🔧" },
-  { q: "عنق الزجاجة", icon: "🔍" },
+  { q: "توازن القطع", icon: "⚖️" },
   { q: "وين أشتري؟", icon: "🛒" },
 ];
 

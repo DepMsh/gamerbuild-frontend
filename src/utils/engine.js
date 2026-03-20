@@ -151,18 +151,18 @@ export function analyzeBottleneck(cpu, gpu, resolution = '1080p') {
   } else if (bottleneckPercent <= 15) {
     severity = 'minor';
     description = limitingComponent === 'CPU'
-      ? 'عنق زجاجة بسيط من المعالج — لن تلاحظه في أغلب الألعاب'
-      : 'عنق زجاجة بسيط من الكرت — لن تلاحظه في أغلب الألعاب';
+      ? 'المعالج أضعف قليلاً من الكرت — لن تلاحظه في أغلب الألعاب'
+      : 'الكرت أضعف قليلاً من المعالج — لن تلاحظه في أغلب الألعاب';
   } else if (bottleneckPercent <= 35) {
     severity = 'moderate';
     description = limitingComponent === 'CPU'
-      ? 'عنق زجاجة — المعالج يحد من أداء الكرت. يُنصح بترقية المعالج'
-      : 'عنق زجاجة — الكرت يحد من الأداء. يُنصح بترقية كرت الشاشة';
+      ? 'المعالج يحد من أداء الكرت — ترقية المعالج بتعطي فرق واضح'
+      : 'الكرت يحد من الأداء — ترقية كرت الشاشة بتعطي فرق واضح';
   } else {
     severity = 'severe';
     description = limitingComponent === 'CPU'
-      ? 'عنق زجاجة شديد — المعالج ضعيف جداً مقارنة بالكرت'
-      : 'عنق زجاجة شديد — الكرت ضعيف جداً مقارنة بالمعالج';
+      ? 'فرق كبير — المعالج ضعيف جداً مقارنة بالكرت'
+      : 'فرق كبير — الكرت ضعيف جداً مقارنة بالمعالج';
   }
 
   return {
@@ -509,10 +509,10 @@ export function getChatResponse(message, components, recommendations, roadmap) {
     return `أول ترقية: ${first.label}\n→ ${opt.part.name} (+${opt.gain} أداء)\n💰 ${opt.part.price?.toLocaleString()} ر.س`;
   }
 
-  if (lower.includes("عنق") || lower.includes("bottleneck")) {
+  if (lower.includes("عنق") || lower.includes("bottleneck") || lower.includes("توازن")) {
     const bn = analyzeBottleneck(components.cpu, components.gpu);
     if (!bn) return "اختر معالج وكرت شاشة أولاً 🔍";
-    return `${bn.severity === 'none' ? "✅" : "⚠️"} ${bn.severity === 'none' ? 'تجميعة متوازنة' : `عنق زجاجة: ${bn.limitingComponent}`}\n${bn.description}`;
+    return `${bn.severity === 'none' ? "✅" : "⚠️"} ${bn.severity === 'none' ? 'تجميعة متوازنة' : `${bn.limitingComponent} يحد من الأداء`}\n${bn.description}`;
   }
 
   if (lower.includes("أشتري") || lower.includes("متجر") || lower.includes("شراء")) {
@@ -523,7 +523,7 @@ export function getChatResponse(message, components, recommendations, roadmap) {
     return "💰 دليل الميزانيات:\n• 3-4.5K ر.س → 1080p Gaming\n• 5-8K ر.س → 1440p Ultra\n• 9-14K ر.س → 4K + Stream\n• 15K+ ر.س → أقصى أداء\n\nجرب التجميعات الجاهزة في الصفحة الرئيسية!";
   }
 
-  return "جرب تسألني عن:\n📊 قيّم تجميعتي\n🔧 وش أرقّي أول\n🔍 عنق الزجاجة\n🛒 وين أشتري\n💰 الميزانيات";
+  return "جرب تسألني عن:\n📊 قيّم تجميعتي\n🔧 وش أرقّي أول\n⚖️ توازن القطع\n🛒 وين أشتري\n💰 الميزانيات";
 }
 
 // ═══════ COLOR HELPERS ═══════

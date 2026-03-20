@@ -3,19 +3,41 @@ import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
-import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
+import { analyzeBottleneck, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
 import { getAllComponents, estimateWattage } from '../utils/db';
 import { findCPUBenchmark } from '../data/cpuBenchmarks';
 import { findGPUBenchmark } from '../data/gpuBenchmarks';
 import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import GaugeMeter from '../components/GaugeMeter';
 
-function getBottleneckColor(v) {
-  if (v <= 5) return '#00e676';
-  if (v <= 15) return '#ffc107';
-  if (v <= 25) return '#ff9800';
-  return '#f44336';
+function getBalanceStatus(cpuScore, gpuPercent, resolution, isFlagshipCPU, isFlagshipGPU) {
+  if (isFlagshipCPU && isFlagshipGPU) {
+    return {
+      color: 'green', icon: '✅',
+      title: 'متوازنة',
+      subtitle: 'أقوى قطع متوفرة — أداء بلا حدود',
+      tip: null,
+    };
+  }
+
+  if (resolution === '4K') {
+    if (gpuPercent >= 70) return { color: 'green', icon: '✅', title: 'ممتازة لـ 4K', subtitle: 'كرت الشاشة قوي كفاية لدقة 4K', tip: 'في 4K الاعتماد الأكبر على كرت الشاشة — المعالج تأثيره محدود' };
+    if (gpuPercent >= 45) return { color: 'yellow', icon: '🟡', title: 'مقبولة لـ 4K', subtitle: 'بعض الألعاب الثقيلة ممكن تحتاج تنزل الإعدادات', tip: 'ترقية كرت الشاشة بتعطي أكبر فرق على 4K' };
+    return { color: 'red', icon: '🔴', title: 'كرت الشاشة ضعيف لـ 4K', subtitle: 'ننصح بدقة 1440p لتجربة أفضل', tip: 'هالكرت مصمم لـ 1080p/1440p — مو لـ 4K' };
+  }
+
+  if (resolution === '1440p') {
+    if (gpuPercent >= 55 && cpuScore >= 60) return { color: 'green', icon: '✅', title: 'ممتازة لـ 1440p', subtitle: 'القطع متوازنة — أفضل تجربة قيمنق', tip: null };
+    if (gpuPercent < 45) return { color: 'yellow', icon: '🟡', title: 'الكرت محدود على 1440p', subtitle: 'ممكن تحتاج تنزل بعض الإعدادات في الألعاب الثقيلة', tip: 'ترقية كرت الشاشة بتعطي فرق واضح' };
+    if (cpuScore < 55) return { color: 'yellow', icon: '🟡', title: 'المعالج يحد من الأداء قليلاً', subtitle: 'الكرت أقوى من المعالج — ما بتستفيد من كامل قوته', tip: 'ترقية المعالج بتفتح كامل إمكانيات الكرت' };
+    return { color: 'green', icon: '✅', title: 'جيدة لـ 1440p', subtitle: 'تجربة لعب سلسة في معظم الألعاب', tip: null };
+  }
+
+  // 1080p
+  if (cpuScore >= 70 && gpuPercent >= 50) return { color: 'green', icon: '✅', title: 'ممتازة لـ 1080p', subtitle: 'FPS عالي ومستقر في كل الألعاب', tip: 'على 1080p المعالج يأثر أكثر من الكرت' };
+  if (cpuScore < 55 && gpuPercent >= 60) return { color: 'yellow', icon: '🟡', title: 'المعالج يحد من الأداء', subtitle: 'كرت الشاشة أقوى بكثير من المعالج', tip: 'على 1080p المعالج مهم جداً — فكّر بترقيته أو ارفع الدقة لـ 1440p' };
+  if (gpuPercent < 40) return { color: 'yellow', icon: '🟡', title: 'كرت الشاشة ضعيف', subtitle: 'ما بتوصل لـ FPS عالي حتى على 1080p', tip: 'ترقية كرت الشاشة أولوية' };
+  return { color: 'green', icon: '✅', title: 'جيدة لـ 1080p', subtitle: 'أداء جيد في معظم الألعاب', tip: null };
 }
 
 function checkCompat(components) {
@@ -81,23 +103,19 @@ export default function AnalysisPage() {
 
   const bn = analyzeBottleneck(components.cpu, components.gpu, resolution);
   const compatResult = checkCompat(components);
-  const score = calcBuildScore(components, compatResult, bn);
   const recs = getRecommendations(components);
   const allComps = getAllComponents();
   const roadmap = getUpgradeRoadmap(components, allComps);
   const downgradesSugg = getSmartDowngrades(components, allComps);
   const futureProof = calcFutureProof(components);
 
-  const scoreColor = score >= 80 ? '#00e676' : score >= 50 ? '#ffd740' : '#ff5252';
-  const scoreLabel = score >= 80 ? 'ممتازة' : score >= 60 ? 'جيدة' : score >= 40 ? 'تحتاج تعديل' : 'ضعيفة';
-
   if (!components.cpu || !components.gpu) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
         <div className="max-w-2xl lg:max-w-4xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" size={160} />
-            <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">🔬 شوف قوة تجميعتك</h2>
+            <div className="text-5xl mb-4">⚖️</div>
+            <h2 className="font-display text-xl font-bold text-gb-text mb-2">🔬 شوف قوة تجميعتك</h2>
             <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق وتوقع FPS لـ 17 لعبة</p>
             <Link
               to="/builder"
@@ -114,7 +132,6 @@ export default function AnalysisPage() {
 
   const gamingCpu = getGamingCpuScore(components.cpu);
   const gpuScore = bn?.gpuScore || components.gpu?.score || 0;
-  const bnColor = severityColor(bn?.severity);
   const fpsRes = resolution === '4K' ? '4k' : resolution;
   const cpuBenchMatch = findCPUBenchmark(components.cpu?.name);
   const gpuBenchMatch = findGPUBenchmark(components.gpu?.name);
@@ -143,170 +160,100 @@ export default function AnalysisPage() {
           ))}
         </div>
 
-        {/* ── Bottleneck GaugeMeter ── */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col items-center mb-6"
-        >
-          <GaugeMeter
-            value={bn?.percent || 0}
-            size={220}
-            sublabel={
-              (bn?.percent || 0) <= 5 ? 'توازن مثالي ⚡'
-              : (bn?.percent || 0) <= 15 ? 'اختناق بسيط ⚠️'
-              : (bn?.percent || 0) <= 25 ? 'اختناق ملحوظ 🔶'
-              : 'اختناق حاد ❌'
-            }
-          />
-          {/* CPU vs GPU bar */}
-          {(() => {
-            const total = gamingCpu + gpuScore;
-            const cpuPct = total > 0 ? Math.round((gamingCpu / total) * 100) : 50;
-            const gpuPct = 100 - cpuPct;
-            return (
-              <div className="w-full max-w-sm mx-auto mt-4">
-                <div className="flex justify-between text-xs text-white/50 mb-1">
-                  <span>CPU {cpuPct}%</span>
-                  <span>GPU {gpuPct}%</span>
-                </div>
-                <div className="flex h-2.5 rounded-full overflow-hidden">
-                  <div className="bg-purple-500 transition-all duration-700" style={{ width: `${cpuPct}%` }} />
-                  <div className="bg-cyan-400 transition-all duration-700" style={{ width: `${gpuPct}%` }} />
-                </div>
-              </div>
-            );
-          })()}
-        </motion.div>
+        {/* ── Build Balance Card ── */}
+        {(() => {
+          const cpuBench = findCPUBenchmark(components.cpu.name);
+          const gpuBench = findGPUBenchmark(components.gpu.name);
+          const cpuScoreVal = cpuBench?.gamingScore || gamingCpu;
+          const isFlagshipCPU = cpuBench?.tier === 'flagship' || cpuScoreVal >= 95;
+          const isFlagshipGPU = (gpuBench?.p1080 || 0) >= 85;
+          const gpuPercent = resolution === '4K' ? gpuBench?.p4k
+                           : resolution === '1440p' ? gpuBench?.p1440
+                           : gpuBench?.p1080;
+          const balance = getBalanceStatus(cpuScoreVal, gpuPercent || gpuScore, resolution, isFlagshipCPU, isFlagshipGPU);
 
-        {/* 3 Stat Boxes */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-3 text-center"
-          >
-            <Cpu size={18} className="text-gb-primary mx-auto mb-1.5" />
-            <p className="text-lg font-display font-bold text-gb-text">{gamingCpu}</p>
-            <p className="text-[10px] text-gb-muted">CPU Gaming</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-3 text-center"
-          >
-            <MonitorPlay size={18} className="text-gb-secondary mx-auto mb-1.5" />
-            <p className="text-lg font-display font-bold text-gb-text">{gpuScore}</p>
-            <p className="text-[10px] text-gb-muted">GPU</p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-3 text-center"
-          >
-            <Zap size={18} className="text-yellow-400 mx-auto mb-1.5" />
-            <p className="text-lg font-display font-bold text-gb-text">
-              {(components.cpu?.tdp || 0) + (components.gpu?.tdp || 0)}W
-            </p>
-            <p className="text-[10px] text-gb-muted">Power</p>
-          </motion.div>
-        </div>
+          const colorMap = {
+            green:  { bg: 'bg-green-500/10', border: 'border-green-500/30', text: 'text-green-400', bar: '#22c55e' },
+            yellow: { bg: 'bg-yellow-500/10', border: 'border-yellow-500/30', text: 'text-yellow-400', bar: '#eab308' },
+            red:    { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', bar: '#ef4444' },
+          };
+          const c = colorMap[balance.color];
 
-        {/* CPU vs GPU Unified Balance Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
-        >
-          <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">
-            <TrendingUp size={15} className="text-gb-primary" />
-            توازن القطع
-          </h3>
-          {/* Unified CPU/GPU bar */}
-          {(() => {
-            const total = gamingCpu + gpuScore;
-            const cpuPct = total > 0 ? Math.round((gamingCpu / total) * 100) : 50;
-            const gpuPct = 100 - cpuPct;
-            return (
-              <>
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] text-purple-400 font-bold flex items-center gap-1"><Cpu size={11} /> CPU {gamingCpu}</span>
-                  <span className="text-[11px] text-cyan-400 font-bold flex items-center gap-1">GPU {gpuScore} <MonitorPlay size={11} /></span>
-                </div>
-                <div className="h-3.5 rounded-full bg-gb-bg overflow-hidden flex">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${cpuPct}%` }}
-                    transition={{ duration: 0.8, delay: 0.6 }}
-                    className="h-full bg-gradient-to-r from-purple-500 to-purple-400"
-                    style={{ borderRadius: '9999px 0 0 9999px' }}
-                  />
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: `${gpuPct}%` }}
-                    transition={{ duration: 0.8, delay: 0.7 }}
-                    className="h-full bg-gradient-to-r from-cyan-400 to-cyan-500"
-                    style={{ borderRadius: '0 9999px 9999px 0' }}
-                  />
-                </div>
-                <div className="flex items-center justify-between mt-1.5">
-                  <span className="text-[10px] text-gb-muted truncate max-w-[45%]">{components.cpu.name}</span>
-                  <span className="text-[10px] text-gb-muted truncate max-w-[45%] text-left">{components.gpu.name}</span>
-                </div>
-              </>
-            );
-          })()}
-          <p className="text-[10px] text-gb-muted/60 flex items-center gap-1 mt-2">
-            <Monitor size={10} />
-            في {resolution} {resolution === '4K' ? 'الكرت يشتغل أكثر' : resolution === '1080p' ? 'المعالج يشتغل أكثر' : 'التوزيع متوازن بينهم'}
-          </p>
-        </motion.div>
+          // Resolution-weighted CPU/GPU workload share
+          const cpuWeight = { '1080p': 0.40, '1440p': 0.25, '4K': 0.10 };
+          const gpuWeight = { '1080p': 0.60, '1440p': 0.75, '4K': 0.90 };
+          const cpuContribution = cpuScoreVal * cpuWeight[resolution];
+          const gpuContribution = (gpuPercent || gpuScore || 50) * gpuWeight[resolution];
+          const total = cpuContribution + gpuContribution;
+          const cpuShare = total > 0 ? Math.round((cpuContribution / total) * 100) : 50;
+          const gpuShare = 100 - cpuShare;
 
-        {/* Bottleneck */}
-        {bn && (() => {
-          const bnDynamicColor = getBottleneckColor(bn.percent);
           return (
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className={`rounded-xl p-4 mb-4 border ${
-                bn.severity === 'none' ? 'bg-green-500/5 border-green-500/20'
-                : bn.severity === 'minor' ? 'bg-yellow-500/5 border-yellow-500/20'
-                : bn.severity === 'moderate' ? 'bg-orange-500/5 border-orange-500/20'
-                : 'bg-red-500/5 border-red-500/20'
-              }`}
+              transition={{ delay: 0.2 }}
+              className="mb-5"
             >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: bnDynamicColor + '15' }}>
-                  {bn.severity === 'none' ? '✅' : bn.severity === 'minor' ? '🟡' : '⚠️'}
-                </span>
-                <span className="font-bold text-sm" style={{ color: bnDynamicColor }}>
-                  {bn.severity === 'none' ? 'متوازنة ✓' : bn.severity === 'minor' ? 'بوتلنك بسيط' : bn.severity === 'moderate' ? `بوتلنك: ${bn.limitingComponent}` : `بوتلنك شديد: ${bn.limitingComponent}`}
-                </span>
-                {bn.percent > 0 && (
-                  <span className="text-[10px] font-display font-bold mr-auto" style={{ color: bnDynamicColor }}>{bn.percent}%</span>
+              {/* Balance Status Card */}
+              <div className={`${c.bg} border ${c.border} rounded-2xl p-6 text-center mb-4`}>
+                <div className="text-3xl mb-2">{balance.icon}</div>
+                <h3 className={`text-xl font-bold font-display ${c.text} mb-1`}>{balance.title}</h3>
+                <p className="text-gray-300 text-sm">{balance.subtitle}</p>
+                {balance.tip && (
+                  <p className="text-gray-500 text-xs mt-3 flex items-center justify-center gap-1">
+                    <span>💡</span> {balance.tip}
+                  </p>
                 )}
               </div>
-              <p className="text-xs text-gb-muted mb-2">{bn.description}</p>
-              {bn.percent > 0 && (
-                <div className="h-2 rounded-full bg-gb-surface overflow-hidden">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(bn.percent * 1.5, 100)}%` }}
-                    transition={{ duration: 0.8, delay: 0.7 }} className="h-full rounded-full" style={{ backgroundColor: bnDynamicColor }} />
+
+              {/* 3 Stat Boxes */}
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-gb-card rounded-xl border border-gb-border p-3 text-center">
+                  <Cpu size={18} className="text-gb-primary mx-auto mb-1.5" />
+                  <p className="text-lg font-display font-bold text-gb-text">{gamingCpu}</p>
+                  <p className="text-[10px] text-gb-muted">CPU Gaming</p>
                 </div>
-              )}
-              {bn.percent > 15 && bn.limitingComponent && (
-                <div className="mt-3 p-2.5 rounded-lg bg-gb-bg/50 border border-gb-border/50">
-                  <p className="text-[11px] font-bold" style={{ color: bnDynamicColor }}>
-                    💡 {bn.limitingComponent === 'CPU' ? 'ترقية المعالج بتعطيك فرق كبير — الكرت أقوى من اللازم' : 'ترقية كرت الشاشة بتعطيك فرق كبير — المعالج أقوى من اللازم'}
+                <div className="bg-gb-card rounded-xl border border-gb-border p-3 text-center">
+                  <MonitorPlay size={18} className="text-gb-secondary mx-auto mb-1.5" />
+                  <p className="text-lg font-display font-bold text-gb-text">{gpuScore}</p>
+                  <p className="text-[10px] text-gb-muted">GPU</p>
+                </div>
+                <div className="bg-gb-card rounded-xl border border-gb-border p-3 text-center">
+                  <Zap size={18} className="text-yellow-400 mx-auto mb-1.5" />
+                  <p className="text-lg font-display font-bold text-gb-text">
+                    {(components.cpu?.tdp || 0) + (components.gpu?.tdp || 0)}W
                   </p>
+                  <p className="text-[10px] text-gb-muted">Power</p>
                 </div>
-              )}
+              </div>
+
+              {/* CPU/GPU Workload Bar */}
+              <div className="bg-gb-card rounded-xl border border-gb-border p-4">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="text-cyan-400 flex items-center gap-1"><MonitorPlay size={12} /> {components.gpu.name.split(' ').slice(0, 3).join(' ')}</span>
+                  <span className="text-purple-400 flex items-center gap-1">{components.cpu.name.split(' ').slice(0, 3).join(' ')} <Cpu size={12} /></span>
+                </div>
+                <div className="flex h-3 rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${gpuShare}%` }}
+                    transition={{ duration: 0.8, delay: 0.4 }}
+                    className="h-full bg-gradient-to-r from-cyan-500 to-cyan-400"
+                  />
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${cpuShare}%` }}
+                    transition={{ duration: 0.8, delay: 0.5 }}
+                    className="h-full bg-gradient-to-r from-purple-400 to-purple-500"
+                  />
+                </div>
+                <p className="text-gray-500 text-xs text-center mt-2">
+                  {resolution === '4K' && '🖥️ في 4K الكرت يشتغل أكثر وهذا طبيعي'}
+                  {resolution === '1440p' && '🖥️ في 1440p القطع تتشارك الشغل بالتساوي'}
+                  {resolution === '1080p' && '🖥️ في 1080p المعالج يشتغل أكثر'}
+                </p>
+              </div>
             </motion.div>
           );
         })()}
