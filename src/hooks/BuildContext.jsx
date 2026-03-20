@@ -97,7 +97,7 @@ export function BuildProvider({ children }) {
   const getShareUrl = useCallback(() => {
     const encoded = encodeBuild(state.components);
     if (!encoded) return null;
-    return `${window.location.origin}/builder?b=${encodeURIComponent(encoded)}`;
+    return `${window.location.origin}/b/${encoded}`;
   }, [state.components]);
 
   const getBuildCode = useCallback(() => {

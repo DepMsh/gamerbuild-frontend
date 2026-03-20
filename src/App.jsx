@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { BuildProvider } from './hooks/BuildContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,6 +17,11 @@ const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
 const GamesPage = lazy(() => import('./pages/GamesPage'));
 const PriceHistoryPage = lazy(() => import('./pages/PriceHistoryPage'));
 const MyBuildsPage = lazy(() => import('./pages/MyBuildsPage'));
+
+function BuildRedirect() {
+  const { code } = useParams();
+  return <Navigate to={`/builder?b=${code}`} replace />;
+}
 
 function PageLoader() {
   return (
@@ -48,6 +53,7 @@ export default function App() {
                   <Route path="/games" element={<GamesPage />} />
                   <Route path="/prices" element={<PriceHistoryPage />} />
                   <Route path="/my-builds" element={<MyBuildsPage />} />
+                  <Route path="/b/:code" element={<BuildRedirect />} />
                 </Routes>
               </Suspense>
             </main>

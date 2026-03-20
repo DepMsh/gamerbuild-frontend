@@ -15,7 +15,7 @@ export default function MyBuildsPage() {
   };
 
   const handleCopyLink = (encoded) => {
-    const url = `${window.location.origin}/builder?b=${encodeURIComponent(encoded)}`;
+    const url = `${window.location.origin}/b/${encoded}`;
     navigator.clipboard.writeText(url);
     alert('تم نسخ الرابط! 📋');
   };
