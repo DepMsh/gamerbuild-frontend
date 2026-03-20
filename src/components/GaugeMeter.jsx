@@ -1,5 +1,13 @@
 import { motion } from 'framer-motion';
 
+// Bottleneck-specific color based on percentage
+export function getBottleneckColor(percent) {
+  if (percent <= 5) return '#00e676';   // green — balanced
+  if (percent <= 15) return '#ffc107';  // amber — minor
+  if (percent <= 25) return '#ff9800';  // orange — moderate
+  return '#f44336';                      // red — severe
+}
+
 // Semi-circular gauge (270° arc) — used in Analysis page
 // Props: value (0-100), label, color, size (default 180)
 export default function GaugeMeter({ value = 0, label = '', sublabel = '', color = '#00e676', size = 180 }) {

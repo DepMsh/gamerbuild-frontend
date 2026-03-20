@@ -92,11 +92,11 @@ export function calcThermalHarmony(components) {
 
   score = Math.min(Math.max(Math.round(score), 5), 100);
 
-  let label, color;
-  if (score >= 80) { label = 'ممتاز'; color = '#00e676'; }
-  else if (score >= 60) { label = 'جيد'; color = '#ffd740'; }
-  else if (score >= 40) { label = 'متوسط'; color = '#ff9100'; }
-  else { label = 'ضعيف'; color = '#ff5252'; }
+  let label, color, emoji;
+  if (score >= 80) { label = 'ممتاز'; color = '#00e676'; emoji = '🧊'; }
+  else if (score >= 60) { label = 'جيد'; color = '#ffd740'; emoji = '👍'; }
+  else if (score >= 40) { label = 'متوسط'; color = '#ff9100'; emoji = '🌡️'; }
+  else { label = 'ضعيف'; color = '#ff5252'; emoji = '🔥'; }
 
   // Noise estimate (1-5 scale)
   let noise = 2;
@@ -105,11 +105,12 @@ export function calcThermalHarmony(components) {
   if (cooler?.type === 'liquid') noise = Math.max(1, noise - 1);
   if (pcCase && (pcCase.name || '').toLowerCase().includes('silent')) noise = Math.max(1, noise - 1);
 
-  const noiseLabels = ['', 'صامت', 'هادي', 'متوسط', 'مسموع', 'عالي'];
+  const noiseLabels = ['', 'صامت 🤫', 'هادي 😊', 'متوسط 🔊', 'مسموع 📢', 'عالي 🔴'];
 
   return {
     score,
     label,
+    emoji,
     color,
     noise,
     noiseLabel: noiseLabels[noise] || 'متوسط',

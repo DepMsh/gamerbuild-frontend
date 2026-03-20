@@ -93,9 +93,12 @@ export default function Navbar() {
                 <div className="relative">
                   <Icon size={22} strokeWidth={active ? 2.5 : 1.5} />
                   {isBuilder && selectedCount > 0 && (
-                    <span className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-gb-accent text-white text-[8px] font-bold flex items-center justify-center">
-                      {selectedCount}
-                    </span>
+                    <>
+                      <span className="absolute -top-1.5 -left-1.5 w-4 h-4 rounded-full bg-gb-accent text-white text-[8px] font-bold flex items-center justify-center">
+                        {selectedCount}
+                      </span>
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-gb-primary animate-pulse shadow-[0_0_6px_rgba(0,229,255,0.6)]" />
+                    </>
                   )}
                 </div>
                 <span className={`text-[10px] leading-tight ${active ? 'font-bold' : ''}`}>{mobileLabel}</span>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { GAMES, predictFPS } from '../utils/engine';
-import { Crosshair, Monitor, MonitorSpeaker, Tv } from 'lucide-react';
+import { Crosshair, Monitor, MonitorSpeaker, Tv, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const RES_OPTIONS = [
@@ -59,13 +60,20 @@ export default function GamesPage() {
   if (!hasBoth) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl mx-auto text-center py-20">
+        <div className="max-w-2xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
             <div className="w-24 h-24 mx-auto rounded-full bg-gb-card border border-gb-border flex items-center justify-center mb-4">
               <Crosshair size={36} className="text-gb-muted" />
             </div>
             <h2 className="font-display text-xl font-bold text-gb-text mb-2">توقع الأداء</h2>
-            <p className="text-gb-muted text-sm">اختر معالج وكرت شاشة في صفحة التجميعة عشان نتوقع FPS لكل لعبة</p>
+            <p className="text-gb-muted text-sm mb-6">اختر معالج وكرت شاشة عشان نتوقع FPS لـ 17 لعبة</p>
+            <Link
+              to="/builder"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-l from-gb-primary to-gb-secondary text-gb-bg font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] transition-all active:scale-95"
+            >
+              <Wrench size={16} />
+              روح للتجميع
+            </Link>
           </motion.div>
         </div>
       </div>

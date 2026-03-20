@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof } from '../utils/engine';
 import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents } from '../utils/db';
-import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock } from 'lucide-react';
-import { motion } from 'framer-motion';
-import GaugeMeter from '../components/GaugeMeter';
+import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import GaugeMeter, { getBottleneckColor } from '../components/GaugeMeter';
 
 function checkCompat(components) {
   const issues = [], warnings = [];
@@ -35,6 +36,8 @@ const resolutions = [
 export default function AnalysisPage() {
   const { components, selectedCount } = useBuild();
   const [resolution, setResolution] = useState('1080p');
+  const [openCards, setOpenCards] = useState({ thermal: true, future: true, downgrade: true });
+  const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
 
   const bn = analyzeBottleneck(components.cpu, components.gpu, resolution);
   const compatResult = checkCompat(components);
@@ -52,13 +55,18 @@ export default function AnalysisPage() {
   if (!components.cpu || !components.gpu) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl mx-auto text-center py-20">
+        <div className="max-w-2xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <div className="w-24 h-24 mx-auto rounded-full bg-gb-card border border-gb-border flex items-center justify-center mb-4">
-              <TrendingUp size={36} className="text-gb-muted" />
-            </div>
-            <h2 className="font-display text-xl font-bold text-gb-text mb-2">التحليل الذكي</h2>
-            <p className="text-gb-muted text-sm">اختر المعالج وكرت الشاشة لتحليل الأداء</p>
+            <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" color="#555" size={160} />
+            <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">التحليل الذكي</h2>
+            <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق</p>
+            <Link
+              to="/builder"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-l from-gb-primary to-gb-secondary text-gb-bg font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] transition-all active:scale-95"
+            >
+              <Wrench size={16} />
+              روح للتجميع
+            </Link>
           </motion.div>
         </div>
       </div>
@@ -138,7 +146,7 @@ export default function AnalysisPage() {
           </motion.div>
         </div>
 
-        {/* CPU vs GPU Balance */}
+        {/* CPU vs GPU Unified Balance Bar */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -149,171 +157,247 @@ export default function AnalysisPage() {
             <TrendingUp size={15} className="text-gb-primary" />
             توازن القطع
           </h3>
-          <div className="mb-3">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-gb-text font-medium truncate max-w-[70%]">CPU — {components.cpu.name}</span>
-              <span className="text-[11px] font-display text-gb-primary font-bold">{gamingCpu}/100</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-gb-bg overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${gamingCpu}%` }} transition={{ duration: 0.8, delay: 0.6 }}
-                className="h-full rounded-full bg-gradient-to-r from-gb-primary to-gb-primary/60" />
-            </div>
-          </div>
-          <div className="mb-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[11px] text-gb-text font-medium truncate max-w-[70%]">GPU — {components.gpu.name}</span>
-              <span className="text-[11px] font-display text-gb-secondary font-bold">{gpuScore}/100</span>
-            </div>
-            <div className="h-2.5 rounded-full bg-gb-bg overflow-hidden">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${gpuScore}%` }} transition={{ duration: 0.8, delay: 0.7 }}
-                className="h-full rounded-full bg-gradient-to-r from-gb-secondary to-gb-secondary/60" />
-            </div>
-          </div>
-          <p className="text-[10px] text-gb-muted/60 flex items-center gap-1 mt-1">
+          {/* Unified CPU/GPU bar */}
+          {(() => {
+            const total = gamingCpu + gpuScore;
+            const cpuPct = total > 0 ? Math.round((gamingCpu / total) * 100) : 50;
+            const gpuPct = 100 - cpuPct;
+            return (
+              <>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] text-purple-400 font-bold flex items-center gap-1"><Cpu size={11} /> CPU {gamingCpu}</span>
+                  <span className="text-[11px] text-cyan-400 font-bold flex items-center gap-1">GPU {gpuScore} <MonitorPlay size={11} /></span>
+                </div>
+                <div className="h-3.5 rounded-full bg-gb-bg overflow-hidden flex">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${cpuPct}%` }}
+                    transition={{ duration: 0.8, delay: 0.6 }}
+                    className="h-full bg-gradient-to-r from-purple-500 to-purple-400"
+                    style={{ borderRadius: '9999px 0 0 9999px' }}
+                  />
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${gpuPct}%` }}
+                    transition={{ duration: 0.8, delay: 0.7 }}
+                    className="h-full bg-gradient-to-r from-cyan-400 to-cyan-500"
+                    style={{ borderRadius: '0 9999px 9999px 0' }}
+                  />
+                </div>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[10px] text-gb-muted truncate max-w-[45%]">{components.cpu.name}</span>
+                  <span className="text-[10px] text-gb-muted truncate max-w-[45%] text-left">{components.gpu.name}</span>
+                </div>
+              </>
+            );
+          })()}
+          <p className="text-[10px] text-gb-muted/60 flex items-center gap-1 mt-2">
             <Monitor size={10} />
             في {resolution} {resolution === '4K' ? 'الكرت يشتغل أكثر' : resolution === '1080p' ? 'المعالج يشتغل أكثر' : 'التوزيع متوازن بينهم'}
           </p>
         </motion.div>
 
         {/* Bottleneck */}
-        {bn && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
-            className={`rounded-xl p-4 mb-4 border ${
-              bn.severity === 'none' ? 'bg-green-500/5 border-green-500/20'
-              : bn.severity === 'minor' ? 'bg-yellow-500/5 border-yellow-500/20'
-              : bn.severity === 'moderate' ? 'bg-orange-500/5 border-orange-500/20'
-              : 'bg-red-500/5 border-red-500/20'
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <span className="w-7 h-7 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: bnColor + '15' }}>
-                {bn.severity === 'none' ? '✅' : bn.severity === 'minor' ? '🟡' : '⚠️'}
-              </span>
-              <span className="font-bold text-sm" style={{ color: bnColor }}>
-                {bn.severity === 'none' ? 'متوازنة ✓' : bn.severity === 'minor' ? 'بوتلنك بسيط' : bn.severity === 'moderate' ? `بوتلنك: ${bn.limitingComponent}` : `بوتلنك شديد: ${bn.limitingComponent}`}
-              </span>
-              {bn.percent > 0 && (
-                <span className="text-[10px] font-display font-bold mr-auto" style={{ color: bnColor }}>{bn.percent}%</span>
-              )}
-            </div>
-            <p className="text-xs text-gb-muted mb-2">{bn.description}</p>
-            {bn.percent > 0 && (
-              <div className="h-2 rounded-full bg-gb-surface overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(bn.percent * 1.5, 100)}%` }}
-                  transition={{ duration: 0.8, delay: 0.7 }} className="h-full rounded-full" style={{ backgroundColor: bnColor }} />
+        {bn && (() => {
+          const bnDynamicColor = getBottleneckColor(bn.percent);
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className={`rounded-xl p-4 mb-4 border ${
+                bn.severity === 'none' ? 'bg-green-500/5 border-green-500/20'
+                : bn.severity === 'minor' ? 'bg-yellow-500/5 border-yellow-500/20'
+                : bn.severity === 'moderate' ? 'bg-orange-500/5 border-orange-500/20'
+                : 'bg-red-500/5 border-red-500/20'
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-7 h-7 rounded-lg flex items-center justify-center text-sm" style={{ backgroundColor: bnDynamicColor + '15' }}>
+                  {bn.severity === 'none' ? '✅' : bn.severity === 'minor' ? '🟡' : '⚠️'}
+                </span>
+                <span className="font-bold text-sm" style={{ color: bnDynamicColor }}>
+                  {bn.severity === 'none' ? 'متوازنة ✓' : bn.severity === 'minor' ? 'بوتلنك بسيط' : bn.severity === 'moderate' ? `بوتلنك: ${bn.limitingComponent}` : `بوتلنك شديد: ${bn.limitingComponent}`}
+                </span>
+                {bn.percent > 0 && (
+                  <span className="text-[10px] font-display font-bold mr-auto" style={{ color: bnDynamicColor }}>{bn.percent}%</span>
+                )}
               </div>
-            )}
-          </motion.div>
-        )}
+              <p className="text-xs text-gb-muted mb-2">{bn.description}</p>
+              {bn.percent > 0 && (
+                <div className="h-2 rounded-full bg-gb-surface overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(bn.percent * 1.5, 100)}%` }}
+                    transition={{ duration: 0.8, delay: 0.7 }} className="h-full rounded-full" style={{ backgroundColor: bnDynamicColor }} />
+                </div>
+              )}
+              {bn.percent > 15 && bn.limitingComponent && (
+                <div className="mt-3 p-2.5 rounded-lg bg-gb-bg/50 border border-gb-border/50">
+                  <p className="text-[11px] font-bold" style={{ color: bnDynamicColor }}>
+                    💡 {bn.limitingComponent === 'CPU' ? 'ترقية المعالج بتعطيك فرق كبير — الكرت أقوى من اللازم' : 'ترقية كرت الشاشة بتعطيك فرق كبير — المعالج أقوى من اللازم'}
+                  </p>
+                </div>
+              )}
+            </motion.div>
+          );
+        })()}
 
         {/* ── INNOVATION CARDS ── */}
 
-        {/* Thermal Harmony */}
+        {/* Thermal Harmony — collapsible */}
         {thermal && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.65 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+            className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
           >
-            <div className="flex items-center justify-between mb-3">
+            <button onClick={() => toggleCard('thermal')} className="w-full flex items-center justify-between p-4">
               <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
                 <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center">
                   <Thermometer size={14} className="text-orange-400" />
                 </div>
-                الحرارة والصوت
+                {thermal.emoji} الحرارة والصوت
               </h3>
-              <span className="text-xs font-display font-bold" style={{ color: thermal.color }}>
-                {thermal.score}/100
-              </span>
-            </div>
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex-1">
-                <div className="h-2 rounded-full bg-gb-bg overflow-hidden">
-                  <motion.div initial={{ width: 0 }} animate={{ width: `${thermal.score}%` }}
-                    transition={{ duration: 0.8 }} className="h-full rounded-full" style={{ backgroundColor: thermal.color }} />
-                </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-display font-bold" style={{ color: thermal.color }}>
+                  {thermal.score}/100
+                </span>
+                <ChevronDown size={16} className={`text-gb-muted transition-transform ${openCards.thermal ? 'rotate-180' : ''}`} />
               </div>
-              <span className="text-[11px] font-bold" style={{ color: thermal.color }}>{thermal.label}</span>
-            </div>
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-[10px] text-gb-muted">🔥 {thermal.totalHeat}W حرارة</span>
-              <span className="text-[10px] text-gb-muted">🔊 {thermal.noiseLabel}</span>
-            </div>
-            {thermal.issues.length > 0 && (
-              <div className="space-y-1 mt-2">
-                {thermal.issues.map((issue, i) => (
-                  <p key={i} className="text-[11px] text-red-400 flex items-center gap-1">⚠️ {issue}</p>
-                ))}
-              </div>
-            )}
-            {thermal.tips.length > 0 && thermal.issues.length === 0 && (
-              <p className="text-[10px] text-gb-muted mt-1">💡 {thermal.tips[0]}</p>
-            )}
+            </button>
+            <AnimatePresence initial={false}>
+              {openCards.thermal && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="flex-1">
+                        <div className="h-2 rounded-full bg-gb-bg overflow-hidden">
+                          <motion.div initial={{ width: 0 }} animate={{ width: `${thermal.score}%` }}
+                            transition={{ duration: 0.8 }} className="h-full rounded-full" style={{ backgroundColor: thermal.color }} />
+                        </div>
+                      </div>
+                      <span className="text-[11px] font-bold" style={{ color: thermal.color }}>{thermal.label}</span>
+                    </div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-[10px] text-gb-muted">🔥 {thermal.totalHeat}W حرارة</span>
+                      <span className="text-[10px] text-gb-muted">{thermal.noiseLabel}</span>
+                    </div>
+                    {thermal.issues.length > 0 && (
+                      <div className="space-y-1 mt-2">
+                        {thermal.issues.map((issue, i) => (
+                          <p key={i} className="text-[11px] text-red-400 flex items-center gap-1">⚠️ {issue}</p>
+                        ))}
+                      </div>
+                    )}
+                    {thermal.tips.length > 0 && thermal.issues.length === 0 && (
+                      <p className="text-[10px] text-gb-muted mt-1">💡 {thermal.tips[0]}</p>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 
-        {/* Future-Proof Score */}
-        {futureProof && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                  <Clock size={14} className="text-purple-400" />
+        {/* Future-Proof Score — collapsible */}
+        {futureProof && (() => {
+          const fpColor = futureProof.score >= 70 ? '#00e676' : futureProof.score >= 45 ? '#ffd740' : '#ff5252';
+          return (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
+            >
+              <button onClick={() => toggleCard('future')} className="w-full flex items-center justify-between p-4">
+                <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                    <Clock size={14} className="text-purple-400" />
+                  </div>
+                  🔮 جاهزية المستقبل
+                </h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-display font-bold" style={{ color: fpColor }}>
+                    {futureProof.score}/100
+                  </span>
+                  <ChevronDown size={16} className={`text-gb-muted transition-transform ${openCards.future ? 'rotate-180' : ''}`} />
                 </div>
-                جاهزية المستقبل
-              </h3>
-              <span className="text-xs font-display font-bold" style={{ color: futureProof.score >= 70 ? '#00e676' : futureProof.score >= 45 ? '#ffd740' : '#ff5252' }}>
-                {futureProof.score}/100
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-gb-bg overflow-hidden mb-2">
-              <motion.div initial={{ width: 0 }} animate={{ width: `${futureProof.score}%` }}
-                transition={{ duration: 0.8 }}
-                className="h-full rounded-full"
-                style={{ backgroundColor: futureProof.score >= 70 ? '#00e676' : futureProof.score >= 45 ? '#ffd740' : '#ff5252' }} />
-            </div>
-            <p className="text-[11px] text-gb-muted">{futureProof.description}</p>
-          </motion.div>
-        )}
+              </button>
+              <AnimatePresence initial={false}>
+                {openCards.future && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-4 pb-4">
+                      <div className="h-2 rounded-full bg-gb-bg overflow-hidden mb-2">
+                        <motion.div initial={{ width: 0 }} animate={{ width: `${futureProof.score}%` }}
+                          transition={{ duration: 0.8 }}
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: fpColor }} />
+                      </div>
+                      <p className="text-[11px] text-gb-muted">{futureProof.description}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          );
+        })()}
 
-        {/* Smart Downgrade Suggestions */}
+        {/* Smart Downgrade Suggestions — collapsible */}
         {downgradesSugg.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.75 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+            className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
           >
-            <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <ArrowDownCircle size={14} className="text-green-400" />
-              </div>
-              وفّر فلوسك
-            </h3>
-            <div className="space-y-3">
-              {downgradesSugg.map((s, i) => (
-                <div key={i} className="bg-gb-surface rounded-xl p-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] text-gb-muted">{s.type === 'gpu' ? 'كرت الشاشة' : s.type === 'cpu' ? 'المعالج' : 'الباور'}</span>
-                    <span className="text-xs font-display font-bold text-green-400">وفّر {s.saving.toLocaleString()} ر.س</span>
-                  </div>
-                  <p className="text-[11px] text-gb-text font-bold mb-0.5">{s.current.name} → {s.suggested.name}</p>
-                  <p className="text-[10px] text-gb-muted">{s.reason}</p>
-                  {s.perfLoss > 0 && (
-                    <p className="text-[10px] text-yellow-400 mt-1">-{s.perfLoss}% أداء</p>
-                  )}
+            <button onClick={() => toggleCard('downgrade')} className="w-full flex items-center justify-between p-4">
+              <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-green-500/10 flex items-center justify-center">
+                  <ArrowDownCircle size={14} className="text-green-400" />
                 </div>
-              ))}
-            </div>
+                💰 وفّر فلوسك
+              </h3>
+              <ChevronDown size={16} className={`text-gb-muted transition-transform ${openCards.downgrade ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence initial={false}>
+              {openCards.downgrade && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4 space-y-3">
+                    {downgradesSugg.map((s, i) => (
+                      <div key={i} className="bg-gb-surface rounded-xl p-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-[10px] text-gb-muted">{s.type === 'gpu' ? 'كرت الشاشة' : s.type === 'cpu' ? 'المعالج' : 'الباور'}</span>
+                          <span className="text-xs font-display font-bold text-green-400">وفّر {s.saving.toLocaleString()} ر.س</span>
+                        </div>
+                        <p className="text-[11px] text-gb-text font-bold mb-0.5">{s.current.name} → {s.suggested.name}</p>
+                        <p className="text-[10px] text-gb-muted">{s.reason}</p>
+                        {s.perfLoss > 0 && (
+                          <p className="text-[10px] text-yellow-400 mt-1">-{s.perfLoss}% أداء</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
 

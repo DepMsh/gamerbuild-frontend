@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown, Trash2 } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck, getDisplayName } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
@@ -380,20 +381,52 @@ export default function BuilderPage() {
             )}
           </div>
         </div>
+
+        {/* ========== COMPLETION SECTION ========== */}
+        {components.cpu && components.gpu && components.motherboard && components.ram && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-5 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/15 text-center"
+          >
+            <span className="text-3xl mb-2 block">🎉</span>
+            <h3 className="font-display text-lg font-bold text-gb-text mb-1">تجميعتك جاهزة!</h3>
+            <p className="text-xs text-gb-muted mb-4">القطع الأساسية مختارة — شيك الأسعار واطلب من أمازون</p>
+            <div className="flex flex-col sm:flex-row gap-2.5 max-w-sm mx-auto">
+              <Link
+                to="/analysis"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm font-bold hover:border-gb-primary/30 transition-all"
+              >
+                <BarChart2 size={15} /> شوف التحليل
+              </Link>
+              <Link
+                to="/games"
+                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm font-bold hover:border-gb-primary/30 transition-all"
+              >
+                🎮 توقع FPS
+              </Link>
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* ========== STICKY MOBILE BOTTOM BAR ========== */}
       {selectedCount >= 1 && (
         <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-gb-bg/95 backdrop-blur-xl border-t border-gb-border px-4 py-2.5"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-          {/* Top row: clear | count | price */}
+          {/* Top row: stats */}
           <div className="flex items-center justify-between mb-2">
-            <button onClick={() => setShowClearConfirm(true)} className="flex items-center gap-1 text-[11px] text-red-400/70 active:text-red-400">
-              <Trash2 size={11} />
-              مسح الكل
-            </button>
-            <span className="text-[11px] text-gb-muted">{selectedCount}/8 قطع</span>
-            <span className="text-base font-display font-black" style={{ color: '#00e676' }}>~{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
+            <div className="flex items-center gap-2.5">
+              <span className="text-[10px] text-gb-muted flex items-center gap-0.5">📦 {selectedCount}/8</span>
+              <span className="text-[10px] text-gb-muted flex items-center gap-0.5">⚡ {wattage}W/{psuCapacity}W</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-display font-black" style={{ color: '#00e676' }}>💰 ~{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
+              <button onClick={() => setShowClearConfirm(true)} className="p-1 text-red-400/50 active:text-red-400">
+                <Trash2 size={13} />
+              </button>
+            </div>
           </div>
           {/* Bottom row: Amazon button */}
           <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
