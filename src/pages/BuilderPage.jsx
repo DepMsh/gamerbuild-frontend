@@ -253,18 +253,20 @@ export default function BuilderPage() {
   };
 
   const handleBuyAll = () => {
-    const parts = Object.values(components).filter(Boolean);
-    const links = parts.map(p => getAmazonLink(p));
+    const allParts = Object.values(components).filter(Boolean);
+    if (allParts.length === 0) return;
     track.clickAmazon('buy_all', totalPrice);
-    if (links.length === 0) return;
-    const first = window.open(links[0], '_blank');
-    if (!first) {
-      setBuyAllBlocked(true);
-      setTimeout(() => setBuyAllBlocked(false), 5000);
-      return;
-    }
-    links.slice(1).forEach((link, i) => {
-      setTimeout(() => window.open(link, '_blank'), (i + 1) * 400);
+    allParts.forEach((part, index) => {
+      setTimeout(() => {
+        const url = part.asin
+          ? `https://www.amazon.sa/dp/${part.asin}?tag=meshal039-21`
+          : `https://www.amazon.sa/s?k=${encodeURIComponent(part.name)}&tag=meshal039-21`;
+        const win = window.open(url, '_blank');
+        if (!win && index === 0) {
+          setBuyAllBlocked(true);
+          setTimeout(() => setBuyAllBlocked(false), 5000);
+        }
+      }, index * 300);
     });
   };
 
@@ -603,20 +605,6 @@ export default function BuilderPage() {
                   ); })}
                 </div>
 
-                <button onClick={handleBuyAll}
-                  className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-[#0a0a14] font-bold text-sm hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(0,229,255,0.2)] active:scale-[0.97] transition-all">
-                  <ShoppingCart size={16} /> اشتر كل القطع من أمازون
-                </button>
-                {buyAllBlocked && (
-                  <p className="text-xs text-yellow-400 text-center">المتصفح منع فتح النوافذ — اضغط على كل قطعة</p>
-                )}
-
-                <button onClick={() => {
-                  const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${liveTotalPrice.toLocaleString()} ر.س\n\npcbux.com`;
-                  navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
-                }} className="w-full py-2.5 rounded-xl bg-gb-card border border-gb-border text-gb-text text-xs hover:border-gb-primary/30 transition-all flex items-center justify-center gap-2">
-                  <ExternalLink size={14} /> شارك التجميعة
-                </button>
               </div>
             )}
           </div>
