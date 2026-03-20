@@ -1,18 +1,18 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeftRight, Search } from 'lucide-react';
+import { ArrowLeftRight, Search, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Zap, Snowflake, Box } from 'lucide-react';
 import { motion } from 'framer-motion';
 import usePageTitle from '../hooks/usePageTitle';
 import { COMPONENTS } from '../utils/db';
 
 const catOptions = [
-  { key: 'cpu', label: 'معالج', icon: '🧠' },
-  { key: 'gpu', label: 'كرت شاشة', icon: '🎮' },
-  { key: 'motherboard', label: 'لوحة أم', icon: '🔌' },
-  { key: 'ram', label: 'رام', icon: '💾' },
-  { key: 'ssd', label: 'تخزين', icon: '💿' },
-  { key: 'psu', label: 'باور', icon: '⚡' },
-  { key: 'cooler', label: 'تبريد', icon: '❄️' },
-  { key: 'case', label: 'كيس', icon: '🖥️' },
+  { key: 'cpu', label: 'معالج', icon: Cpu },
+  { key: 'gpu', label: 'كرت شاشة', icon: MonitorSpeaker },
+  { key: 'motherboard', label: 'لوحة أم', icon: CircuitBoard },
+  { key: 'ram', label: 'رام', icon: MemoryStick },
+  { key: 'ssd', label: 'تخزين', icon: HardDrive },
+  { key: 'psu', label: 'باور', icon: Zap },
+  { key: 'cooler', label: 'تبريد', icon: Snowflake },
+  { key: 'case', label: 'كيس', icon: Box },
 ];
 
 const POPULAR_COMPARISONS = {
@@ -233,8 +233,8 @@ export default function ComparePage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {catOptions.map(cat => (
               <button key={cat.key} onClick={() => handleCategoryChange(cat.key)}
-                className="flex flex-col items-center gap-2 p-5 rounded-2xl bg-gb-card border border-gb-border hover:border-gb-primary/30 hover:bg-gb-primary/5 transition-all">
-                <span className="text-3xl">{cat.icon}</span>
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl bg-gb-card border border-gb-border hover:border-gb-primary/30 hover:bg-gb-primary/5 transition-all">
+                <cat.icon className="w-8 h-8 text-gb-primary" strokeWidth={1.5} />
                 <span className="text-sm font-bold text-gb-text">{cat.label}</span>
               </button>
             ))}
@@ -268,7 +268,7 @@ export default function ComparePage() {
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
                 category === cat.key ? 'bg-gb-primary/15 text-gb-primary border border-gb-primary/25' : 'bg-gb-card text-gb-muted border border-gb-border'
               }`}>
-              <span>{cat.icon}</span> {cat.label}
+              <cat.icon size={14} strokeWidth={1.5} /> {cat.label}
             </button>
           ))}
         </div>
