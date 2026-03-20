@@ -58,17 +58,26 @@ export default function HomePage() {
         {/* Animated background */}
         <div className="absolute inset-0 bg-gb-bg">
           <div className="absolute inset-0 bg-grid opacity-20" />
+          {/* Primary cyan orb */}
           <motion.div
-            className="absolute top-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px]"
-            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%)' }}
-            animate={{ scale: [1, 1.2, 1], x: [0, 30, 0], y: [0, -20, 0] }}
+            className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[140px]"
+            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)' }}
+            animate={{ scale: [1, 1.3, 1], x: [0, 40, 0], y: [0, -30, 0] }}
             transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
           />
+          {/* Secondary green orb */}
           <motion.div
-            className="absolute bottom-1/4 left-1/4 w-[350px] h-[350px] rounded-full blur-[120px]"
-            style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.05) 0%, transparent 70%)' }}
-            animate={{ scale: [1.1, 1, 1.1], x: [0, -20, 0], y: [0, 15, 0] }}
+            className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-[130px]"
+            style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)' }}
+            animate={{ scale: [1.1, 1, 1.1], x: [0, -25, 0], y: [0, 20, 0] }}
             transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {/* Accent purple orb */}
+          <motion.div
+            className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%)' }}
+            animate={{ scale: [1, 1.15, 1], x: [0, -15, 0], y: [0, 25, 0] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
           />
         </div>
 
@@ -113,11 +122,12 @@ export default function HomePage() {
           >
             <Link
               to="/builder"
-              className="group inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base sm:text-lg shadow-[0_0_40px_rgba(0,229,255,0.25)] hover:shadow-[0_0_60px_rgba(0,229,255,0.4)] transition-all duration-300 active:scale-95"
+              className="group relative inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-lg sm:text-xl shadow-[0_0_50px_rgba(0,229,255,0.3)] hover:shadow-[0_0_80px_rgba(0,229,255,0.5)] hover:scale-105 transition-all duration-300 active:scale-95"
             >
-              <Wrench size={20} />
-              ابدأ التجميع
-              <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="absolute inset-0 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 pointer-events-none" />
+              <Wrench size={22} className="relative z-10" />
+              <span className="relative z-10">ابدأ التجميع</span>
+              <ChevronLeft size={20} className="relative z-10 group-hover:-translate-x-1 transition-transform" />
             </Link>
           </motion.div>
         </div>
@@ -168,7 +178,7 @@ export default function HomePage() {
               >
                 <Link
                   to={`/builder?preset=${tier.key}`}
-                  className={`block bg-gradient-to-b ${tier.color} border border-white/10 rounded-xl p-4 text-center hover:border-white/20 transition-colors active:scale-95`}
+                  className={`block bg-gradient-to-b ${tier.color} border border-white/10 rounded-xl p-4 text-center hover:border-white/25 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-300 active:scale-95`}
                 >
                   <div className="text-2xl mb-2">{tier.icon}</div>
                   <div className="font-bold text-white text-sm">{tier.label}</div>
@@ -195,7 +205,7 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${f.gradient} border ${f.borderColor} backdrop-blur-sm`}
+                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${f.gradient} border ${f.borderColor} backdrop-blur-sm hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-300`}
               >
                 <div className={`w-10 h-10 rounded-xl bg-gb-bg/60 flex items-center justify-center mb-2.5 ${f.iconColor}`}>
                   <f.icon size={18} />
@@ -224,7 +234,7 @@ export default function HomePage() {
               <p className="text-xs text-gb-muted mb-6">ابدأ الحين وجمّع أفضل PC قيمنق بأحسن سعر</p>
               <Link
                 to="/builder"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base shadow-[0_0_30px_rgba(0,229,255,0.2)] hover:shadow-[0_0_50px_rgba(0,229,255,0.35)] transition-all active:scale-95"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base shadow-[0_0_30px_rgba(0,229,255,0.2)] hover:shadow-[0_0_60px_rgba(0,229,255,0.4)] hover:scale-105 transition-all duration-300 active:scale-95"
               >
                 <Wrench size={18} />
                 ابدأ التجميع

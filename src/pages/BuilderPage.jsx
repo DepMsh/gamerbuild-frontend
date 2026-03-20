@@ -17,6 +17,17 @@ const catIcons = {
   ssd: '💿', psu: '⚡', cooler: '❄️', case: '📦',
 };
 
+const catColors = {
+  cpu:         { border: 'border-l-blue-500',    glow: 'hover:shadow-blue-500/10' },
+  gpu:         { border: 'border-l-emerald-500', glow: 'hover:shadow-emerald-500/10' },
+  motherboard: { border: 'border-l-purple-500',  glow: 'hover:shadow-purple-500/10' },
+  ram:         { border: 'border-l-cyan-500',    glow: 'hover:shadow-cyan-500/10' },
+  ssd:         { border: 'border-l-orange-500',  glow: 'hover:shadow-orange-500/10' },
+  psu:         { border: 'border-l-yellow-500',  glow: 'hover:shadow-yellow-500/10' },
+  cooler:      { border: 'border-l-sky-500',     glow: 'hover:shadow-sky-500/10' },
+  case:        { border: 'border-l-slate-400',   glow: 'hover:shadow-slate-400/10' },
+};
+
 // Category grid config — unique gradients & Lucide icons
 const catGridConfig = {
   cpu:         { gradient: 'from-teal-900/80 to-teal-950/90',    glow: 'shadow-teal-500/20',    Icon: Cpu,            color: '#2dd4bf' },
@@ -233,7 +244,7 @@ export default function BuilderPage() {
           </div>
         </div>
 
-        {/* Progress bar — 8 circles */}
+        {/* Progress bar — 8 circles + gradient bar */}
         <div className="mb-5 px-2">
           <div className="flex items-center justify-between relative">
             <div className="absolute top-1/2 left-0 right-0 h-px bg-gb-border -translate-y-1/2 z-0" />
@@ -242,20 +253,37 @@ export default function BuilderPage() {
               const filled = !!comp;
               const isCustom = comp?.isCustom;
               return (
-                <button key={key} onClick={() => filled ? openPickerModal(key) : openPickerModal(key)} className="relative z-10 flex flex-col items-center gap-1">
-                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm transition-all ${
-                    filled && isCustom ? 'bg-yellow-500 text-gb-bg shadow-[0_0_12px_rgba(234,179,8,0.4)]'
-                    : filled ? 'bg-gb-primary text-gb-bg shadow-[0_0_12px_rgba(0,229,255,0.4)]'
-                    : 'bg-gb-card border border-gb-border text-gb-muted'
+                <button key={key} onClick={() => {
+                  const el = document.getElementById(`row-${key}`);
+                  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  else openPickerModal(key);
+                }} className="relative z-10 flex flex-col items-center gap-1 group">
+                  <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm transition-all duration-500 ${
+                    filled && isCustom ? 'bg-yellow-500 text-gb-bg shadow-[0_0_14px_rgba(234,179,8,0.5)]'
+                    : filled ? 'bg-gb-primary text-gb-bg shadow-[0_0_14px_rgba(0,229,255,0.5)]'
+                    : 'bg-gb-card border border-gb-border text-gb-muted group-hover:border-gb-primary/30 group-hover:shadow-[0_0_10px_rgba(0,229,255,0.15)]'
                   }`}>
                     {filled && isCustom ? <AlertCircle size={14} strokeWidth={3} /> : filled ? <Check size={14} strokeWidth={3} /> : <span className="text-xs">{catIcons[key]}</span>}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] whitespace-nowrap ${filled && isCustom ? 'text-yellow-400 font-bold' : filled ? 'text-gb-primary font-bold' : 'text-gb-muted'}`}>
+                  <span className={`text-[9px] sm:text-[10px] whitespace-nowrap transition-colors ${filled && isCustom ? 'text-yellow-400 font-bold' : filled ? 'text-gb-primary font-bold' : 'text-gb-muted group-hover:text-gb-text'}`}>
                     {label}
                   </span>
                 </button>
               );
             })}
+          </div>
+          {/* Thin gradient progress bar */}
+          <div className="h-1 bg-white/5 rounded-full overflow-hidden mt-3">
+            <motion.div
+              className="h-full rounded-full bg-gradient-to-r from-[#00e5ff] via-[#7c4dff] to-[#00e676]"
+              initial={{ width: 0 }}
+              animate={{ width: `${(selectedCount / 8) * 100}%` }}
+              transition={{ duration: 0.7, ease: 'easeOut' }}
+            />
+          </div>
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="text-[10px] text-gb-muted font-mono">{selectedCount}/8 قطع</span>
+            {selectedCount === 8 && <span className="text-[10px] text-[#00e676] font-bold">تجميعة كاملة!</span>}
           </div>
         </div>
 
@@ -371,10 +399,11 @@ export default function BuilderPage() {
         <div className="rounded-xl sm:rounded-2xl border border-gb-border overflow-hidden bg-gb-card">
           {CATEGORIES.map(({ key, label, labelEn, icon, required }) => {
             const selected = components[key];
+            const cc = catColors[key] || {};
             return (
-              <div key={key} className="border-b border-gb-border last:border-0">
+              <div key={key} id={`row-${key}`} className={`border-b border-gb-border last:border-0 border-l-2 ${cc.border || ''}`}>
                 <div
-                  className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-4 sm:py-4 cursor-pointer transition-colors active:bg-gb-surface/30 ${
+                  className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-4 sm:py-4 cursor-pointer transition-all duration-300 active:bg-gb-surface/30 hover:-translate-y-px hover:shadow-lg ${cc.glow || ''} ${
                     selected ? 'hover:bg-gb-surface/20' : 'hover:bg-gb-surface/30 border-dashed'
                   }`}
                   onClick={() => openPickerModal(key)}
@@ -518,8 +547,14 @@ export default function BuilderPage() {
       {selectedCount >= 1 && (
         <div className="fixed bottom-14 left-0 right-0 z-40 bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm md:hidden">
           <span className="text-[#00e676] font-bold font-mono">~{totalPrice.toLocaleString()} ر.س</span>
+          <div className="flex items-center gap-1">
+            {CATEGORIES.map(({ key }) => (
+              <div key={key} className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                components[key] ? 'bg-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.5)]' : 'bg-white/10'
+              }`} />
+            ))}
+          </div>
           <span className="text-white/40">⚡ {wattage}W</span>
-          <span className="text-white/40">📦 {selectedCount}/8</span>
         </div>
       )}
 

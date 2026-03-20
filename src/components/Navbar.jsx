@@ -66,7 +66,7 @@ export default function Navbar() {
                     <Icon size={14} />
                     {label}
                     {active && (
-                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gb-primary" />
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gb-primary shadow-[0_0_8px_rgba(0,229,255,0.6)]" />
                     )}
                   </Link>
                 );
