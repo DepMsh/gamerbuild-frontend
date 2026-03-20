@@ -16,6 +16,7 @@ const DealsPage = lazy(() => import('./pages/DealsPage'));
 const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
 const GamesPage = lazy(() => import('./pages/GamesPage'));
 const PriceHistoryPage = lazy(() => import('./pages/PriceHistoryPage'));
+const MyBuildsPage = lazy(() => import('./pages/MyBuildsPage'));
 
 function PageLoader() {
   return (
@@ -46,6 +47,7 @@ export default function App() {
                   <Route path="/analysis" element={<AnalysisPage />} />
                   <Route path="/games" element={<GamesPage />} />
                   <Route path="/prices" element={<PriceHistoryPage />} />
+                  <Route path="/my-builds" element={<MyBuildsPage />} />
                 </Routes>
               </Suspense>
             </main>

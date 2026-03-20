@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown } from 'lucide-react';
+import { Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown, Save } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
 const allLinks = [
@@ -11,7 +11,8 @@ const allLinks = [
   { path: '/games', label: 'الألعاب', mobileLabel: 'ألعاب', icon: Crosshair, mobile: true },
   { path: '/prices', label: 'الأسعار', mobileLabel: 'أسعار', icon: TrendingDown, mobile: false },
   { path: '/compare', label: 'قارن', mobileLabel: 'قارن', icon: ArrowLeftRight, mobile: false },
-  { path: '/deals', label: 'العروض', mobileLabel: 'عروض', icon: Tag, mobile: true },
+  { path: '/deals', label: 'العروض', mobileLabel: 'عروض', icon: Tag, mobile: false },
+  { path: '/my-builds', label: 'تجميعاتي', mobileLabel: 'تجميعاتي', icon: Save, mobile: true },
 ];
 const mobileLinks = allLinks.filter(l => l.mobile);
 

@@ -30,9 +30,11 @@ const catGridConfig = {
 const PAGE_SIZE = 30;
 
 export default function BuilderPage() {
-  const { components, setComponent, removeComponent, clearBuild, loadPreset, totalPrice, selectedCount } = useBuild();
+  const { components, setComponent, removeComponent, clearBuild, loadPreset, loadFromEncoded, getShareUrl, saveBuild, totalPrice, selectedCount } = useBuild();
   const [searchParams] = useSearchParams();
   const [openPicker, setOpenPicker] = useState(null);
+  const [isSharedBuild, setIsSharedBuild] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [sortBy, setSortBy] = useState('smart');
   const [showOnlyCompat, setShowOnlyCompat] = useState(true);
   const [priceHistoryOpen, setPriceHistoryOpen] = useState(null);
@@ -45,8 +47,14 @@ export default function BuilderPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   useEffect(() => {
+    const encoded = searchParams.get('b');
     const preset = searchParams.get('preset');
-    if (preset) loadPreset(preset);
+    if (encoded) {
+      const loaded = loadFromEncoded(encoded);
+      if (loaded) setIsSharedBuild(true);
+    } else if (preset) {
+      loadPreset(preset);
+    }
   }, []);
 
   useEffect(() => {
@@ -165,10 +173,18 @@ export default function BuilderPage() {
   const bottleneckPct = bn?.percent || 0;
   const selectedParts = Object.values(components).filter(Boolean);
 
-  const handleShare = () => {
-    const text = `تجميعتي من PCBux 🎮\n${selectedParts.map(p => `• ${p.name}`).join('\n')}\n💰 ~${totalPrice.toLocaleString()} ر.س\n\nجمّع جهازك: https://pcbux.com`;
-    navigator.clipboard.writeText(text);
-    alert('تم النسخ!');
+  const handleShareUrl = () => {
+    const url = getShareUrl();
+    if (url) {
+      navigator.clipboard.writeText(url);
+      alert('تم نسخ رابط التجميعة! 📋');
+    }
+  };
+
+  const handleSave = () => {
+    saveBuild();
+    setSaveSuccess(true);
+    setTimeout(() => setSaveSuccess(false), 2000);
   };
 
   // Reset visible count when filters change
@@ -257,19 +273,30 @@ export default function BuilderPage() {
           </motion.div>
         )}
 
+        {/* Shared build banner */}
+        {isSharedBuild && (
+          <div className="bg-[#7c4dff]/10 border border-[#7c4dff]/20 rounded-xl p-3 mb-4 text-center">
+            <p className="text-sm text-white/70">📤 هذي تجميعة مشاركة — تقدر تعدّل عليها</p>
+            <button onClick={() => { saveBuild('تجميعة معدّلة'); setSaveSuccess(true); setTimeout(() => setSaveSuccess(false), 2000); }}
+              className="text-[#00e5ff] text-xs font-bold mt-1">
+              {saveSuccess ? '✅ تم الحفظ!' : '💾 احفظ نسختك'}
+            </button>
+          </div>
+        )}
+
         {/* ========== COMPLETION SECTION ========== */}
         {hasCorePartsSelected && (
           <div className="bg-gradient-to-b from-[#00e5ff]/5 to-transparent border border-[#00e5ff]/20 rounded-2xl p-5 mb-6">
-            <h3 className="text-lg font-bold text-center mb-4">🎉 تهانينا! تجميعتك جاهزة</h3>
+            <h3 className="text-lg font-bold text-center mb-4 text-white">🎉 تهانينا! تجميعتك جاهزة</h3>
 
             {/* Quick stats */}
             <div className="flex justify-around text-center mb-4">
               <div>
-                <div className="text-[#00e676] font-bold font-mono text-lg">~{totalPrice.toLocaleString()}</div>
+                <div className="text-[#00e676] font-bold font-mono text-xl">~{totalPrice.toLocaleString()}</div>
                 <div className="text-[10px] text-white/40">ر.س تقريبي</div>
               </div>
               <div>
-                <div className="text-[#00e5ff] font-bold font-mono text-lg">{bottleneckPct}%</div>
+                <div className="text-[#00e5ff] font-bold font-mono text-xl">{bottleneckPct}%</div>
                 <div className="text-[10px] text-white/40">بوتلنك</div>
               </div>
             </div>
@@ -277,24 +304,28 @@ export default function BuilderPage() {
             {/* Per-part Amazon links */}
             <div className="space-y-2 mb-4">
               {selectedParts.map(part => (
-                <a key={part.id} href={getAmazonLink(part)} target="_blank" rel="noopener"
-                   className="flex items-center justify-between bg-[#0f1019] rounded-lg px-3 py-2 border border-[#1a1a2e] hover:border-[#00e5ff]/30">
-                  <span className="text-xs text-white/70 truncate flex-1">{part.name}</span>
-                  <span className="text-[10px] text-white/40 mx-2">~{part.price?.toLocaleString()} ر.س</span>
+                <a key={part.id} href={getAmazonLink(part)} target="_blank" rel="noopener noreferrer"
+                   className="flex items-center justify-between bg-[#0f1019] rounded-lg px-3 py-2.5 border border-[#1a1a2e] hover:border-[#00e5ff]/30 transition-colors">
+                  <span className="text-xs text-white/70 truncate flex-1 ml-2">{part.name}</span>
                   <span className="text-[#00e5ff] text-xs font-bold whitespace-nowrap">🛒 شيك السعر</span>
                 </a>
               ))}
             </div>
 
-            {/* Action buttons */}
-            <div className="flex gap-2">
-              <a href="/analysis" className="flex-1 text-center bg-[#7c4dff]/20 text-[#7c4dff] rounded-lg py-2.5 text-sm font-bold">
-                📊 تحليل مفصّل
-              </a>
-              <button onClick={handleShare} className="flex-1 text-center bg-[#00e5ff]/20 text-[#00e5ff] rounded-lg py-2.5 text-sm font-bold">
-                📤 شارك التجميعة
+            {/* Action buttons — share, save, analyze */}
+            <div className="flex gap-2 mb-2">
+              <button onClick={handleShareUrl} className="flex-1 text-center bg-[#00e5ff]/15 text-[#00e5ff] rounded-xl py-2.5 text-sm font-bold active:scale-95 transition-transform">
+                🔗 شارك الرابط
+              </button>
+              <button onClick={handleSave} className="flex-1 text-center bg-[#7c4dff]/15 text-[#7c4dff] rounded-xl py-2.5 text-sm font-bold active:scale-95 transition-transform">
+                {saveSuccess ? '✅ تم!' : '💾 احفظ'}
               </button>
             </div>
+            <a href="/analysis" className="block text-center bg-white/5 text-white/50 rounded-xl py-2.5 text-sm font-bold">
+              📊 تحليل مفصّل
+            </a>
+
+            <p className="text-[10px] text-white/20 text-center mt-3">💡 الأسعار تقريبية — اضغط "شيك السعر" للسعر الفعلي</p>
           </div>
         )}
 

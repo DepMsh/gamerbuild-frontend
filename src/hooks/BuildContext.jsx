@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
 import { getById } from '../utils/db';
+import { encodeBuild, decodeBuild, generateBuildCode } from '../utils/buildShare';
 
 const BuildContext = createContext();
 
@@ -78,6 +79,58 @@ export function BuildProvider({ children }) {
     dispatch({ type: 'LOAD_BUILD', components: newComponents });
   }, []);
 
+  const loadFromEncoded = useCallback((encoded) => {
+    const ids = decodeBuild(encoded);
+    if (!ids) return false;
+    const newComponents = { cpu: null, gpu: null, motherboard: null, ram: null, ssd: null, psu: null, cooler: null, case: null };
+    Object.entries(ids).forEach(([category, id]) => {
+      const comp = getById(id);
+      if (comp) newComponents[category] = comp;
+    });
+    if (Object.values(newComponents).some(Boolean)) {
+      dispatch({ type: 'LOAD_BUILD', components: newComponents });
+      return true;
+    }
+    return false;
+  }, []);
+
+  const getShareUrl = useCallback(() => {
+    const encoded = encodeBuild(state.components);
+    if (!encoded) return null;
+    return `${window.location.origin}/builder?b=${encodeURIComponent(encoded)}`;
+  }, [state.components]);
+
+  const getBuildCode = useCallback(() => {
+    return generateBuildCode(state.components);
+  }, [state.components]);
+
+  const saveBuild = useCallback((name) => {
+    const saved = JSON.parse(localStorage.getItem('pcbux_builds') || '[]');
+    const buildData = {
+      id: Date.now().toString(36),
+      name: name || generateBuildCode(state.components),
+      date: new Date().toLocaleDateString('ar-SA'),
+      encoded: encodeBuild(state.components),
+      parts: Object.entries(state.components)
+        .filter(([, v]) => v)
+        .map(([cat, comp]) => ({ category: cat, name: comp.name, price: comp.price })),
+      totalPrice: state.totalPrice,
+    };
+    saved.unshift(buildData);
+    if (saved.length > 20) saved.pop();
+    localStorage.setItem('pcbux_builds', JSON.stringify(saved));
+    return buildData;
+  }, [state.components, state.totalPrice]);
+
+  const getSavedBuilds = useCallback(() => {
+    return JSON.parse(localStorage.getItem('pcbux_builds') || '[]');
+  }, []);
+
+  const deleteSavedBuild = useCallback((buildId) => {
+    const saved = JSON.parse(localStorage.getItem('pcbux_builds') || '[]');
+    localStorage.setItem('pcbux_builds', JSON.stringify(saved.filter(b => b.id !== buildId)));
+  }, []);
+
   const selectedCount = Object.values(state.components).filter(Boolean).length;
 
   return (
@@ -88,6 +141,12 @@ export function BuildProvider({ children }) {
       removeComponent,
       loadBuild,
       loadPreset,
+      loadFromEncoded,
+      getShareUrl,
+      getBuildCode,
+      saveBuild,
+      getSavedBuilds,
+      deleteSavedBuild,
       clearBuild,
     }}>
       {children}
