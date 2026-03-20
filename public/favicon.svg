@@ -1,10 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <defs>
-    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a1a"/>
+      <stop offset="100%" stop-color="#060610"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#00e5ff"/>
       <stop offset="100%" stop-color="#7c4dff"/>
     </linearGradient>
   </defs>
-  <rect width="32" height="32" rx="6" fill="#060610"/>
-  <text x="16" y="22" text-anchor="middle" font-family="system-ui" font-weight="900" font-size="16" fill="url(#g)">P</text>
+
+  <!-- Background -->
+  <rect width="512" height="512" rx="108" fill="url(#bg)"/>
+
+  <!-- Subtle grid -->
+  <g opacity="0.03">
+    <line x1="128" y1="0" x2="128" y2="512" stroke="white" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="512" stroke="white" stroke-width="1"/>
+    <line x1="384" y1="0" x2="384" y2="512" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="128" x2="512" y2="128" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="256" x2="512" y2="256" stroke="white" stroke-width="1"/>
+    <line x1="0" y1="384" x2="512" y2="384" stroke="white" stroke-width="1"/>
+  </g>
+
+  <!-- Top glow line -->
+  <rect x="108" y="52" width="296" height="3" rx="1.5" fill="url(#glow)" opacity="0.6"/>
+
+  <!-- "PC" text -->
+  <text x="256" y="255" text-anchor="middle" font-family="system-ui, -apple-system, Arial" font-weight="900" font-size="180" fill="white" letter-spacing="-8">PC</text>
+
+  <!-- "BUX" text -->
+  <text x="256" y="355" text-anchor="middle" font-family="system-ui, -apple-system, Arial" font-weight="800" font-size="110" fill="url(#glow)" letter-spacing="12">BUX</text>
+
+  <!-- Bottom glow line -->
+  <rect x="108" y="400" width="296" height="3" rx="1.5" fill="url(#glow)" opacity="0.4"/>
+
+  <!-- Corner accents -->
+  <path d="M52 108 L52 72 Q52 52 72 52 L108 52" fill="none" stroke="url(#glow)" stroke-width="3" opacity="0.3"/>
+  <path d="M460 108 L460 72 Q460 52 440 52 L404 52" fill="none" stroke="url(#glow)" stroke-width="3" opacity="0.3"/>
+  <path d="M52 404 L52 440 Q52 460 72 460 L108 460" fill="none" stroke="url(#glow)" stroke-width="3" opacity="0.3"/>
+  <path d="M460 404 L460 440 Q460 460 440 460 L404 460" fill="none" stroke="url(#glow)" stroke-width="3" opacity="0.3"/>
 </svg>
