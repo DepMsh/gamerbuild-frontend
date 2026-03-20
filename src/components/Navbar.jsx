@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Wrench, Gamepad2, Home, Activity, Crosshair, Save } from 'lucide-react';
+import { Cpu, Wrench, Home, Activity, Crosshair, Save } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
 const navLinks = [
@@ -30,9 +30,7 @@ export default function Navbar() {
           <div className="flex items-center justify-between h-14">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center transition-all group-hover:shadow-lg group-hover:shadow-gb-primary/20">
-                <Gamepad2 size={16} className="text-gb-bg" />
-              </div>
+              <img src="/favicon.svg" alt="PCBux" className="w-8 h-8 rounded-lg transition-all group-hover:shadow-lg group-hover:shadow-gb-primary/20" />
               <span className="font-display text-sm sm:text-base font-bold tracking-wider">
                 <span className="text-gb-primary">PC</span>
                 <span className="text-gb-text">BUX</span>

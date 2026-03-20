@@ -1,4 +1,3 @@
-import { Gamepad2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -10,9 +9,7 @@ export default function Footer() {
           {/* Column 1: Brand + About */}
           <div className="sm:col-span-2">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gb-primary to-gb-secondary flex items-center justify-center">
-                <Gamepad2 size={18} className="text-gb-bg" />
-              </div>
+              <img src="/favicon.svg" alt="PCBux" className="w-8 h-8 rounded-lg" />
               <span className="font-display text-base font-bold tracking-wider">
                 <span className="text-gb-primary">PC</span><span className="text-gb-text">BUX</span>
               </span>
