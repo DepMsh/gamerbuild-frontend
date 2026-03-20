@@ -13,10 +13,8 @@ import HomePage from './pages/HomePage';
 const BuilderPage = lazy(() => import('./pages/BuilderPage'));
 const ComponentsPage = lazy(() => import('./pages/ComponentsPage'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
-const DealsPage = lazy(() => import('./pages/DealsPage'));
 const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
 const GamesPage = lazy(() => import('./pages/GamesPage'));
-const PriceHistoryPage = lazy(() => import('./pages/PriceHistoryPage'));
 const MyBuildsPage = lazy(() => import('./pages/MyBuildsPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -54,10 +52,8 @@ function AnimatedRoutes() {
             <Route path="/builder" element={<BuilderPage />} />
             <Route path="/components" element={<ComponentsPage />} />
             <Route path="/compare" element={<ComparePage />} />
-            <Route path="/deals" element={<DealsPage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
             <Route path="/games" element={<GamesPage />} />
-            <Route path="/prices" element={<PriceHistoryPage />} />
             <Route path="/my-builds" element={<MyBuildsPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/b/:code" element={<BuildRedirect />} />

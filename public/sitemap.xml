@@ -6,7 +6,5 @@
   <url><loc>https://pcbux.com/analysis</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://pcbux.com/games</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://pcbux.com/compare</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
-  <url><loc>https://pcbux.com/prices</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
-  <url><loc>https://pcbux.com/deals</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://pcbux.com/my-builds</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
 </urlset>

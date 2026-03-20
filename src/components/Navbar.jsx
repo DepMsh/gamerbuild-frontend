@@ -1,21 +1,13 @@
-import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Wrench, BarChart3, Tag, Gamepad2, Home, Activity, Crosshair, ArrowLeftRight, TrendingDown, Save, ChevronDown } from 'lucide-react';
+import { Cpu, Wrench, Gamepad2, Home, Activity, Crosshair, Save } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
-const primaryLinks = [
+const navLinks = [
   { path: '/', label: 'الرئيسية', icon: Home },
   { path: '/builder', label: 'جمّع جهازك', icon: Wrench },
   { path: '/components', label: 'القطع', icon: Cpu },
   { path: '/analysis', label: 'التحليل', icon: Activity },
   { path: '/games', label: 'الألعاب', icon: Crosshair },
-];
-
-const moreLinks = [
-  { path: '/prices', label: 'الأسعار', icon: TrendingDown },
-  { path: '/compare', label: 'قارن', icon: ArrowLeftRight },
-  { path: '/deals', label: 'العروض', icon: Tag },
-  { path: '/my-builds', label: 'تجميعاتي', icon: Save },
 ];
 
 const mobileLinks = [
@@ -29,10 +21,6 @@ const mobileLinks = [
 export default function Navbar() {
   const location = useLocation();
   const { selectedCount, totalPrice } = useBuild();
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  const morePaths = moreLinks.map(l => l.path);
-  const moreActive = morePaths.includes(location.pathname);
 
   return (
     <>
@@ -52,9 +40,9 @@ export default function Navbar() {
               <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gb-accent/20 text-gb-accent border border-gb-accent/30 leading-none">BETA</span>
             </Link>
 
-            {/* Desktop nav — 5 primary + "المزيد" dropdown */}
+            {/* Desktop nav — 5 links */}
             <div className="hidden md:flex items-center gap-0.5">
-              {primaryLinks.map(({ path, label, icon: Icon }) => {
+              {navLinks.map(({ path, label, icon: Icon }) => {
                 const active = location.pathname === path;
                 return (
                   <Link
@@ -71,39 +59,6 @@ export default function Navbar() {
                   </Link>
                 );
               })}
-
-              {/* More dropdown */}
-              <div className="relative"
-                onMouseEnter={() => setMoreOpen(true)}
-                onMouseLeave={() => setMoreOpen(false)}
-              >
-                <button
-                  className={`flex items-center gap-1 px-3 py-2 text-[13px] font-medium transition-all
-                    ${moreActive ? 'text-gb-primary' : 'text-gb-muted hover:text-gb-text'}`}
-                >
-                  المزيد
-                  <ChevronDown size={12} className={`transition-transform ${moreOpen ? 'rotate-180' : ''}`} />
-                  {moreActive && (
-                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-6 h-0.5 rounded-full bg-gb-primary" />
-                  )}
-                </button>
-                {moreOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-[#0f1019] border border-[#1a1a2e] rounded-xl py-2 min-w-[140px] shadow-xl shadow-black/40 z-50">
-                    {moreLinks.map(({ path, label, icon: Icon }) => (
-                      <Link
-                        key={path}
-                        to={path}
-                        onClick={() => setMoreOpen(false)}
-                        className={`flex items-center gap-2 px-4 py-2.5 text-sm transition-colors
-                          ${location.pathname === path ? 'text-gb-primary bg-white/5' : 'text-white/60 hover:text-white hover:bg-white/5'}`}
-                      >
-                        <Icon size={14} />
-                        {label}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
             </div>
 
             {/* Build summary pill */}
