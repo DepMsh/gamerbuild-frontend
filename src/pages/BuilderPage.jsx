@@ -197,19 +197,9 @@ export default function BuilderPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header — sticky on mobile */}
         <div className="sticky top-14 sm:top-16 z-30 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 sm:py-0 sm:static sm:z-auto bg-gb-bg/95 backdrop-blur-xl sm:backdrop-blur-none sm:bg-transparent mb-5 sm:mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
-              <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
-            </div>
-            {selectedCount > 0 && (
-              <button
-                onClick={() => { if (window.confirm('متأكد تبي تحذف التجميعة كاملة؟')) clearBuild(); }}
-                className="text-xs text-red-400/70 hover:text-red-400 bg-red-500/10 hover:bg-red-500/15 px-3 py-1.5 rounded-lg transition-colors active:scale-95"
-              >
-                🗑️ ابدأ من جديد
-              </button>
-            )}
+          <div>
+            <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
+            <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
           </div>
         </div>
 
@@ -336,6 +326,13 @@ export default function BuilderPage() {
             </Link>
 
             <p className="text-[10px] text-white/20 text-center mt-3">💡 الأسعار تقريبية — اضغط "شيك السعر" للسعر الفعلي</p>
+
+            <button
+              onClick={() => { if (window.confirm('متأكد تبي تحذف التجميعة وتبدأ من جديد؟')) clearBuild(); }}
+              className="w-full text-center text-xs text-white/30 hover:text-red-400 py-2 mt-3 transition-colors"
+            >
+              ابدأ من جديد
+            </button>
           </div>
         )}
 
