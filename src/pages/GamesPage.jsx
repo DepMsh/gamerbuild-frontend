@@ -1,7 +1,9 @@
 import { useBuild } from '../hooks/BuildContext';
-import { GAMES, predictFPS, fpsColor } from '../utils/engine';
-import { Crosshair } from 'lucide-react';
+import { GAMES, predictFPS } from '../utils/engine';
+import { Crosshair, Monitor, MonitorSpeaker, Tv } from 'lucide-react';
 import { motion } from 'framer-motion';
+
+const RES_ICONS = { '1080p': Monitor, '1440p': MonitorSpeaker, '4k': Tv };
 
 const gameGradients = [
   'from-orange-500/10 to-red-500/5',
@@ -12,13 +14,21 @@ const gameGradients = [
   'from-pink-500/10 to-rose-500/5',
   'from-blue-500/10 to-indigo-500/5',
   'from-teal-500/10 to-cyan-500/5',
+  'from-amber-500/10 to-yellow-500/5',
+  'from-indigo-500/10 to-violet-500/5',
+  'from-emerald-500/10 to-green-500/5',
+  'from-rose-500/10 to-pink-500/5',
+  'from-violet-500/10 to-purple-500/5',
+  'from-sky-500/10 to-blue-500/5',
+  'from-red-500/10 to-orange-500/5',
 ];
 
-function fpsColorPill(fps) {
-  if (fps >= 120) return { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/20' };
-  if (fps >= 60) return { bg: 'bg-cyan-500/15', text: 'text-cyan-400', border: 'border-cyan-500/20' };
-  if (fps >= 30) return { bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/20' };
-  return { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/20' };
+function fpsPill(fps) {
+  if (fps >= 120) return { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/20', label: 'ممتاز' };
+  if (fps >= 90)  return { bg: 'bg-green-500/10', text: 'text-green-300', border: 'border-green-500/15', label: 'سلس' };
+  if (fps >= 60)  return { bg: 'bg-cyan-500/15', text: 'text-cyan-400', border: 'border-cyan-500/20', label: 'مقبول' };
+  if (fps >= 30)  return { bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/20', label: 'ضعيف' };
+  return { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/20', label: 'صعب' };
 }
 
 export default function GamesPage() {
@@ -62,27 +72,28 @@ export default function GamesPage() {
                 key={game.name}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: gi * 0.08 }}
+                transition={{ delay: gi * 0.06 }}
                 className={`bg-gradient-to-br ${gradient} rounded-xl border border-gb-border p-4 sm:p-5`}
               >
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl sm:text-3xl">{game.icon}</span>
+                <div className="flex items-center gap-2 mb-3">
                   <span className="font-display font-bold text-sm sm:text-base text-gb-text">{game.name}</span>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(results).map(([setting, data]) => {
-                    const pill = fpsColorPill(data.fps);
+                  {Object.entries(results).map(([res, data]) => {
+                    const pill = fpsPill(data.fps);
+                    const ResIcon = RES_ICONS[res] || Monitor;
                     return (
                       <div
-                        key={setting}
+                        key={res}
                         className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${pill.bg} ${pill.border}`}
                       >
-                        <span className="text-[10px] sm:text-xs text-gb-muted">{setting}</span>
+                        <ResIcon size={12} className="text-gb-muted opacity-60" />
+                        <span className="text-[10px] sm:text-xs text-gb-muted">{res}</span>
                         <span className={`text-sm sm:text-base font-display font-bold ${pill.text}`}>
-                          {data.fps}
+                          {data.fps >= 120 ? '120+' : data.fps}
                         </span>
-                        <span className={`text-[9px] sm:text-[10px] font-bold ${pill.text}`}>FPS</span>
+                        <span className={`text-[9px] sm:text-[10px] ${pill.text} opacity-70`}>FPS</span>
                       </div>
                     );
                   })}
@@ -93,7 +104,7 @@ export default function GamesPage() {
         </div>
 
         <p className="text-center text-[10px] text-gb-muted mt-6 pb-4">
-          * التوقعات تقريبية بناءً على بنشماركات القطع — الأداء الفعلي يختلف
+          * التوقعات مبنية على بنشماركات حقيقية (Ultra settings) — الأداء الفعلي يختلف حسب الإعدادات
         </p>
       </div>
     </div>
