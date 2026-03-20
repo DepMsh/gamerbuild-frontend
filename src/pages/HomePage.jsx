@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
 import usePageTitle from '../hooks/usePageTitle';
 
 // ── Count-up hook ──
@@ -42,7 +41,7 @@ const quickBuilds = [
 const featureCards = [
   { icon: Shield, title: 'فحص توافق ذكي', desc: 'كل قطعة تنفحص تلقائياً مع الباقي', gradient: 'from-green-500/15 to-emerald-500/5', iconColor: 'text-green-400', borderColor: 'border-green-500/15' },
   { icon: Crosshair, title: 'توقع FPS دقيق', desc: 'بنشماركات حقيقية لـ 17 لعبة', gradient: 'from-cyan-500/15 to-blue-500/5', iconColor: 'text-cyan-400', borderColor: 'border-cyan-500/15' },
-  { icon: BarChart3, title: 'تحليل بوتلنك', desc: 'كشف عنق الزجاجة + خطة ترقية', gradient: 'from-purple-500/15 to-violet-500/5', iconColor: 'text-purple-400', borderColor: 'border-purple-500/15' },
+  { icon: BarChart3, title: 'توازن القطع', desc: 'تحليل ذكي حسب الدقة + خطة ترقية', gradient: 'from-purple-500/15 to-violet-500/5', iconColor: 'text-purple-400', borderColor: 'border-purple-500/15' },
   { icon: Tag, title: 'شراء من أمازون', desc: 'كل قطعة فيها رابط مباشر لأمازون السعودية', gradient: 'from-amber-500/15 to-orange-500/5', iconColor: 'text-amber-400', borderColor: 'border-amber-500/15' },
 ];
 
@@ -59,25 +58,19 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gb-bg">
           <div className="absolute inset-0 bg-grid opacity-20" />
           {/* Primary cyan orb */}
-          <motion.div
+          <div
             className="absolute top-1/4 right-1/4 w-[500px] h-[500px] rounded-full blur-[140px]"
-            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)' }}
-            animate={{ scale: [1, 1.3, 1], x: [0, 40, 0], y: [0, -30, 0] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.08) 0%, transparent 70%)', animation: 'orbFloat1 8s ease-in-out infinite' }}
           />
           {/* Secondary green orb */}
-          <motion.div
+          <div
             className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-[130px]"
-            style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)' }}
-            animate={{ scale: [1.1, 1, 1.1], x: [0, -25, 0], y: [0, 20, 0] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)', animation: 'orbFloat2 10s ease-in-out infinite' }}
           />
           {/* Accent purple orb */}
-          <motion.div
+          <div
             className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full blur-[120px]"
-            style={{ background: 'radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%)' }}
-            animate={{ scale: [1, 1.15, 1], x: [0, -15, 0], y: [0, 25, 0] }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ background: 'radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%)', animation: 'orbFloat3 12s ease-in-out infinite' }}
           />
         </div>
 
@@ -148,16 +141,9 @@ export default function HomePage() {
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2 text-center">ابدأ من هنا</h2>
           <p className="text-xs text-gb-muted text-center mb-6">اختر ميزانيتك وابدأ التجميع</p>
 
-          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide lg:grid lg:grid-cols-5 lg:overflow-visible">
-            {quickBuilds.map((tier, i) => (
-              <motion.div
-                key={tier.key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="min-w-[140px] snap-start flex-shrink-0"
-              >
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide lg:grid lg:grid-cols-5 lg:overflow-visible stagger-children">
+            {quickBuilds.map((tier) => (
+              <div key={tier.key} className="min-w-[140px] snap-start flex-shrink-0">
                 <Link
                   to={`/builder?preset=${tier.key}`}
                   className={`block bg-gradient-to-b ${tier.color} border border-white/10 rounded-xl p-4 text-center hover:border-white/25 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-300 active:scale-95`}
@@ -168,7 +154,7 @@ export default function HomePage() {
                   <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
                   <div className="text-[10px] text-white/30">ر.س</div>
                 </Link>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -179,14 +165,10 @@ export default function HomePage() {
         <div className="max-w-lg lg:max-w-4xl mx-auto">
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
             {featureCards.map((f, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
                 className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${f.gradient} border ${f.borderColor} backdrop-blur-sm hover:scale-[1.03] hover:-translate-y-0.5 transition-all duration-300`}
               >
                 <div className={`w-10 h-10 rounded-xl bg-gb-bg/60 flex items-center justify-center mb-2.5 ${f.iconColor}`}>
@@ -194,7 +176,7 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-[13px] sm:text-sm font-bold text-gb-text mb-1">{f.title}</h3>
                 <p className="text-[10px] sm:text-xs text-gb-muted leading-relaxed">{f.desc}</p>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -203,12 +185,7 @@ export default function HomePage() {
       {/* ========== FINAL CTA ========== */}
       <section className="py-10 sm:py-14 px-4 pb-28 md:pb-14">
         <div className="max-w-lg lg:max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/10 relative overflow-hidden"
-          >
+          <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/10 relative overflow-hidden fade-in-up">
             <div className="absolute inset-0 bg-grid opacity-10" />
             <div className="relative z-10">
               <Gamepad2 size={36} className="text-gb-primary mx-auto mb-3 opacity-80" />
@@ -222,7 +199,7 @@ export default function HomePage() {
                 ابدأ التجميع
               </Link>
             </div>
-          </motion.div>
+          </div>
           <p className="text-center text-[10px] text-white/20 mt-6 px-4 leading-relaxed">
             💡 الأسعار المعروضة تقريبية. اضغط "شيك السعر" للسعر الفعلي المحدّث من أمازون السعودية.
           </p>

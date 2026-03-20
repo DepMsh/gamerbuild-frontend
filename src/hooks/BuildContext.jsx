@@ -1,5 +1,4 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
-import { getById } from '../utils/db';
 import { encodeBuild, decodeBuild, generateBuildCode } from '../utils/buildShare';
 import { track } from '../utils/analytics';
 
@@ -66,7 +65,7 @@ export function BuildProvider({ children }) {
     track.clearBuild();
   }, []);
 
-  const loadPreset = useCallback((presetName) => {
+  const loadPreset = useCallback(async (presetName) => {
     const presets = {
       budget:         { cpu: 'cpu-43',  gpu: 'gpu-116', motherboard: 'mb-85',  ram: 'ram-176', ssd: 'ssd-1061', psu: 'psu-140', cooler: 'cool-58',  case: 'case-460' },
       amd_value:      { cpu: 'cpu-22',  gpu: 'gpu-30',  motherboard: 'mb-85',  ram: 'ram-176', ssd: 'ssd-1061', psu: 'psu-140', cooler: 'cool-56',  case: 'case-192' },
@@ -76,6 +75,7 @@ export function BuildProvider({ children }) {
     };
     const preset = presets[presetName];
     if (!preset) return;
+    const { getById } = await import('../utils/db');
     const newComponents = { cpu: null, gpu: null, motherboard: null, ram: null, ssd: null, psu: null, cooler: null, case: null };
     Object.entries(preset).forEach(([category, id]) => {
       const comp = getById(id);
@@ -85,9 +85,10 @@ export function BuildProvider({ children }) {
     track.loadPreset(presetName);
   }, []);
 
-  const loadFromEncoded = useCallback((encoded) => {
+  const loadFromEncoded = useCallback(async (encoded) => {
     const ids = decodeBuild(encoded);
     if (!ids) return false;
+    const { getById } = await import('../utils/db');
     const newComponents = { cpu: null, gpu: null, motherboard: null, ram: null, ssd: null, psu: null, cooler: null, case: null };
     Object.entries(ids).forEach(([category, id]) => {
       const comp = getById(id);
