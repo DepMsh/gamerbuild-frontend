@@ -6,7 +6,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
 
-  const ADMIN_PASS = 'pcbux2026';
+  const ADMIN_PASS = 'Mm1126699880';
 
   useEffect(() => {
     if (authed) setData(getAnalytics());

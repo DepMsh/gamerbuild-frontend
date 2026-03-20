@@ -1,7 +1,7 @@
 /**
  * PCBux Analytics — Track user events via Google Analytics
  *
- * Events are sent to GA4 (G-08H0W8XRRN) and also stored
+ * Events are sent to GA4 (G-S7WH3V5KLL) and also stored
  * in localStorage for the simple admin dashboard.
  */
 
