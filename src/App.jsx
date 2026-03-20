@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams, useLocation } from '
 import { BuildProvider } from './hooks/BuildContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import ErrorBoundary from './components/ErrorBoundary';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Eagerly load HomePage (first paint)

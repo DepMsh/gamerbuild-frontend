@@ -83,43 +83,25 @@ export default function HomePage() {
 
         <div className="relative z-10 text-center px-5 max-w-2xl lg:max-w-4xl mx-auto">
           {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] mb-6"
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] mb-6">
             <Sparkles size={12} className="text-gb-primary" />
             <span className="text-[11px] text-gb-muted">أول منصة سعودية لتجميع PC القيمنق</span>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="font-display text-[2.2rem] sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5"
-          >
+          <h1 className="font-display text-[2.2rem] sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5">
             <span className="text-gb-text">جمّع جهازك</span>
             <br />
             <span className="bg-gradient-to-l from-gb-primary via-gb-secondary to-gb-accent bg-clip-text text-transparent">
               بأفضل سعر
             </span>
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-sm sm:text-base text-gb-muted max-w-md mx-auto mb-8 leading-relaxed"
-          >
+          <p className="text-sm sm:text-base text-gb-muted max-w-md mx-auto mb-8 leading-relaxed">
             قارن وجمّع — ثم اشترِ من أمازون السعودية بضغطة زر
-          </motion.p>
+          </p>
 
           {/* CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
+          <div>
             <Link
               to="/builder"
               className="group relative inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-lg sm:text-xl shadow-[0_0_50px_rgba(0,229,255,0.3)] hover:shadow-[0_0_80px_rgba(0,229,255,0.5)] hover:scale-105 transition-all duration-300 active:scale-95"
@@ -129,7 +111,7 @@ export default function HomePage() {
               <span className="relative z-10">ابدأ التجميع</span>
               <ChevronLeft size={20} className="relative z-10 group-hover:-translate-x-1 transition-transform" />
             </Link>
-          </motion.div>
+          </div>
         </div>
       </section>
 
