@@ -4,11 +4,10 @@ import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
 import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
-import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents, estimateWattage } from '../utils/db';
 import { findCPUBenchmark } from '../data/cpuBenchmarks';
 import { findGPUBenchmark } from '../data/gpuBenchmarks';
-import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2, MemoryStick, HardDrive, Fan, Box } from 'lucide-react';
+import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GaugeMeter from '../components/GaugeMeter';
 
@@ -76,8 +75,9 @@ export default function AnalysisPage() {
       track.viewFPS();
     }
   }, []);
-  const [openCards, setOpenCards] = useState({ thermal: true, future: true, downgrade: true });
+  const [openCards, setOpenCards] = useState({ future: true, downgrade: true });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
+  const [showUpgrades, setShowUpgrades] = useState(false);
 
   const bn = analyzeBottleneck(components.cpu, components.gpu, resolution);
   const compatResult = checkCompat(components);
@@ -85,7 +85,6 @@ export default function AnalysisPage() {
   const recs = getRecommendations(components);
   const allComps = getAllComponents();
   const roadmap = getUpgradeRoadmap(components, allComps);
-  const thermal = calcThermalHarmony(components);
   const downgradesSugg = getSmartDowngrades(components, allComps);
   const futureProof = calcFutureProof(components);
 
@@ -577,68 +576,6 @@ export default function AnalysisPage() {
 
         {/* ══════════ EXISTING INNOVATION CARDS ══════════ */}
 
-        {/* Thermal Harmony — collapsible */}
-        {thermal && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.78 }}
-            className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
-          >
-            <button onClick={() => toggleCard('thermal')} className="w-full flex items-center justify-between p-4">
-              <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                  <Thermometer size={14} className="text-orange-400" />
-                </div>
-                {thermal.emoji} الحرارة والصوت
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-display font-bold" style={{ color: thermal.color }}>
-                  {thermal.score}/100
-                </span>
-                <ChevronDown size={16} className={`text-gb-muted transition-transform ${openCards.thermal ? 'rotate-180' : ''}`} />
-              </div>
-            </button>
-            <AnimatePresence initial={false}>
-              {openCards.thermal && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="px-4 pb-4">
-                    <div className="flex items-center gap-4 mb-3">
-                      <div className="flex-1">
-                        <div className="h-2 rounded-full bg-gb-bg overflow-hidden">
-                          <motion.div initial={{ width: 0 }} animate={{ width: `${thermal.score}%` }}
-                            transition={{ duration: 0.8 }} className="h-full rounded-full" style={{ backgroundColor: thermal.color }} />
-                        </div>
-                      </div>
-                      <span className="text-[11px] font-bold" style={{ color: thermal.color }}>{thermal.label}</span>
-                    </div>
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-[10px] text-gb-muted">🔥 {thermal.totalHeat}W حرارة</span>
-                      <span className="text-[10px] text-gb-muted">{thermal.noiseLabel}</span>
-                    </div>
-                    {thermal.issues.length > 0 && (
-                      <div className="space-y-1 mt-2">
-                        {thermal.issues.map((issue, i) => (
-                          <p key={i} className="text-[11px] text-red-400 flex items-center gap-1">⚠️ {issue}</p>
-                        ))}
-                      </div>
-                    )}
-                    {thermal.tips.length > 0 && thermal.issues.length === 0 && (
-                      <p className="text-[10px] text-gb-muted mt-1">💡 {thermal.tips[0]}</p>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        )}
-
         {/* Future-Proof Score — collapsible */}
         {futureProof && (() => {
           const fpColor = futureProof.score >= 70 ? '#00e676' : futureProof.score >= 45 ? '#ffd740' : '#ff5252';
@@ -790,53 +727,74 @@ export default function AnalysisPage() {
           </div>
         </motion.div>
 
-        {/* Upgrade Roadmap */}
-        {roadmap.length > 0 && (
+        {/* Upgrade Roadmap — hidden for flagship builds, collapsible for others */}
+        {roadmap.length > 0 && !(
+          (cpuBenchMatch?.tier === 'flagship' || cpuBenchMatch?.gamingScore >= 95) &&
+          (gpuBenchMatch?.p1080 >= 85)
+        ) && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9 }}
-            className="bg-gb-card rounded-xl border border-gb-border p-4"
+            className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
           >
-            <h3 className="font-bold text-gb-text text-sm mb-1 flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                <TrendingUp size={14} className="text-orange-400" />
-              </div>
-              وش أرقّي أول؟
-            </h3>
-            <p className="text-[10px] text-gb-muted mb-3">تحليل ذكي مرتب حسب الأولوية</p>
-
-            <div className="space-y-3">
-              {roadmap.map((item, idx) => (
-                <div key={idx} className={`rounded-xl border p-3.5 ${idx === 0 ? 'border-gb-primary/30 bg-gb-primary/5' : 'border-gb-border bg-gb-surface'}`}>
-                  <div className="flex items-center justify-between mb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">{item.icon}</span>
-                      <div>
-                        <p className="font-bold text-xs text-gb-text">{item.label}</p>
-                        <p className="text-[10px] text-gb-muted">الحالي: {item.current.name}</p>
-                      </div>
-                    </div>
-                    <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${idx === 0 ? 'bg-gb-primary/15 text-gb-primary' : 'bg-gb-secondary/15 text-gb-secondary'}`}>
-                      أولوية {item.priority}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2">
-                    {item.options.map((opt, oi) => (
-                      <div key={oi} className="bg-gb-bg/50 rounded-lg p-2.5">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-[9px] px-2 py-0.5 rounded-full bg-gb-secondary/15 text-gb-secondary font-bold">{opt.tag}</span>
-                          <span className="text-[11px] font-display font-bold text-green-400">+{opt.gain} أداء</span>
-                        </div>
-                        <p className="text-xs font-bold text-gb-text mt-1">{opt.part.name}</p>
-                        <p className="text-[11px] text-gb-primary font-bold mt-0.5">{opt.part.price?.toLocaleString()} ر.س</p>
-                      </div>
-                    ))}
-                  </div>
+            <button
+              onClick={() => setShowUpgrades(!showUpgrades)}
+              className="w-full flex items-center justify-between p-4 hover:bg-white/[0.02] transition-colors"
+            >
+              <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                  <TrendingUp size={14} className="text-orange-400" />
                 </div>
-              ))}
-            </div>
+                📈 وش أرقّي أول؟
+              </h3>
+              <ChevronDown size={16} className={`text-gb-muted transition-transform ${showUpgrades ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence initial={false}>
+              {showUpgrades && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-4 pb-4">
+                    <p className="text-[10px] text-gb-muted mb-3">تحليل ذكي مرتب حسب الأولوية</p>
+                    <div className="space-y-3">
+                      {roadmap.map((item, idx) => (
+                        <div key={idx} className={`rounded-xl border p-3.5 ${idx === 0 ? 'border-gb-primary/30 bg-gb-primary/5' : 'border-gb-border bg-gb-surface'}`}>
+                          <div className="flex items-center justify-between mb-2.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">{item.icon}</span>
+                              <div>
+                                <p className="font-bold text-xs text-gb-text">{item.label}</p>
+                                <p className="text-[10px] text-gb-muted">الحالي: {item.current.name}</p>
+                              </div>
+                            </div>
+                            <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${idx === 0 ? 'bg-gb-primary/15 text-gb-primary' : 'bg-gb-secondary/15 text-gb-secondary'}`}>
+                              أولوية {item.priority}
+                            </span>
+                          </div>
+                          <div className="space-y-2">
+                            {item.options.map((opt, oi) => (
+                              <div key={oi} className="bg-gb-bg/50 rounded-lg p-2.5">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-[9px] px-2 py-0.5 rounded-full bg-gb-secondary/15 text-gb-secondary font-bold">{opt.tag}</span>
+                                  <span className="text-[11px] font-display font-bold text-green-400">+{opt.gain} أداء</span>
+                                </div>
+                                <p className="text-xs font-bold text-gb-text mt-1">{opt.part.name}</p>
+                                <p className="text-[11px] text-gb-primary font-bold mt-0.5">{opt.part.price?.toLocaleString()} ر.س</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </div>

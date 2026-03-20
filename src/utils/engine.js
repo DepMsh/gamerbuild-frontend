@@ -301,6 +301,11 @@ export function compareWorthIt(a, b) {
 
 // ═══════ UPGRADE ROADMAP ═══════
 
+function isWorkstationCPU(name) {
+  const lower = (name || '').toLowerCase();
+  return lower.includes('threadripper') || lower.includes('epyc') || lower.includes('xeon') || lower.includes('pro ');
+}
+
 export function getUpgradeRoadmap(components, allComponents) {
   if (!components.cpu || !components.gpu) return [];
   const bn = analyzeBottleneck(components.cpu, components.gpu);
@@ -327,11 +332,13 @@ export function getUpgradeRoadmap(components, allComponents) {
   }
 
   if (bn?.limitingComponent === 'CPU' || !bn?.limitingComponent) {
+    // Filter out workstation CPUs (Threadripper, EPYC, Xeon) — not for gaming
+    const isGamingCPU = c => c.type === 'cpu' && c.score > components.cpu.score && !isWorkstationCPU(c.name);
     const sameSocket = allComponents
-      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.socket === components.cpu.socket)
+      .filter(c => isGamingCPU(c) && c.socket === components.cpu.socket)
       .sort((a, b) => a.price - b.price);
     const diffSocket = allComponents
-      .filter(c => c.type === 'cpu' && c.score > components.cpu.score && c.socket !== components.cpu.socket)
+      .filter(c => isGamingCPU(c) && c.socket !== components.cpu.socket)
       .sort((a, b) => a.price - b.price);
 
     const opts = [];
