@@ -65,9 +65,11 @@ export function BuildProvider({ children }) {
 
   const loadPreset = useCallback((presetName) => {
     const presets = {
-      budget: { cpu: 'cpu-48', gpu: 'gpu-129', motherboard: 'mb-85', ram: 'ram-572', ssd: 'ssd-399', psu: 'psu-57', cooler: 'cool-352', case: 'case-460' },
-      mid:    { cpu: 'cpu-22', gpu: 'gpu-61',  motherboard: 'mb-26', ram: 'ram-549', ssd: 'ssd-32',  psu: 'psu-123', cooler: 'cool-44',  case: 'case-252' },
-      beast:  { cpu: 'cpu-7',  gpu: 'gpu-230', motherboard: 'mb-3',  ram: 'ram-4',   ssd: 'ssd-1037', psu: 'psu-73', cooler: 'cool-43',  case: 'case-246' },
+      budget:         { cpu: 'cpu-43',  gpu: 'gpu-116', motherboard: 'mb-85',  ram: 'ram-176', ssd: 'ssd-1061', psu: 'psu-140', cooler: 'cool-58',  case: 'case-460' },
+      amd_value:      { cpu: 'cpu-22',  gpu: 'gpu-30',  motherboard: 'mb-85',  ram: 'ram-176', ssd: 'ssd-1061', psu: 'psu-140', cooler: 'cool-56',  case: 'case-192' },
+      mid:            { cpu: 'cpu-21',  gpu: 'gpu-343', motherboard: 'mb-433', ram: 'ram-421', ssd: 'ssd-719',  psu: 'psu-138', cooler: 'cool-51',  case: 'case-453' },
+      nvidia_premium: { cpu: 'cpu-21',  gpu: 'gpu-296', motherboard: 'mb-186', ram: 'ram-116', ssd: 'ssd-719',  psu: 'psu-133', cooler: 'cool-43',  case: 'case-174' },
+      beast:          { cpu: 'cpu-3',   gpu: 'gpu-230', motherboard: 'mb-176', ram: 'ram-73',  ssd: 'ssd-164',  psu: 'psu-130', cooler: 'cool-476', case: 'case-174' },
     };
     const preset = presets[presetName];
     if (!preset) return;

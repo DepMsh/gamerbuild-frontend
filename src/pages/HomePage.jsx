@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft, Zap, Cpu, MonitorSpeaker } from 'lucide-react';
+import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 // ── Count-up hook ──
@@ -31,9 +31,11 @@ function useCountUp(target, duration = 1500) {
 }
 
 const quickBuilds = [
-  { label: 'اقتصادية', desc: '1080p سلس', price: '3,500', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: 'border-green-500/20', icon: Zap, preset: 'budget' },
-  { label: 'متوسطة', desc: '1440p Ultra', price: '7,000', gradient: 'from-cyan-500/20 to-blue-500/5', borderColor: 'border-cyan-500/20', icon: Cpu, preset: 'mid' },
-  { label: 'خرافية', desc: '4K + ستريم', price: '13,000', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: 'border-purple-500/20', icon: MonitorSpeaker, preset: 'beast' },
+  { key: 'budget', label: 'اقتصادية', desc: '1080p سلس', price: '4,200', color: 'from-emerald-500/20 to-emerald-500/5', icon: '⚡' },
+  { key: 'amd_value', label: 'AMD قيمنق', desc: '1440p V-Cache', price: '5,800', color: 'from-red-500/20 to-red-500/5', icon: '🔴' },
+  { key: 'mid', label: 'متوسطة', desc: '1440p Ultra', price: '7,000', color: 'from-cyan-500/20 to-cyan-500/5', icon: '🖥️' },
+  { key: 'nvidia_premium', label: 'NVIDIA بريميوم', desc: 'RTX + DLSS 4', price: '10,000', color: 'from-green-500/20 to-green-500/5', icon: '💚' },
+  { key: 'beast', label: 'خرافية', desc: '4K + ستريم', price: '14,000', color: 'from-purple-500/20 to-purple-500/5', icon: '👑' },
 ];
 
 const featureCards = [
@@ -145,24 +147,25 @@ export default function HomePage() {
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2 text-center">ابدأ من هنا</h2>
           <p className="text-xs text-gb-muted text-center mb-6">اختر ميزانيتك وابدأ التجميع</p>
 
-          <div className="grid grid-cols-3 gap-3">
-            {quickBuilds.map((b, i) => (
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+            {quickBuilds.map((tier, i) => (
               <motion.div
-                key={i}
+                key={tier.key}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                transition={{ delay: i * 0.08 }}
+                className="min-w-[140px] snap-start flex-shrink-0"
               >
                 <Link
-                  to={`/builder?preset=${b.preset}`}
-                  className={`block p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${b.gradient} border ${b.borderColor} text-center transition-all active:scale-95 hover:scale-[1.02]`}
+                  to={`/builder?preset=${tier.key}`}
+                  className={`block bg-gradient-to-b ${tier.color} border border-white/10 rounded-xl p-4 text-center hover:border-white/20 transition-colors active:scale-95`}
                 >
-                  <b.icon size={28} className="mx-auto mb-2 text-gb-text opacity-70" strokeWidth={1.5} />
-                  <p className="text-sm font-bold text-gb-text mb-0.5">{b.label}</p>
-                  <p className="text-[10px] text-gb-muted mb-2">{b.desc}</p>
-                  <p className="text-sm font-display font-black text-gb-primary">{b.price}+</p>
-                  <p className="text-[9px] text-gb-muted">ر.س</p>
+                  <div className="text-2xl mb-2">{tier.icon}</div>
+                  <div className="font-bold text-white text-sm">{tier.label}</div>
+                  <div className="text-[10px] text-white/40 mt-0.5">{tier.desc}</div>
+                  <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
+                  <div className="text-[10px] text-white/30">ر.س</div>
                 </Link>
               </motion.div>
             ))}
