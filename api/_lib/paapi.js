@@ -1,20 +1,22 @@
 /**
- * Amazon Creators API v3 (Login with Amazon / OAuth 2.0)
+ * Amazon Creators API v3.2 (Login with Amazon / OAuth 2.0)
  *
- * Replaces PA-API v5 (AWS Sig V4) with the new Creators API:
- * - Token endpoint: https://api.amazon.com/auth/o2/token (v3.1 NA)
- *                   https://api.amazon.co.uk/auth/o2/token (v3.2 EU — covers .sa)
- * - API endpoint:   https://creatorsapi.amazon/catalog/v1/{operation}
- * - Auth: Bearer token + x-marketplace header
- * - Scope: creatorsapi::default
+ * Auth flow:
+ * - Token: POST https://api.amazon.co.uk/auth/o2/token
+ *          grant_type=client_credentials, scope=creatorsapi::default
+ *          Uses AMAZON_CREDENTIAL_ID + AMAZON_CREDENTIAL_SECRET
+ * - API:   POST https://creatorsapi.amazon/catalog/v1/{operation}
+ *          Authorization: Bearer <token>
+ *          x-marketplace: www.amazon.sa
+ *          Body: lowerCamelCase params
  */
 
 // --- Token Cache (in-memory, survives across requests in same Lambda instance) ---
 let cachedToken = null;
 let tokenExpiresAt = 0;
 
-// Saudi Arabia is in the EU region for Amazon (v3.2)
-const TOKEN_URL = 'https://api.amazon.co.uk/auth/o2/token';
+// v3.2 = EU region — covers amazon.sa
+const TOKEN_URL = process.env.AMAZON_TOKEN_ENDPOINT || 'https://api.amazon.co.uk/auth/o2/token';
 const API_BASE = 'https://creatorsapi.amazon/catalog/v1';
 
 /**
@@ -26,17 +28,18 @@ async function getAccessToken() {
     return cachedToken;
   }
 
-  const clientId = process.env.AMAZON_CLIENT_ID;
-  const clientSecret = process.env.AMAZON_CLIENT_SECRET;
+  // Support both old (CLIENT_ID/SECRET) and new (CREDENTIAL_ID/SECRET) env var names
+  const credId = process.env.AMAZON_CREDENTIAL_ID || process.env.AMAZON_CLIENT_ID;
+  const credSecret = process.env.AMAZON_CREDENTIAL_SECRET || process.env.AMAZON_CLIENT_SECRET;
 
-  if (!clientId || !clientSecret) {
-    throw new Error('Missing AMAZON_CLIENT_ID or AMAZON_CLIENT_SECRET environment variables');
+  if (!credId || !credSecret) {
+    throw new Error('Missing AMAZON_CREDENTIAL_ID/SECRET environment variables');
   }
 
   const body = new URLSearchParams({
     grant_type: 'client_credentials',
-    client_id: clientId,
-    client_secret: clientSecret,
+    client_id: credId,
+    client_secret: credSecret,
     scope: 'creatorsapi::default',
   });
 
@@ -54,7 +57,6 @@ async function getAccessToken() {
   }
 
   cachedToken = data.access_token;
-  // Cache for 59.5 minutes (token typically valid for 60 min)
   tokenExpiresAt = Date.now() + (data.expires_in ? (data.expires_in - 30) * 1000 : 3570000);
 
   return cachedToken;

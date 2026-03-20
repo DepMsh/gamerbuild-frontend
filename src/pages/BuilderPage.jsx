@@ -9,6 +9,7 @@ import PriceChart from '../components/PriceChart';
 import ProductImage from '../components/ProductImage';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
+import { useLivePrices } from '../hooks/useLivePrices';
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
@@ -65,6 +66,27 @@ export default function BuilderPage() {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [stickyDropdown, setStickyDropdown] = useState(false);
   const [buyAllBlocked, setBuyAllBlocked] = useState(false);
+
+  // Live prices from Amazon Creators API
+  const selectedAsins = useMemo(() =>
+    Object.values(components).filter(c => c?.asin).map(c => c.asin),
+    [components]
+  );
+  const { prices: livePrices } = useLivePrices(selectedAsins);
+
+  // Helper: get display price for a component (live or static)
+  const getPrice = (comp) => {
+    if (!comp) return { value: 0, isLive: false };
+    const live = livePrices[comp.asin];
+    if (live?.live && live?.price) return { value: live.price, isLive: true };
+    return { value: comp.price || 0, isLive: false };
+  };
+
+  // Live-aware total price
+  const liveTotalPrice = useMemo(() =>
+    Object.values(components).filter(Boolean).reduce((sum, c) => sum + getPrice(c).value, 0),
+    [components, livePrices]
+  );
 
   useEffect(() => {
     const encoded = searchParams.get('b');
@@ -372,7 +394,7 @@ export default function BuilderPage() {
             {/* Quick stats */}
             <div className="flex justify-around text-center mb-4">
               <div>
-                <div className="text-[#00e676] font-bold font-mono text-xl">~{totalPrice.toLocaleString()}</div>
+                <div className="text-[#00e676] font-bold font-mono text-xl">~{liveTotalPrice.toLocaleString()}</div>
                 <div className="text-[10px] text-white/40">ر.س تقريبي</div>
               </div>
               <div>
@@ -383,12 +405,14 @@ export default function BuilderPage() {
 
             {/* Per-part Amazon links with prices */}
             <div className="space-y-2 mb-4">
-              {selectedParts.map(part => (
+              {selectedParts.map(part => {
+                const pp = getPrice(part);
+                return (
                 <div key={part.id} className="flex items-center gap-2 bg-[#0f1019] rounded-xl px-3 py-2.5 border border-[#1a1a2e]">
                   <span className="text-xs text-white/70 truncate flex-1">{part.name}</span>
-                  {part.price > 0 && (
+                  {pp.value > 0 && (
                     <div className="flex items-center gap-1 shrink-0">
-                      <span className="text-[11px] font-mono font-bold text-[#00e5ff]">~{part.price.toLocaleString()}</span>
+                      <span className={`text-[11px] font-mono font-bold ${pp.isLive ? 'text-[#00e676]' : 'text-[#00e5ff]'}`}>{pp.isLive ? '' : '~'}{pp.value.toLocaleString()}</span>
                       <span className="text-[9px] text-white/30">ر.س</span>
                     </div>
                   )}
@@ -402,7 +426,7 @@ export default function BuilderPage() {
                     <span className="shrink-0 text-[10px] text-white/20">مخصص</span>
                   )}
                 </div>
-              ))}
+              ); })}
             </div>
 
             {/* Buy All CTA */}
@@ -492,12 +516,17 @@ export default function BuilderPage() {
 
                   {selected ? (
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+                      {(() => { const p = getPrice(selected); return (
                       <div className="text-left">
-                        <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: '#00e676' }}>
-                          ~{selected.price?.toLocaleString()}
+                        <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: p.isLive ? '#00e676' : '#ffd740' }}>
+                          {p.isLive ? '' : '~'}{p.value?.toLocaleString()}
                         </span>
-                        <span className="text-[9px] text-gb-muted">ر.س <span className="bg-amber-500/20 text-amber-400 px-1 py-px rounded-full font-bold">تقريبي</span></span>
+                        <span className="text-[9px] text-gb-muted">ر.س {p.isLive
+                          ? <span className="bg-green-500/20 text-green-400 px-1 py-px rounded-full font-bold">أمازون</span>
+                          : <span className="bg-amber-500/20 text-amber-400 px-1 py-px rounded-full font-bold">تقريبي</span>
+                        }</span>
                       </div>
+                      ); })()}
                       {!selected.isCustom && (
                         <button onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
                           className={`p-1.5 rounded-lg transition-colors ${priceHistoryOpen === key ? 'text-gb-primary bg-gb-primary/10' : 'text-gb-muted hover:text-gb-primary'}`}>
@@ -545,7 +574,7 @@ export default function BuilderPage() {
                 <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>~{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
+                <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>~{liveTotalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
                 <span className="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
               </div>
             </div>
@@ -556,11 +585,13 @@ export default function BuilderPage() {
               <div className="mt-3 space-y-2">
                 {/* Per-part Amazon links */}
                 <div className="space-y-1.5">
-                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
+                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => {
+                    const fp = getPrice(comp);
+                    return (
                     <div key={cat} className="flex items-center gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
                       <span className="text-xs shrink-0">{catIcons[cat]}</span>
                       <span className="text-[11px] text-gb-text truncate flex-1">{comp.name}</span>
-                      <span className="text-[11px] font-display font-bold shrink-0" style={{ color: '#00e676' }}>~{comp.price?.toLocaleString()}</span>
+                      <span className="text-[11px] font-display font-bold shrink-0" style={{ color: fp.isLive ? '#00e676' : '#ffd740' }}>{fp.isLive ? '' : '~'}{fp.value?.toLocaleString()}</span>
                       {!comp.isCustom && (
                         <a href={getAmazonLink(comp)} target="_blank" rel="noopener noreferrer"
                           onClick={() => track.clickAmazon(comp.name, comp.price)}
@@ -569,7 +600,7 @@ export default function BuilderPage() {
                         </a>
                       )}
                     </div>
-                  ))}
+                  ); })}
                 </div>
 
                 <button onClick={handleBuyAll}
@@ -581,7 +612,7 @@ export default function BuilderPage() {
                 )}
 
                 <button onClick={() => {
-                  const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${totalPrice.toLocaleString()} ر.س\n\npcbux.com`;
+                  const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${liveTotalPrice.toLocaleString()} ر.س\n\npcbux.com`;
                   navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
                 }} className="w-full py-2.5 rounded-xl bg-gb-card border border-gb-border text-gb-text text-xs hover:border-gb-primary/30 transition-all flex items-center justify-center gap-2">
                   <ExternalLink size={14} /> شارك التجميعة
@@ -603,12 +634,14 @@ export default function BuilderPage() {
               {/* Selected parts list */}
               {selectedCount > 0 ? (
                 <div className="space-y-2 mb-4">
-                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
+                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => {
+                    const sp = getPrice(comp);
+                    return (
                     <div key={cat} className="flex items-center gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
                       <span className="text-xs shrink-0">{catIcons[cat]}</span>
                       <span className="text-[11px] text-gb-text truncate flex-1">{comp.name}</span>
-                      {comp.price > 0 && (
-                        <span className="text-[11px] font-mono font-bold text-[#00e676] shrink-0">~{comp.price?.toLocaleString()}</span>
+                      {sp.value > 0 && (
+                        <span className={`text-[11px] font-mono font-bold shrink-0 ${sp.isLive ? 'text-[#00e676]' : 'text-[#ffd740]'}`}>{sp.isLive ? '' : '~'}{sp.value?.toLocaleString()}</span>
                       )}
                       {!comp.isCustom && comp.asin && (
                         <a href={getAmazonLink(comp)} target="_blank" rel="noopener noreferrer"
@@ -618,7 +651,7 @@ export default function BuilderPage() {
                         </a>
                       )}
                     </div>
-                  ))}
+                  ); })}
                 </div>
               ) : (
                 <p className="text-xs text-gb-muted mb-4">ما اخترت قطع بعد — ابدأ من الشمال</p>
@@ -642,7 +675,7 @@ export default function BuilderPage() {
               <div className="flex items-center justify-between py-3 border-t border-gb-border">
                 <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-xl font-display font-black text-[#00e676]">~{totalPrice.toLocaleString()}</span>
+                  <span className="text-xl font-display font-black text-[#00e676]">~{liveTotalPrice.toLocaleString()}</span>
                   <span className="text-xs text-gb-muted">ر.س</span>
                 </div>
               </div>
@@ -725,7 +758,7 @@ export default function BuilderPage() {
                     </button>
                     <div className="flex items-center justify-between mt-2 px-1">
                       <span className="text-[10px] text-white/30">{selectedCount} قطع</span>
-                      <span className="text-sm font-display font-bold text-[#00e676]">~{totalPrice.toLocaleString()} ر.س</span>
+                      <span className="text-sm font-display font-bold text-[#00e676]">~{liveTotalPrice.toLocaleString()} ر.س</span>
                     </div>
                   </div>
                 </motion.div>
@@ -737,7 +770,7 @@ export default function BuilderPage() {
             onClick={() => setStickyDropdown(!stickyDropdown)}
             className="bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm cursor-pointer active:bg-[#1a1a2e]/50 transition-colors"
           >
-            <span className="text-[#00e676] font-bold font-mono">~{totalPrice.toLocaleString()} ر.س</span>
+            <span className="text-[#00e676] font-bold font-mono">~{liveTotalPrice.toLocaleString()} ر.س</span>
             <div className="flex items-center gap-1">
               {CATEGORIES.map(({ key }) => (
                 <div key={key} className={`w-2 h-2 rounded-full transition-all duration-500 ${
