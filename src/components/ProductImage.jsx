@@ -325,7 +325,10 @@ function buildSources(component) {
     sources.push(`https://ws-eu.amazon-adsystem.com/widgets/q?_encoding=UTF8&MarketPlace=SA&ASIN=${component.asin}&ServiceVersion=20070822&ID=AsinImage&WS=1&Format=SL300`);
   }
 
-  // 4th: Brand-specific real product photo
+  // 4th: Newegg CDN image (if component has neweggImage field)
+  if (component.neweggImage) sources.push(component.neweggImage);
+
+  // 5th: Brand-specific real product photo
   const brandFb = BRAND_FALLBACKS[cat]?.[component.brand];
   if (brandFb) sources.push(brandFb);
 

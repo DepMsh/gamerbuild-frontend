@@ -1,0 +1,5 @@
+{
+  "_instructions": "Add product names (exactly as in db.js) mapped to Newegg image URLs.",
+  "_format": "\"Product Name\": \"https://c1.neweggimages.com/ProductImageCompressAll300/XX-XXX-XXX-V01.jpg\"",
+  "_howto": "1) Run: node scripts/fetch-newegg-images.cjs  2) Search Newegg for the product  3) Copy item code from URL (e.g. N82E16814126682 → 14-126-682)  4) Add entry below  5) Run: node scripts/apply-newegg-images.cjs"
+}
