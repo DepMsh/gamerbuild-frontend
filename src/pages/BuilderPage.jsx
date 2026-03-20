@@ -31,45 +31,42 @@ const PAGE_SIZE = 30;
 
 function getGroupKey(item, cat) {
   const n = item.name || '';
-  if (cat === 'gpu') {
-    const m = n.match(/RTX\s+\d{4}(?:\s+(?:Ti|Super))?|RX\s+\d{4}(?:\s+XT)?|Arc\s+[AB]\d{3}/i);
-    return m ? m[0] : 'GPU أخرى';
-  }
   if (cat === 'cpu') {
     if (n.includes('Threadripper')) return 'Threadripper';
-    if (n.includes('Ryzen 9') && n.includes('X3D')) return 'Ryzen 9 X3D';
-    if (n.includes('Ryzen 7') && n.includes('X3D')) return 'Ryzen 7 X3D';
-    if (n.includes('Ryzen 9')) return 'Ryzen 9';
-    if (n.includes('Ryzen 7')) return 'Ryzen 7';
-    if (n.includes('Ryzen 5')) return 'Ryzen 5';
-    if (n.includes('Ryzen 3')) return 'Ryzen 3';
-    if (n.includes('Core Ultra 9')) return 'Core Ultra 9';
-    if (n.includes('Core Ultra 7')) return 'Core Ultra 7';
-    if (n.includes('Core Ultra 5')) return 'Core Ultra 5';
-    const intel = n.match(/i([9753])-(\d{2})/);
-    if (intel) return `Core i${intel[1]} ${intel[2]}th Gen`;
-    return 'أخرى';
+    if (n.includes('Ryzen') || n.includes('EPYC')) return 'Ryzen';
+    if (n.includes('Core') || n.includes('Intel')) return 'Core';
+    return 'معالجات أخرى';
   }
-  if (cat === 'motherboard') return item.chipset || 'أخرى';
-  if (cat === 'ram') return `${item.type || 'DDR'} ${item.size || ''}GB`;
-  if (cat === 'ssd') return item.interface || 'أخرى';
-  if (cat === 'psu') return item.watt ? `${item.watt}W` : 'أخرى';
+  if (cat === 'gpu') {
+    if (n.includes('GeForce') || n.includes('RTX') || n.includes('GTX')) return 'GeForce';
+    if (n.includes('Radeon') || n.includes('RX ')) return 'Radeon';
+    if (n.includes('Arc')) return 'Intel Arc';
+    return 'كروت أخرى';
+  }
+  if (cat === 'motherboard') return item.socket || 'لوحات أخرى';
+  if (cat === 'ram') return item.type || 'رام أخرى';
+  if (cat === 'ssd') {
+    if (item.interface && item.interface.includes('NVMe')) return 'NVMe';
+    if (item.interface && item.interface.includes('SATA')) return 'SATA';
+    return 'تخزين آخر';
+  }
+  if (cat === 'psu') {
+    const w = item.watt || 0;
+    if (w >= 1000) return '1000W+';
+    if (w >= 800) return '850W';
+    if (w >= 700) return '750W';
+    if (w >= 600) return '650W';
+    return '550W وأقل';
+  }
   if (cat === 'cooler') {
-    if (item.type === 'AIO') return `AIO ${item.size || ''}`.trim();
+    if (item.type === 'AIO') return 'تبريد مائي';
     return 'تبريد هوائي';
   }
-  if (cat === 'case') return item.formFactor || 'أخرى';
-  return '';
-}
-
-function getGroupExtra(item, cat) {
-  if (cat === 'gpu') return item.vram ? `${item.vram}GB` : '';
-  if (cat === 'cpu') return item.socket || '';
-  if (cat === 'motherboard') {
-    const p = [];
-    if (item.socket) p.push(item.socket);
-    if (item.ramType) p.push(item.ramType);
-    return p.join(' · ');
+  if (cat === 'case') {
+    const ff = item.formFactor || '';
+    if (ff.includes('Full')) return 'Full Tower';
+    if (ff.includes('Mini') || ff.includes('SFF') || ff.includes('ITX')) return 'Mini / SFF';
+    return 'Mid Tower';
   }
   return '';
 }
@@ -140,15 +137,22 @@ export default function BuilderPage() {
   }, [openPicker, components, sortBy, showOnlyCompat, searchQuery, filterBrand, filterTier]);
 
   const groupedView = useMemo(() => {
-    const result = [];
-    let lastGroup = null;
-    pickerItems.slice(0, visibleCount).forEach(item => {
-      const group = getGroupKey(item, openPicker);
-      if (group && group !== lastGroup) {
-        result.push({ _header: group, _extra: getGroupExtra(item, openPicker) });
-        lastGroup = group;
+    const visible = pickerItems.slice(0, visibleCount);
+    const groupMap = new Map();
+    visible.forEach(item => {
+      const key = getGroupKey(item, openPicker);
+      if (!key) {
+        if (!groupMap.has('__nogroup__')) groupMap.set('__nogroup__', []);
+        groupMap.get('__nogroup__').push(item);
+        return;
       }
-      result.push(item);
+      if (!groupMap.has(key)) groupMap.set(key, []);
+      groupMap.get(key).push(item);
+    });
+    const result = [];
+    groupMap.forEach((items, key) => {
+      if (key !== '__nogroup__') result.push({ _header: key, _count: items.length });
+      items.forEach(item => result.push(item));
     });
     return result;
   }, [pickerItems, visibleCount, openPicker]);
@@ -670,9 +674,11 @@ export default function BuilderPage() {
                       {groupedView.map((entry, gi) => {
                         if (entry._header) {
                           return (
-                            <div key={`hdr-${gi}`} className="sticky top-0 z-10 -mx-3 px-4 py-2 bg-[#0a0a14]/95 backdrop-blur-sm border-b border-[#1a1a2e]">
-                              <span className="text-xs font-bold text-[#00e5ff]/80">{entry._header}</span>
-                              {entry._extra && <span className="text-[10px] text-[#555] mr-2"> · {entry._extra}</span>}
+                            <div key={`hdr-${gi}`} className="sticky top-0 z-10 -mx-3 px-4 py-2 mt-2 first:mt-0 bg-[#0a0a14]/95 backdrop-blur-sm border-b border-[#1a1a2e]">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-bold text-[#00e5ff]/80 tracking-wider">{entry._header}</span>
+                                <span className="text-[10px] text-white/20">{entry._count}</span>
+                              </div>
                             </div>
                           );
                         }
