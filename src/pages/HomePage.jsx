@@ -31,9 +31,9 @@ function useCountUp(target, duration = 1500) {
 }
 
 const quickBuilds = [
-  { label: 'اقتصادية', desc: '1080p سلس', price: '3,500', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: 'border-green-500/20', icon: Zap },
-  { label: 'متوسطة', desc: '1440p Ultra', price: '7,000', gradient: 'from-cyan-500/20 to-blue-500/5', borderColor: 'border-cyan-500/20', icon: Cpu },
-  { label: 'خرافية', desc: '4K + ستريم', price: '13,000', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: 'border-purple-500/20', icon: MonitorSpeaker },
+  { label: 'اقتصادية', desc: '1080p سلس', price: '3,500', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: 'border-green-500/20', icon: Zap, preset: 'budget' },
+  { label: 'متوسطة', desc: '1440p Ultra', price: '7,000', gradient: 'from-cyan-500/20 to-blue-500/5', borderColor: 'border-cyan-500/20', icon: Cpu, preset: 'mid' },
+  { label: 'خرافية', desc: '4K + ستريم', price: '13,000', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: 'border-purple-500/20', icon: MonitorSpeaker, preset: 'beast' },
 ];
 
 const featureCards = [
@@ -155,7 +155,7 @@ export default function HomePage() {
                 transition={{ delay: i * 0.1 }}
               >
                 <Link
-                  to="/builder"
+                  to={`/builder?preset=${b.preset}`}
                   className={`block p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${b.gradient} border ${b.borderColor} text-center transition-all active:scale-95 hover:scale-[1.02]`}
                 >
                   <b.icon size={28} className="mx-auto mb-2 text-gb-text opacity-70" strokeWidth={1.5} />

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown, Trash2 } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck, getDisplayName } from '../utils/db';
 import { analyzeBottleneck } from '../utils/engine';
@@ -30,7 +30,8 @@ const catGridConfig = {
 const PAGE_SIZE = 30;
 
 export default function BuilderPage() {
-  const { components, setComponent, removeComponent, clearBuild, totalPrice, selectedCount } = useBuild();
+  const { components, setComponent, removeComponent, clearBuild, loadPreset, totalPrice, selectedCount } = useBuild();
+  const [searchParams] = useSearchParams();
   const [openPicker, setOpenPicker] = useState(null);
   const [sortBy, setSortBy] = useState('smart');
   const [showOnlyCompat, setShowOnlyCompat] = useState(true);
@@ -42,6 +43,11 @@ export default function BuilderPage() {
   const [filterTier, setFilterTier] = useState('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  useEffect(() => {
+    const preset = searchParams.get('preset');
+    if (preset) loadPreset(preset);
+  }, []);
 
   useEffect(() => {
     if (openPicker) document.body.style.overflow = 'hidden';

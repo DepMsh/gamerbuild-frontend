@@ -1,4 +1,5 @@
 import { createContext, useContext, useReducer, useCallback } from 'react';
+import { getById } from '../utils/db';
 
 const BuildContext = createContext();
 
@@ -61,6 +62,22 @@ export function BuildProvider({ children }) {
     dispatch({ type: 'CLEAR_BUILD' });
   }, []);
 
+  const loadPreset = useCallback((presetName) => {
+    const presets = {
+      budget: { cpu: 'cpu-48', gpu: 'gpu-129', motherboard: 'mb-85', ram: 'ram-572', ssd: 'ssd-399', psu: 'psu-57', cooler: 'cool-352', case: 'case-460' },
+      mid:    { cpu: 'cpu-22', gpu: 'gpu-61',  motherboard: 'mb-26', ram: 'ram-549', ssd: 'ssd-32',  psu: 'psu-123', cooler: 'cool-44',  case: 'case-252' },
+      beast:  { cpu: 'cpu-7',  gpu: 'gpu-230', motherboard: 'mb-3',  ram: 'ram-4',   ssd: 'ssd-1037', psu: 'psu-73', cooler: 'cool-43',  case: 'case-246' },
+    };
+    const preset = presets[presetName];
+    if (!preset) return;
+    const newComponents = { cpu: null, gpu: null, motherboard: null, ram: null, ssd: null, psu: null, cooler: null, case: null };
+    Object.entries(preset).forEach(([category, id]) => {
+      const comp = getById(id);
+      if (comp) newComponents[category] = comp;
+    });
+    dispatch({ type: 'LOAD_BUILD', components: newComponents });
+  }, []);
+
   const selectedCount = Object.values(state.components).filter(Boolean).length;
 
   return (
@@ -70,6 +87,7 @@ export function BuildProvider({ children }) {
       setComponent,
       removeComponent,
       loadBuild,
+      loadPreset,
       clearBuild,
     }}>
       {children}
