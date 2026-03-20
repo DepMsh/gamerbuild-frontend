@@ -6,7 +6,14 @@ import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents } from '../utils/db';
 import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import GaugeMeter, { getBottleneckColor } from '../components/GaugeMeter';
+import GaugeMeter from '../components/GaugeMeter';
+
+function getBottleneckColor(v) {
+  if (v <= 5) return '#00e676';
+  if (v <= 15) return '#ffc107';
+  if (v <= 25) return '#ff9800';
+  return '#f44336';
+}
 
 function checkCompat(components) {
   const issues = [], warnings = [];
@@ -57,7 +64,7 @@ export default function AnalysisPage() {
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
         <div className="max-w-2xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" color="#555" size={160} />
+            <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" size={160} />
             <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">التحليل الذكي</h2>
             <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق</p>
             <Link
@@ -100,14 +107,41 @@ export default function AnalysisPage() {
           ))}
         </div>
 
-        {/* ── GaugeMeter Score ── */}
+        {/* ── Bottleneck GaugeMeter ── */}
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="flex justify-center mb-6"
+          className="flex flex-col items-center mb-6"
         >
-          <GaugeMeter value={score} label={scoreLabel} color={scoreColor} size={200} />
+          <GaugeMeter
+            value={bn?.percent || 0}
+            size={220}
+            sublabel={
+              (bn?.percent || 0) <= 5 ? 'توازن مثالي ⚡'
+              : (bn?.percent || 0) <= 15 ? 'اختناق بسيط ⚠️'
+              : (bn?.percent || 0) <= 25 ? 'اختناق ملحوظ 🔶'
+              : 'اختناق حاد ❌'
+            }
+          />
+          {/* CPU vs GPU bar */}
+          {(() => {
+            const total = gamingCpu + gpuScore;
+            const cpuPct = total > 0 ? Math.round((gamingCpu / total) * 100) : 50;
+            const gpuPct = 100 - cpuPct;
+            return (
+              <div className="w-full max-w-sm mx-auto mt-4">
+                <div className="flex justify-between text-xs text-white/50 mb-1">
+                  <span>CPU {cpuPct}%</span>
+                  <span>GPU {gpuPct}%</span>
+                </div>
+                <div className="flex h-2.5 rounded-full overflow-hidden">
+                  <div className="bg-purple-500 transition-all duration-700" style={{ width: `${cpuPct}%` }} />
+                  <div className="bg-cyan-400 transition-all duration-700" style={{ width: `${gpuPct}%` }} />
+                </div>
+              </div>
+            );
+          })()}
         </motion.div>
 
         {/* 3 Stat Boxes */}

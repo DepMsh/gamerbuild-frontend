@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ExternalLink, X, ShieldCheck, ShieldAlert, AlertTriangle, Zap, ShoppingCart, Check, BarChart2, Search, SlidersHorizontal, Truck, RefreshCw, Plus, AlertCircle, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, HardDrive, Fan, Box, ChevronDown, Trash2 } from 'lucide-react';
 import { CATEGORIES, getCompatible, estimateWattage, getRecommendedPSU, getAmazonLink, fullCompatCheck, getDisplayName } from '../utils/db';
+import { analyzeBottleneck } from '../utils/engine';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
@@ -152,6 +153,21 @@ export default function BuilderPage() {
   const hasIssues = compat.errors.length > 0;
   const psuCapacity = components.psu?.watt || recPSU;
   const psuRatio = psuCapacity > 0 ? wattage / psuCapacity : 0;
+
+  const hasCorePartsSelected = !!(components.cpu && components.gpu && components.motherboard && components.ram);
+  const bn = hasCorePartsSelected ? analyzeBottleneck(components.cpu, components.gpu) : null;
+  const bottleneckPct = bn?.percent || 0;
+  const selectedParts = Object.values(components).filter(Boolean);
+
+  const handleShare = () => {
+    const text = `تجميعتي من PCBux 🎮\n${selectedParts.map(p => `• ${p.name}`).join('\n')}\n💰 ~${totalPrice.toLocaleString()} ر.س\n\nجمّع جهازك: https://pcbux.com`;
+    if (navigator.share) {
+      navigator.share({ title: 'PCBux', text });
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('تم النسخ!');
+    }
+  };
 
   // Reset visible count when filters change
   useEffect(() => {
@@ -383,57 +399,53 @@ export default function BuilderPage() {
         </div>
 
         {/* ========== COMPLETION SECTION ========== */}
-        {components.cpu && components.gpu && components.motherboard && components.ram && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-5 p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/15 text-center"
-          >
-            <span className="text-3xl mb-2 block">🎉</span>
-            <h3 className="font-display text-lg font-bold text-gb-text mb-1">تجميعتك جاهزة!</h3>
-            <p className="text-xs text-gb-muted mb-4">القطع الأساسية مختارة — شيك الأسعار واطلب من أمازون</p>
-            <div className="flex flex-col sm:flex-row gap-2.5 max-w-sm mx-auto">
-              <Link
-                to="/analysis"
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm font-bold hover:border-gb-primary/30 transition-all"
-              >
-                <BarChart2 size={15} /> شوف التحليل
-              </Link>
-              <Link
-                to="/games"
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm font-bold hover:border-gb-primary/30 transition-all"
-              >
-                🎮 توقع FPS
-              </Link>
+        {hasCorePartsSelected && (
+          <div className="bg-gradient-to-b from-[#00e5ff]/5 to-transparent border border-[#00e5ff]/20 rounded-2xl p-5 mb-6 mt-5">
+            <h3 className="text-lg font-bold text-center mb-4">🎉 تهانينا! تجميعتك جاهزة</h3>
+
+            {/* Quick stats */}
+            <div className="flex justify-around text-center mb-4">
+              <div>
+                <div className="text-[#00e676] font-bold font-mono text-lg">~{totalPrice.toLocaleString()}</div>
+                <div className="text-[10px] text-white/40">ر.س تقريبي</div>
+              </div>
+              <div>
+                <div className="text-[#00e5ff] font-bold font-mono text-lg">{bottleneckPct}%</div>
+                <div className="text-[10px] text-white/40">بوتلنك</div>
+              </div>
             </div>
-          </motion.div>
+
+            {/* Per-part Amazon links */}
+            <div className="space-y-2 mb-4">
+              {selectedParts.map(part => (
+                <a key={part.id} href={getAmazonLink(part)} target="_blank" rel="noopener noreferrer"
+                   className="flex items-center justify-between bg-[#0f1019] rounded-lg px-3 py-2 border border-[#1a1a2e] hover:border-[#00e5ff]/30 transition-colors">
+                  <span className="text-xs text-white/70 truncate flex-1">{part.name}</span>
+                  <span className="text-[10px] text-white/40 mx-2">~{part.price?.toLocaleString()} ر.س</span>
+                  <span className="text-[#00e5ff] text-xs font-bold whitespace-nowrap">🛒 شيك السعر</span>
+                </a>
+              ))}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2">
+              <Link to="/analysis" className="flex-1 text-center bg-[#7c4dff]/20 text-[#7c4dff] rounded-lg py-2.5 text-sm font-bold">
+                📊 تحليل مفصّل
+              </Link>
+              <button onClick={handleShare} className="flex-1 text-center bg-[#00e5ff]/20 text-[#00e5ff] rounded-lg py-2.5 text-sm font-bold">
+                📤 شارك التجميعة
+              </button>
+            </div>
+          </div>
         )}
       </div>
 
       {/* ========== STICKY MOBILE BOTTOM BAR ========== */}
       {selectedCount >= 1 && (
-        <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 bg-gb-bg/95 backdrop-blur-xl border-t border-gb-border px-4 py-2.5"
-          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0)' }}>
-          {/* Top row: stats */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2.5">
-              <span className="text-[10px] text-gb-muted flex items-center gap-0.5">📦 {selectedCount}/8</span>
-              <span className="text-[10px] text-gb-muted flex items-center gap-0.5">⚡ {wattage}W/{psuCapacity}W</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-display font-black" style={{ color: '#00e676' }}>💰 ~{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
-              <button onClick={() => setShowClearConfirm(true)} className="p-1 text-red-400/50 active:text-red-400">
-                <Trash2 size={13} />
-              </button>
-            </div>
-          </div>
-          {/* Bottom row: Amazon button */}
-          <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
-            target="_blank" rel="noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all active:scale-[0.97]">
-            <ShoppingCart size={16} /> اشتري من أمازون
-          </a>
+        <div className="fixed bottom-14 left-0 right-0 z-40 bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm md:hidden">
+          <span className="text-[#00e676] font-bold font-mono">~{totalPrice.toLocaleString()} ر.س</span>
+          <span className="text-white/40">⚡ {wattage}W</span>
+          <span className="text-white/40">📦 {selectedCount}/8</span>
         </div>
       )}
 
