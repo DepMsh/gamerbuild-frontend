@@ -1,4 +1,4 @@
-import { Gamepad2, Github, Twitter } from 'lucide-react';
+import { Gamepad2, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -51,9 +51,6 @@ export default function Footer() {
             © 2026 PCBux — صنع بـ ❤️ في السعودية
           </p>
           <div className="flex items-center gap-4">
-            <a href="https://github.com/DepMsh/pcbux" target="_blank" rel="noreferrer" className="text-gb-muted hover:text-gb-primary transition-colors">
-              <Github size={18} />
-            </a>
             <a href="#" className="text-gb-muted hover:text-gb-primary transition-colors">
               <Twitter size={18} />
             </a>

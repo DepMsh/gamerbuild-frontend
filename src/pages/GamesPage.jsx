@@ -1,9 +1,27 @@
+import { useState } from 'react';
 import { useBuild } from '../hooks/BuildContext';
 import { GAMES, predictFPS } from '../utils/engine';
 import { Crosshair, Monitor, MonitorSpeaker, Tv } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const RES_ICONS = { '1080p': Monitor, '1440p': MonitorSpeaker, '4k': Tv };
+const RES_OPTIONS = [
+  { key: '1080p', label: '1080p', icon: Monitor },
+  { key: '1440p', label: '1440p', icon: MonitorSpeaker },
+  { key: '4k', label: '4K', icon: Tv },
+];
+
+// Reorder games by popularity (most popular first)
+const GAME_ORDER = [
+  'Valorant', 'Fortnite', 'CS2', 'League of Legends', 'Apex Legends',
+  'COD MW3', 'GTA VI', 'Cyberpunk 2077', 'FC 25', 'Elden Ring',
+  'Marvel Rivals', 'Rainbow Six Siege', 'Black Myth Wukong', 'Red Dead 2',
+  'Hogwarts Legacy', 'Wuthering Waves', 'Minecraft Shaders',
+];
+
+const orderedGames = GAME_ORDER
+  .map(name => GAMES.find(g => g.name === name))
+  .filter(Boolean)
+  .concat(GAMES.filter(g => !GAME_ORDER.includes(g.name)));
 
 const gameGradients = [
   'from-orange-500/10 to-red-500/5',
@@ -21,19 +39,22 @@ const gameGradients = [
   'from-violet-500/10 to-purple-500/5',
   'from-sky-500/10 to-blue-500/5',
   'from-red-500/10 to-orange-500/5',
+  'from-lime-500/10 to-green-500/5',
+  'from-fuchsia-500/10 to-purple-500/5',
 ];
 
-function fpsPill(fps) {
-  if (fps >= 120) return { bg: 'bg-green-500/15', text: 'text-green-400', border: 'border-green-500/20', label: 'ممتاز' };
-  if (fps >= 90)  return { bg: 'bg-green-500/10', text: 'text-green-300', border: 'border-green-500/15', label: 'سلس' };
-  if (fps >= 60)  return { bg: 'bg-cyan-500/15', text: 'text-cyan-400', border: 'border-cyan-500/20', label: 'مقبول' };
-  if (fps >= 30)  return { bg: 'bg-yellow-500/15', text: 'text-yellow-400', border: 'border-yellow-500/20', label: 'ضعيف' };
-  return { bg: 'bg-red-500/15', text: 'text-red-400', border: 'border-red-500/20', label: 'صعب' };
+function fpsInfo(fps) {
+  if (fps >= 120) return { color: '#00e676', bg: 'bg-green-500/15', label: 'ممتاز', pct: 100 };
+  if (fps >= 90)  return { color: '#66ffb2', bg: 'bg-green-500/10', label: 'سلس', pct: 85 };
+  if (fps >= 60)  return { color: '#00e5ff', bg: 'bg-cyan-500/15', label: 'مقبول', pct: 70 };
+  if (fps >= 30)  return { color: '#ffd740', bg: 'bg-yellow-500/15', label: 'ضعيف', pct: 45 };
+  return { color: '#ff5252', bg: 'bg-red-500/15', label: 'صعب', pct: 20 };
 }
 
 export default function GamesPage() {
   const { components } = useBuild();
   const hasBoth = components.cpu && components.gpu;
+  const [selectedRes, setSelectedRes] = useState('1080p');
 
   if (!hasBoth) {
     return (
@@ -54,56 +75,120 @@ export default function GamesPage() {
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
       <div className="max-w-2xl mx-auto">
-        <div className="mb-6">
+        <div className="mb-4">
           <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">توقع الأداء</h1>
-          <p className="text-gb-muted text-xs sm:text-sm mt-1">
+          <p className="text-gb-muted text-[11px] sm:text-sm mt-0.5">
             {components.cpu.name} + {components.gpu.name}
           </p>
         </div>
 
-        <div className="space-y-3">
-          {GAMES.map((game, gi) => {
+        {/* Resolution Selector */}
+        <div className="flex items-center justify-center gap-1 p-1 bg-gb-card rounded-xl border border-gb-border mb-5">
+          {RES_OPTIONS.map(r => {
+            const ResIcon = r.icon;
+            return (
+              <button
+                key={r.key}
+                onClick={() => setSelectedRes(r.key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-center transition-all active:scale-95 ${
+                  selectedRes === r.key
+                    ? 'bg-gb-primary/15 border border-gb-primary/30 text-gb-primary'
+                    : 'text-gb-muted hover:text-gb-text'
+                }`}
+              >
+                <ResIcon size={14} />
+                <span className="text-sm font-bold">{r.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Games List */}
+        <div className="space-y-2.5">
+          {orderedGames.map((game, gi) => {
             const results = predictFPS(components, game);
             if (!results) return null;
+            const data = results[selectedRes];
+            if (!data) return null;
+            const info = fpsInfo(data.fps);
             const gradient = gameGradients[gi % gameGradients.length];
+            const displayFPS = data.fps >= 120 ? '120+' : data.fps;
+            const barWidth = Math.min((data.fps / 120) * 100, 100);
 
             return (
               <motion.div
                 key={game.name}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: gi * 0.06 }}
-                className={`bg-gradient-to-br ${gradient} rounded-xl border border-gb-border p-4 sm:p-5`}
+                transition={{ delay: gi * 0.04 }}
+                className={`bg-gradient-to-br ${gradient} rounded-xl border border-gb-border p-3.5 sm:p-4`}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="font-display font-bold text-sm sm:text-base text-gb-text">{game.name}</span>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-display font-bold text-sm text-gb-text">{game.name}</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display font-black text-lg sm:text-xl" style={{ color: info.color }}>
+                      {displayFPS}
+                    </span>
+                    <span className="text-[10px] font-bold" style={{ color: info.color, opacity: 0.7 }}>FPS</span>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {Object.entries(results).map(([res, data]) => {
-                    const pill = fpsPill(data.fps);
-                    const ResIcon = RES_ICONS[res] || Monitor;
-                    return (
-                      <div
-                        key={res}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${pill.bg} ${pill.border}`}
-                      >
-                        <ResIcon size={12} className="text-gb-muted opacity-60" />
-                        <span className="text-[10px] sm:text-xs text-gb-muted">{res}</span>
-                        <span className={`text-sm sm:text-base font-display font-bold ${pill.text}`}>
-                          {data.fps >= 120 ? '120+' : data.fps}
-                        </span>
-                        <span className={`text-[9px] sm:text-[10px] ${pill.text} opacity-70`}>FPS</span>
-                      </div>
-                    );
-                  })}
+                {/* FPS Bar */}
+                <div className="relative h-3 rounded-full bg-gb-bg/50 overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${barWidth}%` }}
+                    transition={{ duration: 0.6, delay: gi * 0.04 + 0.2 }}
+                    className="h-full rounded-full"
+                    style={{ backgroundColor: info.color, boxShadow: `0 0 8px ${info.color}40` }}
+                  />
+                  {/* 60 FPS marker */}
+                  <div className="absolute top-0 bottom-0 w-px bg-white/20" style={{ left: '50%' }} />
+                </div>
+
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[9px] text-gb-muted">0</span>
+                  <span className="text-[9px] text-gb-muted/40">60</span>
+                  <span className="text-[9px] text-gb-muted">120+</span>
                 </div>
               </motion.div>
             );
           })}
         </div>
 
-        <p className="text-center text-[10px] text-gb-muted mt-6 pb-4">
+        {/* All Resolutions Summary — compact */}
+        <div className="mt-6 mb-4">
+          <h3 className="text-xs font-bold text-gb-muted mb-3">ملخص كل الدقات</h3>
+          <div className="bg-gb-card rounded-xl border border-gb-border overflow-hidden">
+            <div className="grid grid-cols-4 text-[10px] text-gb-muted font-bold px-3 py-2 border-b border-gb-border bg-gb-surface/30">
+              <span>اللعبة</span>
+              <span className="text-center">1080p</span>
+              <span className="text-center">1440p</span>
+              <span className="text-center">4K</span>
+            </div>
+            {orderedGames.map((game) => {
+              const results = predictFPS(components, game);
+              if (!results) return null;
+              return (
+                <div key={game.name} className="grid grid-cols-4 text-[11px] px-3 py-2 border-b border-gb-border/50 last:border-0">
+                  <span className="text-gb-text font-medium truncate pr-2">{game.name}</span>
+                  {['1080p', '1440p', '4k'].map(res => {
+                    const d = results[res];
+                    if (!d) return <span key={res} className="text-center text-gb-muted">—</span>;
+                    const c = fpsInfo(d.fps);
+                    return (
+                      <span key={res} className="text-center font-display font-bold" style={{ color: c.color }}>
+                        {d.fps >= 120 ? '120+' : d.fps}
+                      </span>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <p className="text-center text-[10px] text-gb-muted mt-4 pb-4">
           * التوقعات مبنية على بنشماركات حقيقية (Ultra settings) — الأداء الفعلي يختلف حسب الإعدادات
         </p>
       </div>

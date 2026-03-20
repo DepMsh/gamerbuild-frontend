@@ -1,50 +1,89 @@
 import { Link } from 'react-router-dom';
-import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, Plus, TrendingUp } from 'lucide-react';
-import { COMPONENTS } from '../utils/db';
+import { useState, useEffect, useRef } from 'react';
+import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft, Zap, Cpu, MonitorSpeaker } from 'lucide-react';
 import { motion } from 'framer-motion';
-import ProductImage from '../components/ProductImage';
 
-const featureCards = [
-  { icon: Shield, title: 'فحص توافق', desc: 'تأكد تلقائي من توافق كل القطع', gradient: 'from-green-500/20 to-emerald-500/10', iconColor: 'text-green-400', borderColor: 'border-green-500/20' },
-  { icon: Crosshair, title: 'توقع FPS', desc: 'تقدير أداء تجميعتك في الألعاب', gradient: 'from-cyan-500/20 to-blue-500/10', iconColor: 'text-cyan-400', borderColor: 'border-cyan-500/20' },
-  { icon: BarChart3, title: 'تحليل أداء', desc: 'كشف البوتلنك وتوصيات الترقية', gradient: 'from-purple-500/20 to-violet-500/10', iconColor: 'text-purple-400', borderColor: 'border-purple-500/20' },
-  { icon: Tag, title: 'أسعار أمازون', desc: 'أسعار محدّثة ورابط شراء مباشر', gradient: 'from-amber-500/20 to-orange-500/10', iconColor: 'text-amber-400', borderColor: 'border-amber-500/20' },
+// ── Count-up hook ──
+function useCountUp(target, duration = 1500) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const start = performance.now();
+        const step = (now) => {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          setCount(Math.round(eased * target));
+          if (progress < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+    }, { threshold: 0.3 });
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [target, duration]);
+
+  return [count, ref];
+}
+
+const quickBuilds = [
+  { label: 'اقتصادية', desc: '1080p سلس', price: '3,500', gradient: 'from-green-500/20 to-emerald-500/5', borderColor: 'border-green-500/20', icon: Zap },
+  { label: 'متوسطة', desc: '1440p Ultra', price: '7,000', gradient: 'from-cyan-500/20 to-blue-500/5', borderColor: 'border-cyan-500/20', icon: Cpu },
+  { label: 'خرافية', desc: '4K + ستريم', price: '13,000', gradient: 'from-purple-500/20 to-violet-500/5', borderColor: 'border-purple-500/20', icon: MonitorSpeaker },
 ];
 
-// Pick top 6 popular parts (mix of CPU & GPU)
-const popularParts = [
-  ...COMPONENTS.cpu.filter(c => c.score >= 85).slice(0, 3),
-  ...COMPONENTS.gpu.filter(c => c.score >= 85).slice(0, 3),
-].slice(0, 6);
+const featureCards = [
+  { icon: Shield, title: 'فحص توافق ذكي', desc: 'كل قطعة تنفحص تلقائياً مع الباقي', gradient: 'from-green-500/15 to-emerald-500/5', iconColor: 'text-green-400', borderColor: 'border-green-500/15' },
+  { icon: Crosshair, title: 'توقع FPS دقيق', desc: 'بنشماركات حقيقية لـ 17 لعبة', gradient: 'from-cyan-500/15 to-blue-500/5', iconColor: 'text-cyan-400', borderColor: 'border-cyan-500/15' },
+  { icon: BarChart3, title: 'تحليل بوتلنك', desc: 'كشف عنق الزجاجة + خطة ترقية', gradient: 'from-purple-500/15 to-violet-500/5', iconColor: 'text-purple-400', borderColor: 'border-purple-500/15' },
+  { icon: Tag, title: 'أسعار أمازون', desc: 'رابط شراء مباشر بأفضل سعر', gradient: 'from-amber-500/15 to-orange-500/5', iconColor: 'text-amber-400', borderColor: 'border-amber-500/15' },
+];
 
 export default function HomePage() {
+  const [partsCount, partsRef] = useCountUp(5338);
+  const [gamesCount, gamesRef] = useCountUp(17);
+
   return (
     <div className="min-h-screen">
       {/* ========== HERO ========== */}
-      <section className="relative min-h-[75vh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden">
-        {/* Background effects */}
+      <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden">
+        {/* Animated background */}
         <div className="absolute inset-0 bg-gb-bg">
-          <div className="absolute inset-0 bg-grid opacity-30" />
-          <div className="absolute top-1/3 right-1/3 w-[500px] h-[500px] bg-gb-primary/[0.04] rounded-full blur-[150px]" />
-          <div className="absolute bottom-1/3 left-1/3 w-[400px] h-[400px] bg-gb-secondary/[0.04] rounded-full blur-[150px]" />
+          <div className="absolute inset-0 bg-grid opacity-20" />
+          <motion.div
+            className="absolute top-1/4 right-1/4 w-[400px] h-[400px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%)' }}
+            animate={{ scale: [1, 1.2, 1], x: [0, 30, 0], y: [0, -20, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="absolute bottom-1/4 left-1/4 w-[350px] h-[350px] rounded-full blur-[120px]"
+            style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.05) 0%, transparent 70%)' }}
+            animate={{ scale: [1.1, 1, 1.1], x: [0, -20, 0], y: [0, 15, 0] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+          />
         </div>
 
-        <div className="relative z-10 text-center px-4 max-w-3xl mx-auto">
+        <div className="relative z-10 text-center px-5 max-w-2xl mx-auto">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.03] backdrop-blur border border-white/[0.06] mb-8"
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] mb-6"
           >
             <Sparkles size={12} className="text-gb-primary" />
-            <span className="text-[11px] text-gb-muted">أول منصة سعودية لتجميع كمبيوترات القيمنق</span>
+            <span className="text-[11px] text-gb-muted">أول منصة سعودية لتجميع PC القيمنق</span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl sm:text-6xl lg:text-7xl font-black leading-tight mb-6"
+            className="font-display text-[2.2rem] sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5"
           >
             <span className="text-gb-text">جمّع جهازك</span>
             <br />
@@ -54,138 +93,129 @@ export default function HomePage() {
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-base sm:text-lg text-gb-muted max-w-xl mx-auto mb-10 leading-relaxed"
+            className="text-sm sm:text-base text-gb-muted max-w-md mx-auto mb-8 leading-relaxed"
           >
-            اختر القطع، تأكد من التوافق، واحصل على أفضل سعر من أمازون السعودية
+            اختر القطع، تأكد من التوافق، وشوف أداء تجميعتك في 17 لعبة
           </motion.p>
 
-          {/* Big glowing CTA */}
+          {/* CTA */}
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             <Link
               to="/builder"
-              className="group inline-flex items-center gap-3 px-10 py-4 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-lg sm:text-xl shadow-[0_0_40px_rgba(0,229,255,0.3)] hover:shadow-[0_0_60px_rgba(0,229,255,0.5)] transition-all duration-300 hover:scale-[1.02]"
+              className="group inline-flex items-center gap-3 px-8 py-4 sm:px-10 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base sm:text-lg shadow-[0_0_40px_rgba(0,229,255,0.25)] hover:shadow-[0_0_60px_rgba(0,229,255,0.4)] transition-all duration-300 active:scale-95"
             >
-              <Wrench size={22} />
+              <Wrench size={20} />
               ابدأ التجميع
+              <ChevronLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* ========== STATS BAR ========== */}
+      {/* ========== STATS BAR (count-up) ========== */}
       <section className="py-5 px-4 border-y border-white/[0.04]">
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-6 sm:gap-10">
-          {[
-            { value: '5,338', label: 'قطعة' },
-            { value: '8', label: 'فئات' },
-            { value: 'Amazon', label: 'أسعار' },
-          ].map((s, i) => (
-            <div key={i} className="flex items-center gap-2 text-center">
-              <span className="text-lg sm:text-xl font-display font-black text-gb-primary">{s.value}</span>
-              <span className="text-xs text-gb-muted">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ========== START YOUR BUILD CTA ========== */}
-      <section className="py-12 sm:py-16 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-3">جمّع جهازك المثالي</h2>
-          <p className="text-sm text-gb-muted mb-8 max-w-md mx-auto">اختر من أكثر من 5,000 قطعة — النظام يفحص التوافق تلقائياً ويعطيك أفضل سعر</p>
-          <Link
-            to="/builder"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gb-primary/10 border border-gb-primary/20 text-gb-primary font-bold text-sm hover:bg-gb-primary/20 hover:border-gb-primary/40 transition-all"
-          >
-            <Wrench size={18} />
-            ابدأ التجميع
-          </Link>
-        </div>
-      </section>
-
-      {/* ========== POPULAR PARTS ========== */}
-      <section className="py-12 sm:py-16 px-4 bg-gb-surface/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text">القطع الأشهر</h2>
-            <Link to="/components" className="text-xs text-gb-muted hover:text-gb-primary transition-colors">عرض الكل</Link>
+        <div className="max-w-md mx-auto flex items-center justify-center gap-8 sm:gap-12" ref={partsRef}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl sm:text-2xl font-display font-black text-gb-primary">{partsCount.toLocaleString()}</span>
+            <span className="text-[11px] text-gb-muted">قطعة</span>
           </div>
+          <div className="w-px h-5 bg-gb-border" />
+          <div className="flex items-center gap-2" ref={gamesRef}>
+            <span className="text-xl sm:text-2xl font-display font-black text-gb-secondary">{gamesCount}</span>
+            <span className="text-[11px] text-gb-muted">لعبة</span>
+          </div>
+          <div className="w-px h-5 bg-gb-border" />
+          <div className="flex items-center gap-2">
+            <span className="text-base sm:text-lg font-display font-black text-[#ff9900]">Amazon</span>
+            <span className="text-[11px] text-gb-muted">أسعار</span>
+          </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 stagger-children">
-            {popularParts.map((part) => (
-              <div key={part.id} className="rounded-2xl bg-gb-card border border-gb-border overflow-hidden group card-hover">
-                {/* Image */}
-                <div className="relative">
-                  <ProductImage component={part} className="h-24 sm:h-32 w-full rounded-t-2xl p-3" />
-                  {part.score && (
-                    <span className="absolute top-2 left-2 w-8 h-8 rounded-full bg-gb-primary/15 text-gb-primary text-[11px] font-display font-bold flex items-center justify-center">
-                      {part.score}
-                    </span>
-                  )}
-                </div>
+      {/* ========== QUICK-START BUILDS ========== */}
+      <section className="py-10 sm:py-14 px-4">
+        <div className="max-w-lg mx-auto">
+          <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2 text-center">ابدأ من هنا</h2>
+          <p className="text-xs text-gb-muted text-center mb-6">اختر ميزانيتك وابدأ التجميع</p>
 
-                <div className="p-3 sm:p-4">
-                  <p className="text-[10px] text-gb-muted mb-0.5">{part.name.startsWith(part.brand) ? '' : part.brand}</p>
-                  <p className="text-[12px] sm:text-sm font-bold text-gb-text line-clamp-2 min-h-[2.4em] leading-snug">{part.name}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-sm sm:text-base font-display font-black" style={{ color: '#00e676' }}>{part.price?.toLocaleString()}</span>
-                    <Link to="/builder" className="px-3 py-1.5 rounded-lg bg-gb-primary/10 text-gb-primary text-[10px] font-bold hover:bg-gb-primary/20 transition-all flex items-center gap-1">
-                      <Plus size={10} /> أضف
-                    </Link>
-                  </div>
-                </div>
-              </div>
+          <div className="grid grid-cols-3 gap-3">
+            {quickBuilds.map((b, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Link
+                  to="/builder"
+                  className={`block p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${b.gradient} border ${b.borderColor} text-center transition-all active:scale-95 hover:scale-[1.02]`}
+                >
+                  <b.icon size={28} className="mx-auto mb-2 text-gb-text opacity-70" strokeWidth={1.5} />
+                  <p className="text-sm font-bold text-gb-text mb-0.5">{b.label}</p>
+                  <p className="text-[10px] text-gb-muted mb-2">{b.desc}</p>
+                  <p className="text-sm font-display font-black text-gb-primary">{b.price}+</p>
+                  <p className="text-[9px] text-gb-muted">ر.س</p>
+                </Link>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ========== FEATURES 2x2 ========== */}
-      <section className="py-12 sm:py-16 px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
+      {/* ========== FEATURES — glassmorphism 2×2 ========== */}
+      <section className="py-10 sm:py-14 px-4 bg-gb-surface/20">
+        <div className="max-w-lg mx-auto">
+          <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4 stagger-children">
+          <div className="grid grid-cols-2 gap-3">
             {featureCards.map((f, i) => (
-              <div key={i} className={`p-5 sm:p-6 rounded-2xl bg-gradient-to-br ${f.gradient} border ${f.borderColor} card-hover`}>
-                <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gb-bg/50 flex items-center justify-center mb-3 ${f.iconColor}`}>
-                  <f.icon size={20} />
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className={`p-4 sm:p-5 rounded-2xl bg-gradient-to-br ${f.gradient} border ${f.borderColor} backdrop-blur-sm`}
+              >
+                <div className={`w-10 h-10 rounded-xl bg-gb-bg/60 flex items-center justify-center mb-2.5 ${f.iconColor}`}>
+                  <f.icon size={18} />
                 </div>
-                <h3 className="text-sm sm:text-base font-bold text-gb-text mb-1">{f.title}</h3>
-                <p className="text-[11px] sm:text-xs text-gb-muted leading-relaxed">{f.desc}</p>
-              </div>
+                <h3 className="text-[13px] sm:text-sm font-bold text-gb-text mb-1">{f.title}</h3>
+                <p className="text-[10px] sm:text-xs text-gb-muted leading-relaxed">{f.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
       {/* ========== FINAL CTA ========== */}
-      <section className="py-12 sm:py-16 px-4 pb-28 md:pb-16">
-        <div className="max-w-2xl mx-auto text-center">
+      <section className="py-10 sm:py-14 px-4 pb-28 md:pb-14">
+        <div className="max-w-lg mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/10 relative overflow-hidden"
+            className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/10 relative overflow-hidden"
           >
             <div className="absolute inset-0 bg-grid opacity-10" />
             <div className="relative z-10">
-              <Gamepad2 size={40} className="text-gb-primary mx-auto mb-4 opacity-80" />
-              <h2 className="font-display text-xl sm:text-2xl font-bold text-gb-text mb-3">جاهز تجمّع جهازك؟</h2>
-              <p className="text-sm text-gb-muted mb-8">ابدأ الحين وجمّع أفضل كمبيوتر قيمنق بأحسن سعر</p>
+              <Gamepad2 size={36} className="text-gb-primary mx-auto mb-3 opacity-80" />
+              <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2">جاهز تجمّع؟</h2>
+              <p className="text-xs text-gb-muted mb-6">ابدأ الحين وجمّع أفضل PC قيمنق بأحسن سعر</p>
               <Link
                 to="/builder"
-                className="inline-flex items-center gap-3 px-10 py-4 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-lg shadow-[0_0_30px_rgba(0,229,255,0.25)] hover:shadow-[0_0_50px_rgba(0,229,255,0.4)] transition-all"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base shadow-[0_0_30px_rgba(0,229,255,0.2)] hover:shadow-[0_0_50px_rgba(0,229,255,0.35)] transition-all active:scale-95"
               >
-                <Wrench size={20} />
-                ابدأ التجميع الحين
+                <Wrench size={18} />
+                ابدأ التجميع
               </Link>
             </div>
           </motion.div>

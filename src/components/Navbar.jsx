@@ -34,6 +34,7 @@ export default function Navbar() {
                 <span className="text-gb-primary">PC</span>
                 <span className="text-gb-text">BUX</span>
               </span>
+              <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gb-accent/20 text-gb-accent border border-gb-accent/30 leading-none">BETA</span>
             </Link>
 
             {/* Desktop nav — underline active */}
@@ -86,7 +87,7 @@ export default function Navbar() {
               <Link
                 key={path}
                 to={path}
-                className={`flex flex-col items-center justify-center gap-1 flex-1 py-1.5 transition-all
+                className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-all active:scale-90 min-h-[44px]
                   ${active ? 'text-gb-primary' : 'text-gb-muted'}`}
               >
                 <div className="relative">
@@ -98,9 +99,8 @@ export default function Navbar() {
                   )}
                 </div>
                 <span className={`text-[10px] leading-tight ${active ? 'font-bold' : ''}`}>{mobileLabel}</span>
-                {/* Glow dot under active */}
                 {active && (
-                  <span className="absolute bottom-1.5 w-1 h-1 rounded-full bg-gb-primary shadow-[0_0_6px_2px_rgba(0,229,255,0.5)]" />
+                  <span className="absolute bottom-1 w-5 h-[3px] rounded-full bg-gb-primary shadow-[0_0_8px_2px_rgba(0,229,255,0.4)]" />
                 )}
               </Link>
             );

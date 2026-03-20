@@ -19,6 +19,8 @@ const GAME_BASE_FPS = {
   'Marvel Rivals':     { '1080p': 140, '1440p': 105, '4k': 60,  weight: 'balanced' },
   'Wuthering Waves':   { '1080p': 160, '1440p': 120, '4k': 65,  weight: 'balanced' },
   'Black Myth Wukong': { '1080p': 140, '1440p': 100, '4k': 55,  weight: 'gpu-heavy' },
+  'CS2':               { '1080p': 350, '1440p': 280, '4k': 180, weight: 'cpu-bound' },
+  'Rainbow Six Siege': { '1080p': 400, '1440p': 320, '4k': 200, weight: 'balanced' },
 };
 
 // Known GPU FPS multipliers (relative to RTX 4090 = 1.0)
@@ -349,6 +351,136 @@ export function getUpgradeRoadmap(components, allComponents) {
   }
 
   return items.sort((a, b) => a.priority - b.priority);
+}
+
+// ═══════ SMART DOWNGRADE SUGGESTIONS ═══════
+
+export function getSmartDowngrades(components, allComponents) {
+  if (!components.cpu || !components.gpu) return [];
+  const totalPrice = Object.values(components).reduce((sum, c) => sum + (c?.price || 0), 0);
+  if (totalPrice < 3000) return []; // Already budget
+
+  const suggestions = [];
+  const bn = analyzeBottleneck(components.cpu, components.gpu);
+
+  // If GPU is overkill (CPU bottleneck), suggest cheaper GPU
+  if (bn?.limitingComponent === 'CPU' && bn.percent > 15) {
+    const cheaperGPUs = allComponents
+      .filter(c => c.type === 'gpu' && c.price < components.gpu.price * 0.7 && c.score >= components.gpu.score * 0.75)
+      .sort((a, b) => b.score - a.score);
+    if (cheaperGPUs[0]) {
+      const saving = components.gpu.price - cheaperGPUs[0].price;
+      suggestions.push({
+        type: 'gpu',
+        current: components.gpu,
+        suggested: cheaperGPUs[0],
+        saving,
+        reason: 'المعالج يحد من أداء الكرت — كرت أقل بيعطي نفس الأداء تقريباً',
+        perfLoss: Math.round((1 - cheaperGPUs[0].score / components.gpu.score) * 100),
+      });
+    }
+  }
+
+  // If CPU is overkill (GPU bottleneck), suggest cheaper CPU
+  if (bn?.limitingComponent === 'GPU' && bn.percent > 15) {
+    const gamingScore = getGamingCpuScore(components.cpu);
+    const cheaperCPUs = allComponents
+      .filter(c => c.type === 'cpu' && c.price < components.cpu.price * 0.7 && getGamingCpuScore(c) >= gamingScore * 0.80)
+      .sort((a, b) => getGamingCpuScore(b) - getGamingCpuScore(a));
+    if (cheaperCPUs[0]) {
+      const saving = components.cpu.price - cheaperCPUs[0].price;
+      suggestions.push({
+        type: 'cpu',
+        current: components.cpu,
+        suggested: cheaperCPUs[0],
+        saving,
+        reason: 'الكرت يحد من الأداء — معالج أقل بيكفي بدون فرق ملحوظ',
+        perfLoss: Math.round((1 - getGamingCpuScore(cheaperCPUs[0]) / gamingScore) * 100),
+      });
+    }
+  }
+
+  // If PSU is way oversized
+  if (components.psu) {
+    const wattNeeded = (components.cpu?.tdp || 65) + (components.gpu?.tdp || 150) + 100;
+    if (components.psu.watt > wattNeeded * 1.6) {
+      const cheaperPSUs = allComponents
+        .filter(c => c.type === 'psu' && c.watt >= wattNeeded * 1.2 && c.price < components.psu.price * 0.7)
+        .sort((a, b) => a.price - b.price);
+      if (cheaperPSUs[0]) {
+        suggestions.push({
+          type: 'psu',
+          current: components.psu,
+          suggested: cheaperPSUs[0],
+          saving: components.psu.price - cheaperPSUs[0].price,
+          reason: `الباور أكبر من اللازم — ${cheaperPSUs[0].watt}W يكفي تجميعتك`,
+          perfLoss: 0,
+        });
+      }
+    }
+  }
+
+  return suggestions.sort((a, b) => b.saving - a.saving);
+}
+
+// ═══════ FUTURE-PROOF SCORE ═══════
+
+export function calcFutureProof(components) {
+  if (!components.cpu || !components.gpu) return null;
+
+  let score = 50; // Base
+  const gpuMult = getGpuMultiplier(components.gpu);
+  const gamingCpu = getGamingCpuScore(components.cpu);
+  const cpuName = (components.cpu.name || '').toLowerCase();
+  const gpuName = (components.gpu.name || '').toLowerCase();
+
+  // GPU power (biggest factor for future games)
+  if (gpuMult >= 0.85) score += 25;      // RTX 4080+ tier
+  else if (gpuMult >= 0.65) score += 18;  // RTX 4070/3080 tier
+  else if (gpuMult >= 0.45) score += 10;  // RTX 4060/3060 Ti tier
+  else if (gpuMult >= 0.28) score += 3;   // GTX 1660/3050 tier
+  else score -= 5;
+
+  // CPU headroom
+  if (gamingCpu >= 75) score += 12;
+  else if (gamingCpu >= 55) score += 7;
+  else if (gamingCpu >= 35) score += 2;
+  else score -= 5;
+
+  // Modern platform bonuses (DDR5, PCIe 5.0, etc.)
+  if (cpuName.includes('9800x3d') || cpuName.includes('9950x') || cpuName.includes('285k')) score += 5;
+  if (gpuName.includes('50') && (gpuName.includes('rtx') || gpuName.includes('nvidia'))) score += 5; // RTX 50 series
+  if (gpuName.includes('9070')) score += 4; // RX 9000 series
+
+  // RAM amount
+  if (components.ram) {
+    if (components.ram.size >= 32) score += 5;
+    else if (components.ram.size >= 16) score += 2;
+    if (components.ram.type === 'DDR5') score += 3;
+  }
+
+  // Penalties for aging platforms
+  if (cpuName.includes('10th') || cpuName.includes('10100') || cpuName.includes('10400')) score -= 8;
+  if (gpuName.includes('1650') || gpuName.includes('1050') || gpuName.includes('6400')) score -= 10;
+
+  score = Math.min(Math.max(Math.round(score), 5), 100);
+
+  let label, description;
+  if (score >= 80) {
+    label = 'ممتاز';
+    description = 'تجميعتك جاهزة للألعاب الجاية لـ 3-4 سنوات على الأقل';
+  } else if (score >= 60) {
+    label = 'جيد';
+    description = 'تشتغل كويس لسنتين — بعدها ممكن تحتاج ترقية الكرت';
+  } else if (score >= 40) {
+    label = 'متوسط';
+    description = 'الألعاب الحالية أوكي — الجاية بتحتاج تنازلات بالإعدادات';
+  } else {
+    label = 'ضعيف';
+    description = 'الألعاب الثقيلة الجاية بتكون صعبة — فكر بترقية قريبة';
+  }
+
+  return { score, label, description };
 }
 
 // ═══════ CHAT RESPONSES ═══════

@@ -25,7 +25,7 @@ const catGridConfig = {
   case:        { gradient: 'from-zinc-800/80 to-zinc-900/90',    glow: 'shadow-zinc-500/20',    Icon: Box,            color: '#a1a1aa' },
 };
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 30;
 
 export default function BuilderPage() {
   const { components, setComponent, removeComponent, clearBuild, totalPrice, selectedCount } = useBuild();
@@ -200,7 +200,7 @@ export default function BuilderPage() {
                 <button
                   key={key}
                   onClick={() => openPickerModal(key)}
-                  className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${cfg.gradient} border border-white/5 p-5 sm:p-6 flex flex-col items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg ${cfg.glow}`}
+                  className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${cfg.gradient} border border-white/5 p-5 sm:p-6 flex flex-col items-center justify-center gap-2.5 transition-all hover:scale-[1.02] active:scale-[0.96] shadow-lg ${cfg.glow} min-h-[120px]`}
                 >
                   <div className="rounded-full p-3 bg-black/20 backdrop-blur-sm" style={{ boxShadow: `0 0 24px ${cfg.color}33` }}>
                     <CatIcon size={36} className="sm:hidden" style={{ color: cfg.color }} strokeWidth={1.5} />
@@ -240,7 +240,7 @@ export default function BuilderPage() {
             return (
               <div key={key} className="border-b border-gb-border last:border-0">
                 <div
-                  className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-3.5 sm:py-4 cursor-pointer transition-colors ${
+                  className={`flex items-center gap-3 sm:gap-4 px-3 sm:px-5 py-4 sm:py-4 cursor-pointer transition-colors active:bg-gb-surface/30 ${
                     selected ? 'hover:bg-gb-surface/20' : 'hover:bg-gb-surface/30 border-dashed'
                   }`}
                   onClick={() => openPickerModal(key)}
@@ -367,8 +367,8 @@ export default function BuilderPage() {
           {/* Bottom row: Amazon button */}
           <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
             target="_blank" rel="noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all">
-            <ShoppingCart size={15} /> اشتري من أمازون
+            className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all active:scale-[0.97]">
+            <ShoppingCart size={16} /> اشتري من أمازون
           </a>
         </div>
       )}
@@ -497,7 +497,7 @@ export default function BuilderPage() {
                           <div
                             key={item.id}
                             onClick={() => item.compatible && handleSelect(openPicker, item)}
-                            className={`flex items-stretch gap-3 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all ${
+                            className={`flex items-stretch gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border transition-all active:scale-[0.98] ${
                               !item.compatible ? 'opacity-30 cursor-not-allowed border-[#1e1e2e] bg-[#12121c]' :
                               isSelected ? 'border-[#00e676]/40 bg-[#00e676]/5 cursor-pointer' :
                               'border-[#1e1e2e] bg-[#12121c] cursor-pointer hover:border-[#2a2a3e] active:bg-[#16161f]'
@@ -531,7 +531,7 @@ export default function BuilderPage() {
                             <div className="flex flex-col items-center justify-center gap-1.5 shrink-0">
                               <button
                                 onClick={e => { e.stopPropagation(); item.compatible && handleSelect(openPicker, item); }}
-                                className={`min-w-[70px] sm:min-w-[80px] py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-bold transition-all border ${
+                                className={`min-w-[70px] sm:min-w-[80px] py-2.5 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-bold transition-all active:scale-95 border ${
                                   isSelected
                                     ? 'bg-[#00e676] text-[#12121c] border-[#00e676]'
                                     : 'bg-[#1a1a2e] text-white border-[#2a2a3e] hover:border-[#00e676]/40 hover:text-[#00e676]'
