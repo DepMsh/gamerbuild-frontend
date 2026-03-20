@@ -163,6 +163,14 @@ export default function ComponentsPage() {
             ))}
           </div>
         )}
+
+        {/* Price disclaimer */}
+        <div className="text-center text-[10px] text-white/20 mt-8 px-4 pb-4 leading-relaxed">
+          💡 الأسعار تقريبية وقد تختلف عن السعر الفعلي في أمازون.
+          اضغط "شيك السعر" للسعر الحالي المحدّث.
+          <br />
+          آخر تحديث للأسعار: مارس 2025
+        </div>
       </div>
     </div>
   );

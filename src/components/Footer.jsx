@@ -43,6 +43,7 @@ export default function Footer() {
               🛒 Amazon.sa
             </a>
             <p className="text-gb-muted text-xs mt-2">توصيل سريع + ضمان + إرجاع</p>
+            <p className="text-gb-muted/50 text-[10px] mt-3 leading-relaxed">الأسعار المعروضة تقريبية. الأسعار الفعلية والتوفر من أمازون السعودية.</p>
           </div>
         </div>
 

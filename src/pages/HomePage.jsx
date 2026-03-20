@@ -40,7 +40,7 @@ const featureCards = [
   { icon: Shield, title: 'فحص توافق ذكي', desc: 'كل قطعة تنفحص تلقائياً مع الباقي', gradient: 'from-green-500/15 to-emerald-500/5', iconColor: 'text-green-400', borderColor: 'border-green-500/15' },
   { icon: Crosshair, title: 'توقع FPS دقيق', desc: 'بنشماركات حقيقية لـ 17 لعبة', gradient: 'from-cyan-500/15 to-blue-500/5', iconColor: 'text-cyan-400', borderColor: 'border-cyan-500/15' },
   { icon: BarChart3, title: 'تحليل بوتلنك', desc: 'كشف عنق الزجاجة + خطة ترقية', gradient: 'from-purple-500/15 to-violet-500/5', iconColor: 'text-purple-400', borderColor: 'border-purple-500/15' },
-  { icon: Tag, title: 'أسعار أمازون', desc: 'رابط شراء مباشر بأفضل سعر', gradient: 'from-amber-500/15 to-orange-500/5', iconColor: 'text-amber-400', borderColor: 'border-amber-500/15' },
+  { icon: Tag, title: 'شراء من أمازون', desc: 'كل قطعة فيها رابط مباشر لأمازون السعودية', gradient: 'from-amber-500/15 to-orange-500/5', iconColor: 'text-amber-400', borderColor: 'border-amber-500/15' },
 ];
 
 export default function HomePage() {
@@ -98,7 +98,7 @@ export default function HomePage() {
             transition={{ delay: 0.2 }}
             className="text-sm sm:text-base text-gb-muted max-w-md mx-auto mb-8 leading-relaxed"
           >
-            اختر القطع، تأكد من التوافق، وشوف أداء تجميعتك في 17 لعبة
+            قارن وجمّع — ثم اشترِ من أمازون السعودية بضغطة زر
           </motion.p>
 
           {/* CTA */}
@@ -219,6 +219,9 @@ export default function HomePage() {
               </Link>
             </div>
           </motion.div>
+          <p className="text-center text-[10px] text-white/20 mt-6 px-4 leading-relaxed">
+            💡 الأسعار المعروضة تقريبية. اضغط "شيك السعر" للسعر الفعلي المحدّث من أمازون السعودية.
+          </p>
         </div>
       </section>
     </div>

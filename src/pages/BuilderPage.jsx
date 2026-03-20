@@ -57,11 +57,16 @@ export default function BuilderPage() {
     }
     if (filterBrand !== 'all') items = items.filter(c => c.brand === filterBrand);
     if (filterTier !== 'all') items = items.filter(c => c.tier === filterTier);
-    // Incompatible items always at the end
+    // Incompatible at end, ASIN items prioritized in smart sort
     items.sort((a, b) => {
       if (!a.compatible && b.compatible) return 1;
       if (a.compatible && !b.compatible) return -1;
-      if (sortBy === 'smart') return 0; // keep getSortedComponents order
+      if (sortBy === 'smart') {
+        // Prioritize items with ASIN (working Amazon links/images)
+        if (a.asin && !b.asin) return -1;
+        if (!a.asin && b.asin) return 1;
+        return 0;
+      }
       switch (sortBy) {
         case 'price-asc': return a.price - b.price;
         case 'price-desc': return b.price - a.price;
@@ -277,9 +282,9 @@ export default function BuilderPage() {
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
                       <div className="text-left">
                         <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: '#00e676' }}>
-                          {selected.price?.toLocaleString()}
+                          ~{selected.price?.toLocaleString()}
                         </span>
-                        <span className="text-[9px] text-gb-muted">ر.س</span>
+                        <span className="text-[9px] text-gb-muted">ر.س <span className="bg-amber-500/20 text-amber-400 px-1 py-px rounded-full font-bold">تقريبي</span></span>
                       </div>
                       {!selected.isCustom && (
                         <button onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
@@ -327,24 +332,50 @@ export default function BuilderPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
               </div>
-              <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>~{totalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
+                <span className="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
+              </div>
             </div>
             {selectedCount >= 1 && (
-              <p className="text-[9px] text-gb-muted/60 text-left mt-1.5">* الأسعار تقديرية وقد تختلف عن سعر أمازون الفعلي</p>
+              <p className="text-[9px] text-gb-muted/60 text-left mt-1.5">💡 الأسعار تقريبية — اضغط "شيك السعر" لكل قطعة للسعر الفعلي من أمازون</p>
             )}
             {selectedCount >= 2 && (
-              <div className="mt-3 flex gap-2">
-                <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
-                  target="_blank" rel="noreferrer"
-                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all">
-                  <ShoppingCart size={16} /> اشتري من أمازون <ExternalLink size={12} />
-                </a>
-                <button onClick={() => {
-                  const t = `تجميعتي:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع: ${totalPrice.toLocaleString()} ر.س`;
-                  navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
-                }} className="px-4 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm hover:border-gb-primary/30 transition-all">
-                  <ExternalLink size={16} />
-                </button>
+              <div className="mt-3 space-y-2">
+                {/* Per-part Amazon links */}
+                <div className="space-y-1.5">
+                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
+                    <div key={cat} className="flex items-center justify-between gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-xs">{catIcons[cat]}</span>
+                        <span className="text-[11px] text-gb-text truncate">{comp.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-[11px] font-display font-bold" style={{ color: '#00e676' }}>~{comp.price?.toLocaleString()}</span>
+                        {!comp.isCustom && (
+                          <a href={getAmazonLink(comp)} target="_blank" rel="noreferrer"
+                            className="px-2 py-1 rounded-lg bg-gb-primary/15 text-gb-primary text-[10px] font-bold hover:bg-gb-primary/25 transition-all whitespace-nowrap flex items-center gap-0.5">
+                            شيك السعر <ExternalLink size={8} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex gap-2">
+                  <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
+                    target="_blank" rel="noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#ff9900] text-gb-bg font-bold text-sm hover:bg-[#e8890a] transition-all active:scale-[0.97]">
+                    <ShoppingCart size={16} /> اشتري من أمازون <ExternalLink size={12} />
+                  </a>
+                  <button onClick={() => {
+                    const t = `تجميعتي من PCBux:\n${Object.values(components).filter(Boolean).map(c=>`${c.name} — ~${c.price?.toLocaleString()} ر.س`).join('\n')}\nالمجموع التقريبي: ~${totalPrice.toLocaleString()} ر.س\n\npcbux.com`;
+                    navigator.share ? navigator.share({title:'PCBux',text:t}) : (navigator.clipboard.writeText(t), alert('تم النسخ!'));
+                  }} className="px-4 py-3 rounded-xl bg-gb-card border border-gb-border text-gb-text text-sm hover:border-gb-primary/30 transition-all">
+                    <ExternalLink size={16} />
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -362,7 +393,7 @@ export default function BuilderPage() {
               مسح الكل
             </button>
             <span className="text-[11px] text-gb-muted">{selectedCount}/8 قطع</span>
-            <span className="text-base font-display font-black" style={{ color: '#00e676' }}>{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
+            <span className="text-base font-display font-black" style={{ color: '#00e676' }}>~{totalPrice.toLocaleString()} <span className="text-[10px] text-gb-muted font-body">ر.س</span></span>
           </div>
           {/* Bottom row: Amazon button */}
           <a href={`https://www.amazon.sa/s?k=${encodeURIComponent(Object.values(components).filter(Boolean).map(c=>c.name).join(' '))}&tag=meshal039-21`}
@@ -515,8 +546,9 @@ export default function BuilderPage() {
                               </div>
 
                               <div className="flex items-center gap-2 mt-1.5">
-                                <span className="text-[16px] sm:text-[18px] font-black" style={{ color: '#00e676' }}>{item.price?.toLocaleString()}</span>
+                                <span className="text-[16px] sm:text-[18px] font-black" style={{ color: '#00e676' }}>~{item.price?.toLocaleString()}</span>
                                 <span className="text-[10px] text-[#666]">ر.س</span>
+                                <span className="bg-amber-500/20 text-amber-400 text-[8px] px-1 py-0.5 rounded-full font-bold">تقريبي</span>
                                 {item.score ? (
                                   <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
                                 ) : null}
@@ -540,9 +572,9 @@ export default function BuilderPage() {
                                 {isSelected ? '✓ تم' : '+ أضف'}
                               </button>
                               <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
-                                className="text-[9px] sm:text-[10px] text-[#ff9900] hover:underline flex items-center gap-0.5"
+                                className="text-[9px] sm:text-[10px] text-gb-primary hover:underline flex items-center gap-0.5 font-bold"
                                 onClick={e => e.stopPropagation()}>
-                                أمازون <ExternalLink size={8} />
+                                🛒 شيك السعر <ExternalLink size={8} />
                               </a>
                             </div>
                           </div>

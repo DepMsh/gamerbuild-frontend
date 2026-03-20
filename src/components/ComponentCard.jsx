@@ -60,7 +60,8 @@ export default function ComponentCard({
           <p className="text-sm font-medium text-gb-text truncate">{(() => { const dn = getDisplayName(component); return dn.startsWith(component.brand) ? dn : `${component.brand} ${dn}`; })()}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
         </div>
-        <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>{component.price?.toLocaleString()} ر.س</span>
+        <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()} ر.س</span>
+        <span className="bg-amber-500/20 text-amber-400 text-[8px] px-1 py-0.5 rounded-full font-bold">تقريبي</span>
       </div>
     );
   }
@@ -116,11 +117,11 @@ export default function ComponentCard({
           ) : null;
         })()}
 
-        {/* Price — GREEN */}
+        {/* Price — GREEN + تقريبي badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
-            <PriceTrend componentId={component.id} />
+            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
+            <span className="bg-amber-500/20 text-amber-400 text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -146,18 +147,16 @@ export default function ComponentCard({
           </div>
         </div>
 
-        {/* Amazon Buy Button */}
+        {/* HERO Amazon Button — شيك السعر */}
         <a
           href={getAmazonLink(component)}
           target="_blank"
           rel="noreferrer"
           onClick={(e) => { e.stopPropagation(); }}
-          className="mt-2 flex items-center justify-center gap-1 w-full py-1.5 sm:py-2 rounded-lg bg-[#ff9900]/10 border border-[#ff9900]/20 text-[#ff9900] text-[10px] sm:text-xs font-bold hover:bg-[#ff9900]/20 transition-all"
+          className="mt-2.5 flex items-center justify-center gap-1.5 w-full min-h-[40px] sm:min-h-[44px] py-2 sm:py-2.5 rounded-xl bg-gb-primary text-gb-bg text-[11px] sm:text-sm font-bold hover:shadow-[0_0_16px_rgba(0,229,255,0.3)] transition-all active:scale-[0.97]"
         >
-          اشتري من أمازون
-          <ExternalLink size={10} />
+          🛒 شيك السعر على أمازون
         </a>
-        <p className="text-[8px] sm:text-[9px] text-gb-muted/50 text-center mt-1.5 leading-tight">* سعر تقديري — اضغط لمعرفة السعر الحالي</p>
       </div>
     </div>
   );
