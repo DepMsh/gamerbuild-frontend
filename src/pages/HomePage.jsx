@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { Wrench, Shield, Crosshair, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
+import { Wrench, Shield, Crosshair, Tag, Gamepad2, Sparkles, ChevronLeft, Zap, Flame, Monitor, Gem, Crown } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
 // ── Count-up hook ──
@@ -31,11 +31,11 @@ function useCountUp(target, duration = 1500) {
 }
 
 const quickBuilds = [
-  { key: 'budget', label: 'اقتصادية', desc: '1080p سلس', price: '4,200', color: 'from-emerald-500/20 to-emerald-500/5', icon: '⚡' },
-  { key: 'amd_value', label: 'AMD قيمنق', desc: '1440p V-Cache', price: '5,800', color: 'from-red-500/20 to-red-500/5', icon: '🔴' },
-  { key: 'mid', label: 'متوسطة', desc: '1440p Ultra', price: '7,000', color: 'from-cyan-500/20 to-cyan-500/5', icon: '🖥️' },
-  { key: 'nvidia_premium', label: 'NVIDIA بريميوم', desc: 'RTX + DLSS 4', price: '10,000', color: 'from-green-500/20 to-green-500/5', icon: '💚' },
-  { key: 'beast', label: 'خرافية', desc: '4K + ستريم', price: '14,000', color: 'from-purple-500/20 to-purple-500/5', icon: '👑' },
+  { key: 'budget', label: 'اقتصادية', desc: '1080p سلس', price: '4,200', icon: Zap },
+  { key: 'amd_value', label: 'AMD قيمنق', desc: '1440p V-Cache', price: '5,800', icon: Flame },
+  { key: 'mid', label: 'متوسطة', desc: '1440p Ultra', price: '7,000', icon: Monitor },
+  { key: 'nvidia_premium', label: 'NVIDIA بريميوم', desc: 'RTX + DLSS 4', price: '10,000', icon: Gem },
+  { key: 'beast', label: 'خرافية', desc: '4K + ستريم', price: '14,000', icon: Crown },
 ];
 
 const featureCards = [
@@ -138,9 +138,9 @@ export default function HomePage() {
               <div key={tier.key} className="min-w-[140px] snap-start flex-shrink-0">
                 <Link
                   to={`/builder?preset=${tier.key}`}
-                  className={`block bg-gradient-to-b ${tier.color} border border-white/10 rounded-xl p-4 text-center hover:border-white/25 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-300 active:scale-95`}
+                  className="block bg-gb-card/60 border border-white/[0.06] rounded-xl p-4 text-center hover:border-gb-primary/30 hover:bg-gb-primary/5 hover:scale-[1.04] hover:-translate-y-1 transition-all duration-300 active:scale-95"
                 >
-                  <div className="text-2xl mb-2">{tier.icon}</div>
+                  <tier.icon className="w-6 h-6 text-gb-primary mx-auto mb-2" strokeWidth={1.5} />
                   <div className="font-bold text-white text-sm">{tier.label}</div>
                   <div className="text-[10px] text-white/40 mt-0.5">{tier.desc}</div>
                   <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
