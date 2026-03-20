@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Wrench, Home, Activity, ArrowLeftRight, Save } from 'lucide-react';
+import { Wrench, Home, Activity, ArrowLeftRight, Save } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
 const navLinks = [
   { path: '/', label: 'الرئيسية', icon: Home },
-  { path: '/builder', label: 'جمّع جهازك', icon: Wrench },
-  { path: '/components', label: 'القطع', icon: Cpu },
-  { path: '/analysis', label: 'التحليل', icon: Activity },
+  { path: '/builder', label: 'جمّع', icon: Wrench },
+  { path: '/analysis', label: 'تحليل', icon: Activity },
+  { path: '/compare', label: 'قارن', icon: ArrowLeftRight },
+  { path: '/my-builds', label: 'تجميعاتي', icon: Save },
 ];
 
 const mobileLinks = [
