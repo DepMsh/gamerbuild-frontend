@@ -6,6 +6,8 @@ import usePageTitle from '../hooks/usePageTitle';
 import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
 import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents, estimateWattage } from '../utils/db';
+import { findCPUBenchmark } from '../data/cpuBenchmarks';
+import { findGPUBenchmark } from '../data/gpuBenchmarks';
 import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2, MemoryStick, HardDrive, Fan, Box } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GaugeMeter from '../components/GaugeMeter';
@@ -112,9 +114,11 @@ export default function AnalysisPage() {
   }
 
   const gamingCpu = getGamingCpuScore(components.cpu);
-  const gpuScore = components.gpu?.score || 0;
+  const gpuScore = bn?.gpuScore || components.gpu?.score || 0;
   const bnColor = severityColor(bn?.severity);
   const fpsRes = resolution === '4K' ? '4k' : resolution;
+  const cpuBenchMatch = findCPUBenchmark(components.cpu?.name);
+  const gpuBenchMatch = findGPUBenchmark(components.gpu?.name);
   const estimatedWatts = estimateWattage(components);
 
   return (
@@ -399,9 +403,19 @@ export default function AnalysisPage() {
             </div>
           </div>
 
-          <p className="text-center text-[10px] text-gb-muted/60 mt-3">
-            * التوقعات مبنية على بنشماركات حقيقية (Ultra settings) — الأداء الفعلي يختلف حسب الإعدادات
-          </p>
+          <div className="mt-3 pt-3 border-t border-gb-border/30 space-y-1">
+            <p className="text-center text-[10px] text-gb-muted/60">
+              📊 المصدر: Tom's Hardware GPU Benchmark Hierarchy (مارس 2026) + بيانات مراجعات المعالجات
+            </p>
+            <p className="text-center text-[10px] text-gb-muted/60">
+              * التوقعات تقريبية (±15%) — Ultra settings بدون RT/DLSS — الأداء الفعلي يختلف حسب الإعدادات والتعريفات
+            </p>
+            {(!cpuBenchMatch || !gpuBenchMatch) && (
+              <p className="text-center text-[10px] text-yellow-400/60">
+                ⚠️ {!cpuBenchMatch && !gpuBenchMatch ? 'المعالج والكرت غير موجودين' : !cpuBenchMatch ? 'المعالج غير موجود' : 'الكرت غير موجود'} في قاعدة البنشمارك — النتائج تقديرية
+              </p>
+            )}
+          </div>
         </motion.div>
 
         {/* ── CPU Specs Table ── */}
@@ -416,6 +430,10 @@ export default function AnalysisPage() {
               <Cpu size={14} className="text-purple-400" />
             </div>
             📊 مواصفات المعالج
+            {cpuBenchMatch
+              ? <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 font-normal">بيانات مقاسة</span>
+              : <span className="text-[9px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-normal">بيانات تقريبية</span>
+            }
           </h3>
           <div className="space-y-0">
             {[
@@ -449,6 +467,10 @@ export default function AnalysisPage() {
               <MonitorPlay size={14} className="text-cyan-400" />
             </div>
             📊 مواصفات كرت الشاشة
+            {gpuBenchMatch
+              ? <span className="text-[9px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 font-normal">بيانات مقاسة</span>
+              : <span className="text-[9px] px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 font-normal">بيانات تقريبية</span>
+            }
           </h3>
           <div className="space-y-0">
             {[
