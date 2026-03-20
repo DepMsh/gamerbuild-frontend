@@ -66,7 +66,7 @@ export default function AnalysisPage() {
   if (!components.cpu || !components.gpu) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl mx-auto text-center py-14">
+        <div className="max-w-2xl lg:max-w-4xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
             <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" size={160} />
             <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">التحليل الذكي</h2>
@@ -90,7 +90,7 @@ export default function AnalysisPage() {
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl lg:max-w-4xl mx-auto">
         <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-4">التحليل الذكي</h1>
 
         {/* Resolution Selector */}

@@ -27,7 +27,6 @@ export default function Footer() {
             <h4 className="text-sm font-bold text-white/60 mb-3">روابط سريعة</h4>
             <div className="flex flex-col gap-2">
               <Link to="/builder" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">جمّع جهازك</Link>
-              <Link to="/components" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">تصفح القطع</Link>
               <Link to="/compare" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">قارن القطع</Link>
               <Link to="/my-builds" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">تجميعاتي</Link>
             </div>

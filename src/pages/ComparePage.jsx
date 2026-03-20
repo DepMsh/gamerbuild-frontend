@@ -225,7 +225,7 @@ export default function ComparePage() {
   if (!category) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl lg:max-w-4xl mx-auto">
           <div className="mb-6">
             <h1 className="font-display text-xl sm:text-2xl font-bold text-gb-text">قارن القطع</h1>
             <p className="text-gb-muted text-xs mt-1">اختر نوع القطعة عشان تبدأ المقارنة</p>
@@ -248,7 +248,7 @@ export default function ComparePage() {
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl lg:max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div>

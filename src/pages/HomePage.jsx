@@ -81,7 +81,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="relative z-10 text-center px-5 max-w-2xl mx-auto">
+        <div className="relative z-10 text-center px-5 max-w-2xl lg:max-w-4xl mx-auto">
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -135,7 +135,7 @@ export default function HomePage() {
 
       {/* ========== STATS BAR (count-up) ========== */}
       <section className="py-5 px-4 border-y border-white/[0.04]">
-        <div className="max-w-md mx-auto flex items-center justify-center gap-8 sm:gap-12" ref={partsRef}>
+        <div className="max-w-md lg:max-w-3xl mx-auto flex items-center justify-center gap-8 sm:gap-12" ref={partsRef}>
           <div className="flex items-center gap-2">
             <span className="text-xl sm:text-2xl font-display font-black text-gb-primary">{partsCount.toLocaleString()}</span>
             <span className="text-[11px] text-gb-muted">قطعة</span>
@@ -162,11 +162,11 @@ export default function HomePage() {
 
       {/* ========== QUICK-START BUILDS ========== */}
       <section className="py-10 sm:py-14 px-4">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg lg:max-w-5xl mx-auto">
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2 text-center">ابدأ من هنا</h2>
           <p className="text-xs text-gb-muted text-center mb-6">اختر ميزانيتك وابدأ التجميع</p>
 
-          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide lg:grid lg:grid-cols-5 lg:overflow-visible">
             {quickBuilds.map((tier, i) => (
               <motion.div
                 key={tier.key}
@@ -194,10 +194,10 @@ export default function HomePage() {
 
       {/* ========== FEATURES — glassmorphism 2×2 ========== */}
       <section className="py-10 sm:py-14 px-4 bg-gb-surface/20">
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg lg:max-w-4xl mx-auto">
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {featureCards.map((f, i) => (
               <motion.div
                 key={i}
@@ -220,7 +220,7 @@ export default function HomePage() {
 
       {/* ========== FINAL CTA ========== */}
       <section className="py-10 sm:py-14 px-4 pb-28 md:pb-14">
-        <div className="max-w-lg mx-auto text-center">
+        <div className="max-w-lg lg:max-w-3xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Cpu, Wrench, Home, Activity, Crosshair, Save } from 'lucide-react';
+import { Cpu, Wrench, Home, Activity, Crosshair, ArrowLeftRight, Save } from 'lucide-react';
 import { useBuild } from '../hooks/BuildContext';
 
 const navLinks = [
@@ -14,7 +14,7 @@ const mobileLinks = [
   { path: '/', label: 'الرئيسية', icon: Home },
   { path: '/builder', label: 'جمّع', icon: Wrench },
   { path: '/analysis', label: 'تحليل', icon: Activity },
-  { path: '/games', label: 'ألعاب', icon: Crosshair },
+  { path: '/compare', label: 'قارن', icon: ArrowLeftRight },
   { path: '/my-builds', label: 'تجميعاتي', icon: Save },
 ];
 

@@ -253,7 +253,7 @@ export default function BuilderPage() {
 
   return (
     <div className="min-h-screen pt-24 sm:pt-28 pb-36 md:pb-10 px-3 sm:px-4">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl lg:max-w-6xl mx-auto">
         {/* Header — sticky on mobile */}
         <div className="sticky top-14 sm:top-16 z-30 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 sm:py-0 sm:static sm:z-auto bg-gb-bg/95 backdrop-blur-xl sm:backdrop-blur-none sm:bg-transparent mb-5 sm:mb-6">
           <div>
@@ -305,9 +305,13 @@ export default function BuilderPage() {
           </div>
         </div>
 
+        {/* ========== TWO-COLUMN DESKTOP LAYOUT ========== */}
+        <div className="lg:grid lg:grid-cols-5 lg:gap-6">
+        <div className="lg:col-span-3">
+
         {/* 2×2 Category Grid — shown for unfilled categories */}
         {selectedCount < 8 && (
-          <div className="mb-5 grid grid-cols-2 gap-3">
+          <div className="mb-5 grid grid-cols-2 lg:grid-cols-4 gap-3">
             {CATEGORIES.filter(({ key }) => !components[key]).map(({ key, label }) => {
               const cfg = catGridConfig[key];
               if (!cfg) return null;
@@ -360,9 +364,9 @@ export default function BuilderPage() {
           </div>
         )}
 
-        {/* ========== COMPLETION SECTION ========== */}
+        {/* ========== COMPLETION SECTION (mobile only) ========== */}
         {hasCorePartsSelected && (
-          <div className="bg-gradient-to-b from-[#00e5ff]/5 to-transparent border border-[#00e5ff]/20 rounded-2xl p-5 mb-6">
+          <div className="lg:hidden bg-gradient-to-b from-[#00e5ff]/5 to-transparent border border-[#00e5ff]/20 rounded-2xl p-5 mb-6">
             <h3 className="text-lg font-bold text-center mb-4 text-white">🎉 تهانينا! تجميعتك جاهزة</h3>
 
             {/* Quick stats */}
@@ -586,6 +590,103 @@ export default function BuilderPage() {
             )}
           </div>
         </div>
+
+        </div>{/* end lg:col-span-3 */}
+
+        {/* ========== DESKTOP SIDEBAR ========== */}
+        <div className="hidden lg:block lg:col-span-2">
+          <div className="sticky top-20 space-y-4">
+            {/* Summary card */}
+            <div className="bg-gb-card border border-gb-border rounded-2xl p-5">
+              <h3 className="font-display font-bold text-base text-gb-text mb-4">ملخص التجميعة</h3>
+
+              {/* Selected parts list */}
+              {selectedCount > 0 ? (
+                <div className="space-y-2 mb-4">
+                  {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
+                    <div key={cat} className="flex items-center gap-2 px-3 py-2 bg-gb-bg/40 rounded-lg">
+                      <span className="text-xs shrink-0">{catIcons[cat]}</span>
+                      <span className="text-[11px] text-gb-text truncate flex-1">{comp.name}</span>
+                      {comp.price > 0 && (
+                        <span className="text-[11px] font-mono font-bold text-[#00e676] shrink-0">~{comp.price?.toLocaleString()}</span>
+                      )}
+                      {!comp.isCustom && comp.asin && (
+                        <a href={getAmazonLink(comp)} target="_blank" rel="noopener noreferrer"
+                          onClick={() => track.clickAmazon(comp.name, comp.price)}
+                          className="shrink-0 px-2 py-1 rounded-lg bg-[#ff9900]/90 text-[#0a0a14] text-[10px] font-bold hover:bg-[#ff9900] hover:scale-105 transition-all">
+                          🛒
+                        </a>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gb-muted mb-4">ما اخترت قطع بعد — ابدأ من الشمال</p>
+              )}
+
+              {/* Wattage bar */}
+              {selectedCount >= 2 && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="flex items-center gap-1.5 text-xs text-gb-muted"><Zap size={13} className="text-yellow-400" /> واط</span>
+                    <span className="text-xs font-display text-gb-text">{wattage}W / {psuCapacity}W</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-gb-bg overflow-hidden">
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(psuRatio * 100, 100)}%` }} transition={{ duration: 0.8, ease: 'easeOut' }}
+                      className={`h-full rounded-full ${psuRatio > 0.95 ? 'bg-red-500' : psuRatio > 0.8 ? 'bg-yellow-500' : 'bg-green-500'}`} />
+                  </div>
+                </div>
+              )}
+
+              {/* Total price */}
+              <div className="flex items-center justify-between py-3 border-t border-gb-border">
+                <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xl font-display font-black text-[#00e676]">~{totalPrice.toLocaleString()}</span>
+                  <span className="text-xs text-gb-muted">ر.س</span>
+                </div>
+              </div>
+
+              {/* Buy All CTA */}
+              {selectedCount >= 2 && (
+                <div className="mt-3 space-y-2">
+                  <button onClick={handleBuyAll}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-[#0a0a14] font-bold text-sm hover:scale-[1.02] hover:shadow-[0_0_25px_rgba(0,229,255,0.2)] active:scale-[0.97] transition-all">
+                    <ShoppingCart size={16} /> اشتر كل القطع من أمازون
+                  </button>
+                  {buyAllBlocked && (
+                    <p className="text-xs text-yellow-400 text-center">المتصفح منع فتح النوافذ — اضغط على كل قطعة</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            {hasCorePartsSelected && (
+              <div className="bg-gb-card border border-gb-border rounded-2xl p-4 space-y-2">
+                <div className="flex gap-2">
+                  <button onClick={handleShareUrl} className="flex-1 text-center bg-[#00e5ff]/15 text-[#00e5ff] rounded-xl py-2.5 text-sm font-bold active:scale-95 transition-transform">
+                    🔗 شارك
+                  </button>
+                  <button onClick={handleSave} className="flex-1 text-center bg-[#7c4dff]/15 text-[#7c4dff] rounded-xl py-2.5 text-sm font-bold active:scale-95 transition-transform">
+                    {saveSuccess ? '✅ تم!' : '💾 احفظ'}
+                  </button>
+                </div>
+                <Link to="/analysis" className="block text-center bg-white/5 text-white/50 rounded-xl py-2.5 text-sm font-bold">
+                  📊 تحليل مفصّل
+                </Link>
+                <button
+                  onClick={() => { if (window.confirm('متأكد تبي تحذف التجميعة وتبدأ من جديد؟')) clearBuild(); }}
+                  className="w-full text-center text-xs text-white/30 hover:text-red-400 py-2 transition-colors"
+                >
+                  ابدأ من جديد
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        </div>{/* end lg:grid */}
 
       </div>
 

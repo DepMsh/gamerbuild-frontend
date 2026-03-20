@@ -43,7 +43,7 @@ export default function GamesPage() {
   if (!hasBoth) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl mx-auto text-center py-14">
+        <div className="max-w-2xl lg:max-w-4xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
             <div className="w-24 h-24 mx-auto rounded-full bg-gb-card border border-gb-border flex items-center justify-center mb-4">
               <Crosshair size={36} className="text-gb-muted" />
@@ -65,7 +65,7 @@ export default function GamesPage() {
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl lg:max-w-4xl mx-auto">
         <div className="mb-4">
           <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">توقع الأداء</h1>
           <p className="text-gb-muted text-[11px] sm:text-sm mt-0.5">
@@ -91,7 +91,7 @@ export default function GamesPage() {
         </div>
 
         {/* Games List */}
-        <div>
+        <div className="lg:grid lg:grid-cols-2 lg:gap-3">
           {orderedGames.map((game, gi) => {
             const results = predictFPS(components, game);
             if (!results) return null;

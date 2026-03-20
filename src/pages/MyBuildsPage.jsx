@@ -24,7 +24,7 @@ export default function MyBuildsPage() {
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl lg:max-w-4xl mx-auto">
         <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text mb-1">💾 تجميعاتي</h1>
         <p className="text-xs text-gb-muted mb-6">التجميعات المحفوظة على جهازك</p>
 
@@ -37,7 +37,7 @@ export default function MyBuildsPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
             {builds.map(b => (
               <div key={b.id} className="bg-[#0f1019] border border-[#1a1a2e] rounded-xl p-4">
                 <div className="flex justify-between items-start mb-3">
