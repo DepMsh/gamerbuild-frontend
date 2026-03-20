@@ -120,7 +120,7 @@ export function analyzeBottleneck(cpu, gpu, resolution = '1080p') {
   const isFlagshipCPU = cpuTier === 'flagship' || gamingCpu >= 92;
   const isFlagshipGPU = gpuScore >= 85;
 
-  // Flagship CPU should almost never bottleneck
+  // Flagship CPU should almost never limit performance
   if (limitingComponent === 'CPU' && isFlagshipCPU) {
     bottleneckPercent = Math.max(0, bottleneckPercent - 35);
   }
@@ -131,7 +131,7 @@ export function analyzeBottleneck(cpu, gpu, resolution = '1080p') {
     limitingComponent = null;
   }
 
-  // Budget CPU + high-end GPU = real bottleneck
+  // Budget CPU + high-end GPU = real imbalance
   const isBudgetCPU = gamingCpu < 35;
   const isHighEndGPU = gpuScore >= 70;
   if (isBudgetCPU && isHighEndGPU) {
@@ -265,7 +265,7 @@ export function getRecommendations(components) {
     recs.push({ icon: "🟢", text: "الألعاب الخفيفة سلسة" });
   }
 
-  // Upgrade advice based on bottleneck — but don't suggest upgrading flagship parts
+  // Upgrade advice based on balance — but don't suggest upgrading flagship parts
   const cpuBench = findCPUBenchmark(components.cpu.name);
   const gpuBench = findGPUBenchmark(components.gpu.name);
   const isFlagshipCPU = cpuBench?.tier === 'flagship' || getGamingCpuScore(components.cpu) >= 92;
@@ -372,7 +372,7 @@ export function getSmartDowngrades(components, allComponents) {
   const suggestions = [];
   const bn = analyzeBottleneck(components.cpu, components.gpu);
 
-  // If GPU is overkill (CPU bottleneck), suggest cheaper GPU
+  // If GPU is overkill (CPU limiting), suggest cheaper GPU
   if (bn?.limitingComponent === 'CPU' && bn.percent > 15) {
     const cheaperGPUs = allComponents
       .filter(c => c.type === 'gpu' && c.price < components.gpu.price * 0.7 && c.score >= components.gpu.score * 0.75)
@@ -390,7 +390,7 @@ export function getSmartDowngrades(components, allComponents) {
     }
   }
 
-  // If CPU is overkill (GPU bottleneck), suggest cheaper CPU
+  // If CPU is overkill (GPU limiting), suggest cheaper CPU
   if (bn?.limitingComponent === 'GPU' && bn.percent > 15) {
     const gamingScore = getGamingCpuScore(components.cpu);
     const cheaperCPUs = allComponents

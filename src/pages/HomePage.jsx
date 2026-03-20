@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
+import { Wrench, Shield, Crosshair, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
 // ── Count-up hook ──
@@ -41,7 +41,6 @@ const quickBuilds = [
 const featureCards = [
   { icon: Shield, title: 'فحص توافق ذكي', desc: 'كل قطعة تنفحص تلقائياً مع الباقي', gradient: 'from-green-500/15 to-emerald-500/5', iconColor: 'text-green-400', borderColor: 'border-green-500/15' },
   { icon: Crosshair, title: 'توقع FPS دقيق', desc: 'بنشماركات حقيقية لـ 17 لعبة', gradient: 'from-cyan-500/15 to-blue-500/5', iconColor: 'text-cyan-400', borderColor: 'border-cyan-500/15' },
-  { icon: BarChart3, title: 'توازن القطع', desc: 'تحليل ذكي حسب الدقة + خطة ترقية', gradient: 'from-purple-500/15 to-violet-500/5', iconColor: 'text-purple-400', borderColor: 'border-purple-500/15' },
   { icon: Tag, title: 'شراء من أمازون', desc: 'كل قطعة فيها رابط مباشر لأمازون السعودية', gradient: 'from-amber-500/15 to-orange-500/5', iconColor: 'text-amber-400', borderColor: 'border-amber-500/15' },
 ];
 
@@ -165,7 +164,7 @@ export default function HomePage() {
         <div className="max-w-lg lg:max-w-4xl mx-auto">
           <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-6 text-center">ليش PCBux؟</h2>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-children">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 stagger-children">
             {featureCards.map((f, i) => (
               <div
                 key={i}

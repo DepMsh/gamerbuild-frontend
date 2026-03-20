@@ -13,7 +13,7 @@ export default function GaugeMeter({ value = 0, max = 100, size = 200, label = '
   const circumference = Math.PI * radius; // half circle
   const dashOffset = circumference * (1 - pct);
 
-  // Color based on bottleneck percentage
+  // Color based on value percentage
   const getColor = (v) => {
     if (v <= 5) return '#00e676';
     if (v <= 15) return '#ffc107';
