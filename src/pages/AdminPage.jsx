@@ -2,13 +2,30 @@ import { useState, useEffect } from 'react';
 import { getAnalytics, clearAnalytics } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
 
+const ADMIN_HASH = '6471f861e4dfb9555a2432aee86113fbd38366cb33ed5627a845827910daf759';
+
+async function hashPassword(password) {
+  const data = new TextEncoder().encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 export default function AdminPage() {
   usePageTitle('لوحة التحكم');
   const [data, setData] = useState({});
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);
+  const [error, setError] = useState(false);
 
-  const ADMIN_PASS = 'Mm1126699880';
+  const handleLogin = async () => {
+    const inputHash = await hashPassword(password);
+    if (inputHash === ADMIN_HASH) {
+      setAuthed(true);
+    } else {
+      setError(true);
+      setTimeout(() => setError(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (authed) setData(getAnalytics());
@@ -23,12 +40,13 @@ export default function AdminPage() {
             type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && password === ADMIN_PASS) setAuthed(true); }}
+            onKeyDown={e => { if (e.key === 'Enter') handleLogin(); }}
             placeholder="كلمة المرور"
             className="w-full bg-[#060610] border border-[#1a1a2e] rounded-xl px-4 py-3 text-white text-center mb-3"
           />
+          {error && <p className="text-red-400 text-xs text-center mb-2">كلمة المرور غلط</p>}
           <button
-            onClick={() => { if (password === ADMIN_PASS) setAuthed(true); }}
+            onClick={handleLogin}
             className="w-full bg-[#00e5ff] text-black font-bold rounded-xl py-3"
           >
             دخول
