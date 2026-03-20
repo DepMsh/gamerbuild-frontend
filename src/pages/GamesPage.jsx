@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
+import usePageTitle from '../hooks/usePageTitle';
 import { GAMES, predictFPS } from '../utils/engine';
 import { Crosshair, Monitor, MonitorSpeaker, Tv, Wrench } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -33,6 +34,7 @@ function fpsInfo(fps) {
 }
 
 export default function GamesPage() {
+  usePageTitle('أداء الألعاب');
   const { components } = useBuild();
   const hasBoth = components.cpu && components.gpu;
   const [selectedRes, setSelectedRes] = useState('1080p');

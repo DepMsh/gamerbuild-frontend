@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { ArrowLeftRight, Search, TrendingUp, Trophy } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 import { COMPONENTS } from '../utils/db';
 import { compareWorthIt } from '../utils/engine';
 
@@ -62,6 +63,7 @@ const specFields = {
 };
 
 export default function ComparePage() {
+  usePageTitle('قارن القطع');
   const [category, setCategory] = useState(null);
   const [searchA, setSearchA] = useState('');
   const [searchB, setSearchB] = useState('');

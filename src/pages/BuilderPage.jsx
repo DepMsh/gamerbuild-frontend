@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
 import ProductImage from '../components/ProductImage';
 import { track } from '../utils/analytics';
+import usePageTitle from '../hooks/usePageTitle';
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
@@ -35,6 +36,7 @@ function getGroupKey(item) {
 }
 
 export default function BuilderPage() {
+  usePageTitle('جمّع جهازك');
   const { components, setComponent, removeComponent, clearBuild, loadPreset, loadFromEncoded, getShareUrl, saveBuild, totalPrice, selectedCount } = useBuild();
   const [searchParams] = useSearchParams();
   const [openPicker, setOpenPicker] = useState(null);

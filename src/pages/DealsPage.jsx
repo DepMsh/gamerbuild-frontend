@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Tag, ExternalLink, Clock, TrendingDown, ShoppingCart, Zap } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 import { getAllComponents, getAmazonLink } from '../utils/db';
 import { track } from '../utils/analytics';
 
@@ -31,6 +32,7 @@ const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-
 const catLabels = { cpu: 'معالج', gpu: 'كرت شاشة', motherboard: 'لوحة أم', ram: 'رام', ssd: 'تخزين', psu: 'باور', cooler: 'تبريد', case: 'كيس' };
 
 export default function DealsPage() {
+  usePageTitle('العروض');
   const [deals] = useState(generateDeals);
   const [catFilter, setCatFilter] = useState('all');
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { Wrench, Shield, Crosshair, BarChart3, Tag, Gamepad2, Sparkles, ChevronLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import usePageTitle from '../hooks/usePageTitle';
 
 // ── Count-up hook ──
 function useCountUp(target, duration = 1500) {
@@ -46,6 +47,7 @@ const featureCards = [
 ];
 
 export default function HomePage() {
+  usePageTitle(null);
   const [partsCount, partsRef] = useCountUp(5338);
   const [gamesCount, gamesRef] = useCountUp(17);
 
@@ -138,6 +140,13 @@ export default function HomePage() {
             <span className="text-base sm:text-lg font-display font-black text-[#ff9900]">Amazon</span>
             <span className="text-[11px] text-gb-muted">أسعار</span>
           </div>
+        </div>
+        <div className="flex items-center gap-6 justify-center mt-4 text-xs text-white/30">
+          <div className="flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-[#00e676] rounded-full animate-pulse" />
+            <span>متاح الآن</span>
+          </div>
+          <div>صُنع في السعودية 🇸🇦</div>
         </div>
       </section>
 

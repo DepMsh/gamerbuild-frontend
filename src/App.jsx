@@ -18,6 +18,7 @@ const GamesPage = lazy(() => import('./pages/GamesPage'));
 const PriceHistoryPage = lazy(() => import('./pages/PriceHistoryPage'));
 const MyBuildsPage = lazy(() => import('./pages/MyBuildsPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 function BuildRedirect() {
   const { code } = useParams();
@@ -56,6 +57,7 @@ export default function App() {
                   <Route path="/my-builds" element={<MyBuildsPage />} />
                   <Route path="/admin" element={<AdminPage />} />
                   <Route path="/b/:code" element={<BuildRedirect />} />
+                  <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Suspense>
             </main>

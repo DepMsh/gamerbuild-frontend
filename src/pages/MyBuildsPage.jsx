@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { Wrench } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function MyBuildsPage() {
+  usePageTitle('تجميعاتي');
   const { getSavedBuilds, deleteSavedBuild } = useBuild();
   const [builds, setBuilds] = useState(getSavedBuilds());
   const [deleteConfirm, setDeleteConfirm] = useState(null);

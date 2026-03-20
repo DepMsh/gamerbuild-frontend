@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, Cpu, MonitorSpeaker, CircuitBoard, MemoryStick, Zap, Fan, Box } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 import { getAllComponents, getSortedComponents } from '../utils/db';
 import { useBuild } from '../hooks/BuildContext';
 import ComponentCard from '../components/ComponentCard';
@@ -24,6 +25,7 @@ const sortOptions = [
 ];
 
 export default function ComponentsPage() {
+  usePageTitle('تصفح القطع');
   const [typeFilter, setTypeFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('smart');

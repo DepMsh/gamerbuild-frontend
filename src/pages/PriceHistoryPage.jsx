@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Search, ExternalLink, TrendingDown, TrendingUp, Minus, SlidersHorizontal } from 'lucide-react';
+import usePageTitle from '../hooks/usePageTitle';
 import { getAllComponents, getAmazonLink } from '../utils/db';
 import { track } from '../utils/analytics';
 import { getPriceStats } from '../utils/priceHistory';
@@ -13,6 +14,7 @@ const sortOptions = [
 ];
 
 export default function PriceHistoryPage() {
+  usePageTitle('مقارنة الأسعار');
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('biggest-drop');
   const [expandedId, setExpandedId] = useState(null);

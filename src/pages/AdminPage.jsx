@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { getAnalytics, clearAnalytics } from '../utils/analytics';
+import usePageTitle from '../hooks/usePageTitle';
 
 export default function AdminPage() {
+  usePageTitle('لوحة التحكم');
   const [data, setData] = useState({});
   const [password, setPassword] = useState('');
   const [authed, setAuthed] = useState(false);

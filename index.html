@@ -11,7 +11,7 @@
     </script>
 
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <meta name="description" content="جمّع كمبيوتر قيمنق بأفضل سعر من أمازون السعودية. 5,300+ قطعة، فحص توافق ذكي، تحليل أداء، وتوقع FPS لـ 17 لعبة. أول منصة عربية متخصصة في تجميعات الـ PC." />
     <meta name="keywords" content="تجميعة قيمنق, تجميع كمبيوتر, PC builder, قيمنق السعودية, RTX 5080, RX 9070 XT, بوتلنك, FPS, أمازون السعودية" />
@@ -24,6 +24,10 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="PCBux — جمّع جهاز أحلامك" />
     <meta name="twitter:description" content="أول منصة سعودية لتجميع كمبيوترات القيمنق" />
+    <meta property="og:image" content="https://pcbux.com/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:image" content="https://pcbux.com/og-image.svg" />
     <link rel="canonical" href="https://pcbux.com" />
 
     <!-- PWA Meta Tags -->
@@ -47,7 +51,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root"><div id="splash" style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#060610;font-family:system-ui,sans-serif"><div style="font-size:2.5rem;font-weight:900;background:linear-gradient(135deg,#00e5ff,#7c4dff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px">PCBux</div><div style="margin-top:16px;width:40px;height:3px;background:linear-gradient(90deg,#00e5ff,#7c4dff);border-radius:2px;animation:pulse 1.5s ease-in-out infinite"></div><style>@keyframes pulse{0%,100%{opacity:.3;transform:scaleX(.5)}50%{opacity:1;transform:scaleX(1)}}</style></div></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
       // Register Service Worker for PWA

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
+import usePageTitle from '../hooks/usePageTitle';
 import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof } from '../utils/engine';
 import { calcThermalHarmony } from '../utils/thermal';
 import { getAllComponents } from '../utils/db';
@@ -42,6 +43,7 @@ const resolutions = [
 ];
 
 export default function AnalysisPage() {
+  usePageTitle('تحليل التجميعة');
   const { components, selectedCount } = useBuild();
   const [resolution, setResolution] = useState('1080p');
   useEffect(() => { if (components.cpu && components.gpu) track.viewAnalysis(); }, []);
