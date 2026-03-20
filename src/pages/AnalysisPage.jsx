@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
-import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof } from '../utils/engine';
+import { analyzeBottleneck, calcBuildScore, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, severityColor, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
 import { calcThermalHarmony } from '../utils/thermal';
-import { getAllComponents } from '../utils/db';
-import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench } from 'lucide-react';
+import { getAllComponents, estimateWattage } from '../utils/db';
+import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, Thermometer, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2, MemoryStick, HardDrive, Fan, Box } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GaugeMeter from '../components/GaugeMeter';
 
@@ -42,11 +42,38 @@ const resolutions = [
   { key: '4K', label: '4K', desc: 'Ultra HD' },
 ];
 
+// Gulf popularity order: competitive first, then AAA heavy
+const GAME_ORDER = [
+  'Valorant', 'Fortnite', 'CS2', 'Apex Legends',
+  'League of Legends', 'COD MW3', 'FC 25', 'Rainbow Six Siege',
+  'GTA VI', 'Cyberpunk 2077', 'Black Myth Wukong', 'Marvel Rivals',
+  'Elden Ring', 'Red Dead 2', 'Hogwarts Legacy', 'Wuthering Waves', 'Minecraft Shaders',
+];
+
+const orderedGames = GAME_ORDER
+  .map(name => GAMES.find(g => g.name === name))
+  .filter(Boolean)
+  .concat(GAMES.filter(g => !GAME_ORDER.includes(g.name)));
+
+function fpsInfo(fps) {
+  if (fps >= 144) return { color: '#00e676', label: 'سلس جداً' };
+  if (fps >= 60)  return { color: '#ffc107', label: 'ممتاز' };
+  if (fps >= 30)  return { color: '#ff9800', label: 'مقبول' };
+  return { color: '#f44336', label: 'ضعيف' };
+}
+
+const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
+
 export default function AnalysisPage() {
   usePageTitle('تحليل التجميعة');
   const { components, selectedCount } = useBuild();
   const [resolution, setResolution] = useState('1080p');
-  useEffect(() => { if (components.cpu && components.gpu) track.viewAnalysis(); }, []);
+  useEffect(() => {
+    if (components.cpu && components.gpu) {
+      track.viewAnalysis();
+      track.viewFPS();
+    }
+  }, []);
   const [openCards, setOpenCards] = useState({ thermal: true, future: true, downgrade: true });
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
 
@@ -69,8 +96,8 @@ export default function AnalysisPage() {
         <div className="max-w-2xl lg:max-w-4xl mx-auto text-center py-14">
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
             <GaugeMeter value={12} label="مثال" sublabel="اختر قطعك أولاً" size={160} />
-            <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">التحليل الذكي</h2>
-            <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق</p>
+            <h2 className="font-display text-xl font-bold text-gb-text mb-2 mt-4">🔬 شوف قوة تجميعتك</h2>
+            <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق وتوقع FPS لـ 17 لعبة</p>
             <Link
               to="/builder"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-l from-gb-primary to-gb-secondary text-gb-bg font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] transition-all active:scale-95"
@@ -87,6 +114,8 @@ export default function AnalysisPage() {
   const gamingCpu = getGamingCpuScore(components.cpu);
   const gpuScore = components.gpu?.score || 0;
   const bnColor = severityColor(bn?.severity);
+  const fpsRes = resolution === '4K' ? '4k' : resolution;
+  const estimatedWatts = estimateWattage(components);
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
@@ -279,14 +308,259 @@ export default function AnalysisPage() {
           );
         })()}
 
-        {/* ── INNOVATION CARDS ── */}
+        {/* ══════════ NEW SECTIONS ══════════ */}
+
+        {/* ── FPS Per Game ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65 }}
+          className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+        >
+          <h3 className="font-bold text-gb-text text-sm mb-1 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+              <Gamepad2 size={14} className="text-emerald-400" />
+            </div>
+            🎮 أداء الألعاب
+          </h3>
+          <p className="text-[10px] text-gb-muted mb-4">
+            توقع FPS بناءً على {components.cpu.name.split(' ').slice(0, 3).join(' ')} + {components.gpu.name.split(' ').slice(0, 4).join(' ')} — {resolution}
+          </p>
+
+          <div className="lg:grid lg:grid-cols-2 lg:gap-3">
+            {orderedGames.map((game, gi) => {
+              const results = predictFPS(components, game);
+              if (!results) return null;
+              const data = results[fpsRes];
+              if (!data) return null;
+              const fps = data.fps;
+              const info = fpsInfo(fps);
+              const barWidth = Math.min(100, (fps / 240) * 100);
+
+              return (
+                <motion.div
+                  key={game.name}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.65 + gi * 0.03 }}
+                  className="bg-gb-bg/50 border border-gb-border/50 rounded-xl p-3.5 mb-2.5 lg:mb-0"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-bold text-white/90">{game.name}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: info.color + '20', color: info.color }}>
+                      {info.label}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 h-2.5 bg-white/5 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-700"
+                        style={{ width: `${barWidth}%`, background: info.color }}
+                      />
+                    </div>
+                    <span className="text-lg font-bold font-mono min-w-[60px] text-left" style={{ color: info.color }}>
+                      {fps} <span className="text-[10px] text-white/30">FPS</span>
+                    </span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* All Resolutions Summary Table */}
+          <div className="mt-4">
+            <h4 className="text-xs font-bold text-gb-muted mb-2">ملخص كل الدقات</h4>
+            <div className="bg-gb-bg/50 rounded-xl border border-gb-border/50 overflow-hidden">
+              <div className="grid grid-cols-4 text-[10px] text-gb-muted font-bold px-3 py-2 border-b border-gb-border/50 bg-gb-surface/30">
+                <span>اللعبة</span>
+                <span className="text-center">1080p</span>
+                <span className="text-center">1440p</span>
+                <span className="text-center">4K</span>
+              </div>
+              {orderedGames.map((game) => {
+                const results = predictFPS(components, game);
+                if (!results) return null;
+                return (
+                  <div key={game.name} className="grid grid-cols-4 text-[11px] px-3 py-2 border-b border-gb-border/30 last:border-0">
+                    <span className="text-gb-text font-medium truncate pr-2">{game.name}</span>
+                    {['1080p', '1440p', '4k'].map(res => {
+                      const d = results[res];
+                      if (!d) return <span key={res} className="text-center text-gb-muted">—</span>;
+                      const c = fpsInfo(d.fps);
+                      return (
+                        <span key={res} className="text-center font-display font-bold" style={{ color: c.color }}>
+                          {d.fps >= 120 ? '120+' : d.fps}
+                        </span>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <p className="text-center text-[10px] text-gb-muted/60 mt-3">
+            * التوقعات مبنية على بنشماركات حقيقية (Ultra settings) — الأداء الفعلي يختلف حسب الإعدادات
+          </p>
+        </motion.div>
+
+        {/* ── CPU Specs Table ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.70 }}
+          className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+        >
+          <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <Cpu size={14} className="text-purple-400" />
+            </div>
+            📊 مواصفات المعالج
+          </h3>
+          <div className="space-y-0">
+            {[
+              { label: 'المعالج', value: components.cpu.name },
+              { label: 'السوكت', value: components.cpu.socket },
+              { label: 'الأنوية / الخيوط', value: `${components.cpu.cores} / ${components.cpu.threads}` },
+              { label: 'التردد', value: `${components.cpu.baseClock} — ${components.cpu.boostClock} GHz` },
+              { label: 'TDP', value: `${components.cpu.tdp}W` },
+              { label: 'تصنيف القيمنق', value: `${gamingCpu}/100`, color: gamingCpu >= 75 ? '#00e676' : gamingCpu >= 50 ? '#ffd740' : '#ff5252' },
+              { label: 'الفئة', value: tierLabels[components.cpu.tier] || components.cpu.tier },
+            ].map((row, i) => (
+              <div key={i} className={`flex items-center justify-between py-2.5 px-1 ${i > 0 ? 'border-t border-gb-border/30' : ''}`}>
+                <span className="text-[11px] text-gb-muted">{row.label}</span>
+                <span className="text-[11px] font-bold text-left" style={row.color ? { color: row.color } : undefined}>
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ── GPU Specs Table ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.72 }}
+          className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+        >
+          <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-cyan-500/10 flex items-center justify-center">
+              <MonitorPlay size={14} className="text-cyan-400" />
+            </div>
+            📊 مواصفات كرت الشاشة
+          </h3>
+          <div className="space-y-0">
+            {[
+              { label: 'كرت الشاشة', value: components.gpu.name },
+              { label: 'الذاكرة', value: `${components.gpu.vram} GB` },
+              { label: 'TDP', value: `${components.gpu.tdp}W` },
+              { label: 'تصنيف الأداء', value: `${gpuScore}/100`, color: gpuScore >= 75 ? '#00e676' : gpuScore >= 50 ? '#ffd740' : '#ff5252' },
+              { label: 'الفئة', value: tierLabels[components.gpu.tier] || components.gpu.tier },
+            ].map((row, i) => (
+              <div key={i} className={`flex items-center justify-between py-2.5 px-1 ${i > 0 ? 'border-t border-gb-border/30' : ''}`}>
+                <span className="text-[11px] text-gb-muted">{row.label}</span>
+                <span className="text-[11px] font-bold text-left" style={row.color ? { color: row.color } : undefined}>
+                  {row.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ── Power Breakdown ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.74 }}
+          className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
+        >
+          <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-yellow-500/10 flex items-center justify-center">
+              <Zap size={14} className="text-yellow-400" />
+            </div>
+            ⚡ استهلاك الطاقة
+          </h3>
+          {(() => {
+            const powerParts = [
+              { label: 'المعالج', watts: components.cpu?.tdp || 125, icon: '🧠', color: '#a855f7' },
+              { label: 'كرت الشاشة', watts: components.gpu?.tdp || 200, icon: '🎨', color: '#06b6d4' },
+              { label: 'الرام', watts: components.ram ? 10 : 0, icon: '💾', color: '#3b82f6' },
+              { label: 'التخزين', watts: components.ssd ? 10 : 0, icon: '💿', color: '#f97316' },
+              { label: 'التبريد', watts: components.cooler ? 15 : 0, icon: '❄️', color: '#6366f1' },
+              { label: 'القاعدة', watts: 50, icon: '🔌', color: '#6b7280' },
+            ].filter(r => r.watts > 0);
+            const rawTotal = powerParts.reduce((s, p) => s + p.watts, 0);
+
+            return (
+              <>
+                {/* Stacked bar */}
+                <div className="flex rounded-lg overflow-hidden h-5 mb-3">
+                  {powerParts.map(p => (
+                    <div
+                      key={p.label}
+                      className="transition-all duration-700 flex items-center justify-center"
+                      style={{ width: `${(p.watts / rawTotal) * 100}%`, backgroundColor: p.color }}
+                      title={`${p.label}: ${p.watts}W`}
+                    >
+                      {(p.watts / rawTotal) > 0.12 && (
+                        <span className="text-[8px] text-white/80 font-bold">{p.watts}W</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Per-component breakdown */}
+                <div className="space-y-2">
+                  {powerParts.map(p => {
+                    const pct = Math.round((p.watts / estimatedWatts) * 100);
+                    return (
+                      <div key={p.label}>
+                        <div className="flex justify-between text-[10px] text-gb-muted mb-0.5">
+                          <span>{p.icon} {p.label}</span>
+                          <span className="font-bold text-gb-text">{p.watts}W</span>
+                        </div>
+                        <div className="h-1.5 rounded-full bg-gb-bg overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${pct}%` }}
+                            transition={{ duration: 0.8, delay: 0.8 }}
+                            className="h-full rounded-full"
+                            style={{ backgroundColor: p.color + '99' }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-3 pt-3 border-t border-gb-border/50 flex items-center justify-between">
+                  <span className="text-[11px] text-gb-muted">الاستهلاك المقدّر (+20% هامش)</span>
+                  <span className="text-sm font-display font-bold text-yellow-400">{estimatedWatts}W</span>
+                </div>
+                {components.psu && (
+                  <p className={`text-[10px] mt-1.5 font-bold ${
+                    components.psu.watt >= estimatedWatts ? 'text-green-400' : 'text-red-400'
+                  }`}>
+                    {components.psu.watt >= estimatedWatts
+                      ? `✓ الباور (${components.psu.watt}W) كافي`
+                      : `⚠️ الباور (${components.psu.watt}W) أقل من المطلوب`
+                    }
+                  </p>
+                )}
+              </>
+            );
+          })()}
+        </motion.div>
+
+        {/* ══════════ EXISTING INNOVATION CARDS ══════════ */}
 
         {/* Thermal Harmony — collapsible */}
         {thermal && (
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.65 }}
+            transition={{ delay: 0.78 }}
             className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
           >
             <button onClick={() => toggleCard('thermal')} className="w-full flex items-center justify-between p-4">
@@ -350,7 +624,7 @@ export default function AnalysisPage() {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.80 }}
               className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
             >
               <button onClick={() => toggleCard('future')} className="w-full flex items-center justify-between p-4">
@@ -397,7 +671,7 @@ export default function AnalysisPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.75 }}
+            transition={{ delay: 0.82 }}
             className="bg-gb-card rounded-xl border border-gb-border mb-4 overflow-hidden"
           >
             <button onClick={() => toggleCard('downgrade')} className="w-full flex items-center justify-between p-4">
@@ -444,7 +718,7 @@ export default function AnalysisPage() {
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
+            transition={{ delay: 0.84 }}
             className="bg-gb-card rounded-xl border border-gb-border p-4 mb-4"
           >
             <h3 className="font-bold text-gb-text text-sm mb-3 flex items-center gap-2">

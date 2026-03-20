@@ -14,7 +14,6 @@ const BuilderPage = lazy(() => import('./pages/BuilderPage'));
 const ComponentsPage = lazy(() => import('./pages/ComponentsPage'));
 const ComparePage = lazy(() => import('./pages/ComparePage'));
 const AnalysisPage = lazy(() => import('./pages/AnalysisPage'));
-const GamesPage = lazy(() => import('./pages/GamesPage'));
 const MyBuildsPage = lazy(() => import('./pages/MyBuildsPage'));
 const PricesPage = lazy(() => import('./pages/PricesPage'));
 const AdminPage = lazy(() => import('./pages/AdminPage'));
@@ -54,7 +53,6 @@ function AnimatedRoutes() {
             <Route path="/components" element={<ComponentsPage />} />
             <Route path="/compare" element={<ComparePage />} />
             <Route path="/analysis" element={<AnalysisPage />} />
-            <Route path="/games" element={<GamesPage />} />
             <Route path="/my-builds" element={<MyBuildsPage />} />
             <Route path="/prices" element={<PricesPage />} />
             <Route path="/admin" element={<AdminPage />} />
