@@ -30,46 +30,8 @@ const catGridConfig = {
 
 const PAGE_SIZE = 30;
 
-function getGroupKey(item, cat) {
-  const n = item.name || '';
-  if (cat === 'cpu') {
-    if (n.includes('Threadripper')) return 'Threadripper';
-    if (n.includes('Ryzen') || n.includes('EPYC')) return 'Ryzen';
-    if (n.includes('Core') || n.includes('Intel')) return 'Core';
-    return 'معالجات أخرى';
-  }
-  if (cat === 'gpu') {
-    if (n.includes('GeForce') || n.includes('RTX') || n.includes('GTX')) return 'GeForce';
-    if (n.includes('Radeon') || n.includes('RX ')) return 'Radeon';
-    if (n.includes('Arc')) return 'Intel Arc';
-    return 'كروت أخرى';
-  }
-  if (cat === 'motherboard') return item.socket || 'لوحات أخرى';
-  if (cat === 'ram') return item.type || 'رام أخرى';
-  if (cat === 'ssd') {
-    if (item.interface && item.interface.includes('NVMe')) return 'NVMe';
-    if (item.interface && item.interface.includes('SATA')) return 'SATA';
-    return 'تخزين آخر';
-  }
-  if (cat === 'psu') {
-    const w = item.watt || 0;
-    if (w >= 1000) return '1000W+';
-    if (w >= 800) return '850W';
-    if (w >= 700) return '750W';
-    if (w >= 600) return '650W';
-    return '550W وأقل';
-  }
-  if (cat === 'cooler') {
-    if (item.type === 'AIO') return 'تبريد مائي';
-    return 'تبريد هوائي';
-  }
-  if (cat === 'case') {
-    const ff = item.formFactor || '';
-    if (ff.includes('Full')) return 'Full Tower';
-    if (ff.includes('Mini') || ff.includes('SFF') || ff.includes('ITX')) return 'Mini / SFF';
-    return 'Mid Tower';
-  }
-  return '';
+function getGroupKey(item) {
+  return item.brand || item.name?.split(' ')[0] || 'أخرى';
 }
 
 export default function BuilderPage() {
@@ -141,18 +103,15 @@ export default function BuilderPage() {
     const visible = pickerItems.slice(0, visibleCount);
     const groupMap = new Map();
     visible.forEach(item => {
-      const key = getGroupKey(item, openPicker);
-      if (!key) {
-        if (!groupMap.has('__nogroup__')) groupMap.set('__nogroup__', []);
-        groupMap.get('__nogroup__').push(item);
-        return;
-      }
+      const key = getGroupKey(item);
       if (!groupMap.has(key)) groupMap.set(key, []);
       groupMap.get(key).push(item);
     });
+    // Sort brands by product count (most first)
+    const sorted = [...groupMap.entries()].sort((a, b) => b[1].length - a[1].length);
     const result = [];
-    groupMap.forEach((items, key) => {
-      if (key !== '__nogroup__') result.push({ _header: key, _count: items.length });
+    sorted.forEach(([key, items]) => {
+      result.push({ _header: key, _count: items.length });
       items.forEach(item => result.push(item));
     });
     return result;
@@ -686,7 +645,7 @@ export default function BuilderPage() {
                             <div key={`hdr-${gi}`} className="sticky top-0 z-10 -mx-3 px-4 py-2 mt-2 first:mt-0 bg-[#0a0a14]/95 backdrop-blur-sm border-b border-[#1a1a2e]">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold text-[#00e5ff]/80 tracking-wider">{entry._header}</span>
-                                <span className="text-[10px] text-white/20">{entry._count}</span>
+                                <span className="text-[10px] text-white/20">{entry._count} قطعة</span>
                               </div>
                             </div>
                           );
