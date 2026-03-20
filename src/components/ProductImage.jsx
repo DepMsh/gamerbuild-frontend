@@ -355,12 +355,17 @@ export default function ProductImage({ component, src, componentId, className = 
     }
   };
 
-  // All sources exhausted — show styled Lucide icon fallback
+  // All sources exhausted — show beautiful gradient fallback with brand name
   if (srcIndex >= sources.length) {
-    const FallbackIcon = iconCfg.Icon;
+    const catEmoji = { cpu: '🧠', gpu: '🎮', motherboard: '📋', ram: '🧩', ssd: '💿', psu: '⚡', cooler: '❄️', case: '🖥️' };
+    const emoji = catEmoji[cat] || '🔧';
+    const brand = comp.brand || (comp.name ? comp.name.split(' ')[0] : '');
+    const emojiSize = size === 'sm' ? 'text-lg' : size === 'lg' ? 'text-4xl' : 'text-2xl';
+    const textSize = size === 'sm' ? 'text-[7px]' : 'text-[9px] sm:text-[10px]';
     return (
-      <div className={`bg-gradient-to-br ${gradient} flex items-center justify-center ${className}`}>
-        <FallbackIcon size={iconSize} style={{ color: iconCfg.color }} className="opacity-60" strokeWidth={1.5} />
+      <div className={`bg-gradient-to-br ${gradient} flex flex-col items-center justify-center border border-white/5 ${className}`}>
+        <span className={`${emojiSize} opacity-50 leading-none`}>{emoji}</span>
+        {brand && <span className={`${textSize} font-bold text-white/40 mt-1 truncate max-w-full px-1 text-center leading-tight`}>{brand}</span>}
       </div>
     );
   }
