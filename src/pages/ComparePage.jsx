@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
-import { ArrowLeftRight, Search, TrendingUp, Trophy } from 'lucide-react';
+import { ArrowLeftRight, Search } from 'lucide-react';
+import { motion } from 'framer-motion';
 import usePageTitle from '../hooks/usePageTitle';
 import { COMPONENTS } from '../utils/db';
-import { compareWorthIt } from '../utils/engine';
 
 const catOptions = [
   { key: 'cpu', label: 'معالج', icon: '🧠' },
@@ -15,52 +15,158 @@ const catOptions = [
   { key: 'case', label: 'كيس', icon: '🖥️' },
 ];
 
-const specFields = {
-  cpu: [
-    { key: 'socket', label: 'السوكت' },
-    { key: 'cores', label: 'الأنوية' },
-    { key: 'threads', label: 'الخيوط' },
-    { key: 'baseClock', label: 'التردد الأساسي', suffix: ' GHz' },
-    { key: 'boostClock', label: 'تردد البوست', suffix: ' GHz' },
-    { key: 'tdp', label: 'استهلاك الطاقة', suffix: 'W' },
-  ],
+const POPULAR_COMPARISONS = {
   gpu: [
-    { key: 'vram', label: 'ذاكرة الفيديو', suffix: ' GB' },
-    { key: 'tdp', label: 'استهلاك الطاقة', suffix: 'W' },
+    ['RTX 5080', 'RX 9070 XT'],
+    ['RTX 5070 Ti', 'RTX 4080 Super'],
+    ['RTX 5070', 'RX 7800 XT'],
+    ['RTX 5090', 'RTX 4090'],
+    ['RX 9070 XT', 'RTX 4070 Ti Super'],
+  ],
+  cpu: [
+    ['9800X3D', 'Ultra 9 285K'],
+    ['9950X3D', '9950X'],
+    ['9800X3D', '7800X3D'],
+    ['9600X', 'i5-14600K'],
+    ['9900X3D', '9800X3D'],
   ],
   motherboard: [
-    { key: 'socket', label: 'السوكت' },
-    { key: 'chipset', label: 'الشيبست' },
-    { key: 'formFactor', label: 'الحجم' },
-    { key: 'ramType', label: 'نوع الرام' },
+    ['X870E', 'X870'],
+    ['B850', 'B650'],
+    ['Z890', 'Z790'],
   ],
   ram: [
-    { key: 'type', label: 'النوع' },
-    { key: 'size', label: 'السعة', suffix: ' GB' },
-    { key: 'speed', label: 'السرعة', suffix: ' MHz' },
-    { key: 'latency', label: 'التأخير' },
-    { key: 'modules', label: 'التوزيع' },
+    ['6000', '5600'],
+    ['32 GB', '16 GB'],
   ],
   ssd: [
-    { key: 'interface', label: 'الواجهة' },
-    { key: 'capacity', label: 'السعة', format: v => v >= 1000 ? `${v / 1000} TB` : `${v} GB` },
-    { key: 'read', label: 'سرعة القراءة', suffix: ' MB/s' },
-    { key: 'write', label: 'سرعة الكتابة', suffix: ' MB/s' },
+    ['Gen5', 'Gen4'],
+    ['990 PRO', 'SN850X'],
   ],
-  psu: [
-    { key: 'watt', label: 'الواط', suffix: 'W' },
-    { key: 'rating', label: 'الكفاءة' },
-    { key: 'modular', label: 'مودولار' },
-  ],
+  psu: [],
   cooler: [
-    { key: 'type', label: 'النوع' },
-    { key: 'tdpMax', label: 'أقصى واط', suffix: 'W' },
+    ['360', '240'],
   ],
-  case: [
-    { key: 'formFactor', label: 'الحجم' },
-    { key: 'maxGPU', label: 'أقصى طول كرت', suffix: ' mm' },
-  ],
+  case: [],
 };
+
+// ── Visual bar for numeric specs ──
+function CompareBar({ valueA, valueB, label, unit = '', lowerIsBetter = false }) {
+  const numA = typeof valueA === 'number' ? valueA : parseFloat(valueA) || 0;
+  const numB = typeof valueB === 'number' ? valueB : parseFloat(valueB) || 0;
+  if (numA === 0 && numB === 0) return null;
+
+  const max = Math.max(numA, numB) || 1;
+  const pctA = (numA / max) * 100;
+  const pctB = (numB / max) * 100;
+  const aWins = lowerIsBetter ? numA < numB : numA > numB;
+  const bWins = lowerIsBetter ? numB < numA : numB > numA;
+  const tie = numA === numB;
+
+  return (
+    <div className="py-3 border-b border-[#1a1a2e]/50 last:border-0">
+      <div className="text-[11px] text-white/30 text-center mb-2">{label}</div>
+      <div className="flex items-center gap-2 sm:gap-4">
+        <div className="w-16 sm:w-20 text-left">
+          <span className={`text-xs font-mono ${aWins ? 'text-[#00e5ff] font-bold' : tie ? 'text-white/50' : 'text-white/30'}`}>
+            {numA}{unit}
+          </span>
+        </div>
+        <div className="flex-1 h-2.5 bg-white/5 rounded-full overflow-hidden rotate-180">
+          <div className={`h-full rounded-full transition-all duration-700 ease-out ${aWins ? 'bg-[#00e5ff]' : tie ? 'bg-white/20' : 'bg-white/10'}`}
+               style={{ width: `${pctA}%` }} />
+        </div>
+        <div className="w-px h-4 bg-[#1a1a2e]" />
+        <div className="flex-1 h-2.5 bg-white/5 rounded-full overflow-hidden">
+          <div className={`h-full rounded-full transition-all duration-700 ease-out ${bWins ? 'bg-[#00e676]' : tie ? 'bg-white/20' : 'bg-white/10'}`}
+               style={{ width: `${pctB}%` }} />
+        </div>
+        <div className="w-16 sm:w-20 text-right">
+          <span className={`text-xs font-mono ${bWins ? 'text-[#00e676] font-bold' : tie ? 'text-white/50' : 'text-white/30'}`}>
+            {numB}{unit}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Text row for non-numeric specs ──
+function SpecRow({ label, valueA, valueB }) {
+  if (!valueA && !valueB) return null;
+  const same = valueA === valueB;
+  return (
+    <div className="py-3 border-b border-[#1a1a2e]/50 last:border-0">
+      <div className="text-[11px] text-white/30 text-center mb-2">{label}</div>
+      <div className="flex items-center justify-between px-2">
+        <span className={`text-xs font-medium ${same ? 'text-white/50' : 'text-[#00e5ff]'}`}>{valueA || '—'}</span>
+        <span className={`text-xs font-medium ${same ? 'text-white/50' : 'text-[#00e676]'}`}>{valueB || '—'}</span>
+      </div>
+    </div>
+  );
+}
+
+// ── Verdict generator ──
+function getVerdict(a, b, category) {
+  if (!a || !b) return '';
+  const nameA = a.name?.replace(a.brand, '').trim().split(' ').slice(0, 4).join(' ') || 'القطعة الأولى';
+  const nameB = b.name?.replace(b.brand, '').trim().split(' ').slice(0, 4).join(' ') || 'القطعة الثانية';
+
+  if (category === 'gpu') {
+    const wins = [];
+    if ((a.score || 0) > (b.score || 0)) wins.push(`${nameA} أعلى أداء (${a.score} نقطة)`);
+    else if ((b.score || 0) > (a.score || 0)) wins.push(`${nameB} أعلى أداء (${b.score} نقطة)`);
+    if ((a.vram || 0) > (b.vram || 0)) wins.push(`${nameA} عنده VRAM أكثر (${a.vram}GB)`);
+    else if ((b.vram || 0) > (a.vram || 0)) wins.push(`${nameB} عنده VRAM أكثر (${b.vram}GB)`);
+    if ((a.tdp || 0) < (b.tdp || 0) && a.tdp) wins.push(`${nameA} أوفر بالطاقة (${a.tdp}W)`);
+    else if ((b.tdp || 0) < (a.tdp || 0) && b.tdp) wins.push(`${nameB} أوفر بالطاقة (${b.tdp}W)`);
+    return wins.length > 0 ? wins.join(' — ') : 'متقاربين بالمواصفات — شيك البنشماركات لقرار أدق';
+  }
+
+  if (category === 'cpu') {
+    const wins = [];
+    if ((a.score || 0) > (b.score || 0)) wins.push(`${nameA} أعلى أداء (${a.score} نقطة)`);
+    else if ((b.score || 0) > (a.score || 0)) wins.push(`${nameB} أعلى أداء (${b.score} نقطة)`);
+    if ((a.cores || 0) > (b.cores || 0)) wins.push(`${nameA} عنده أنوية أكثر (${a.cores})`);
+    else if ((b.cores || 0) > (a.cores || 0)) wins.push(`${nameB} عنده أنوية أكثر (${b.cores})`);
+    if ((a.tdp || 0) < (b.tdp || 0) && a.tdp) wins.push(`${nameA} أوفر بالطاقة (${a.tdp}W)`);
+    else if ((b.tdp || 0) < (a.tdp || 0) && b.tdp) wins.push(`${nameB} أوفر بالطاقة (${b.tdp}W)`);
+    return wins.length > 0 ? wins.join(' — ') : 'متقاربين بالأداء — شيك البنشماركات لقرار أدق';
+  }
+
+  if (category === 'ram') {
+    const sizeA = a.size || 0, sizeB = b.size || 0;
+    const speedA = a.speed || 0, speedB = b.speed || 0;
+    if (sizeA > sizeB) return `${nameA} أكبر حجم (${sizeA}GB) — أفضل للمالتي تاسك`;
+    if (sizeB > sizeA) return `${nameB} أكبر حجم (${sizeB}GB) — أفضل للمالتي تاسك`;
+    if (speedA > speedB) return `${nameA} أسرع (${speedA}MHz)`;
+    if (speedB > speedA) return `${nameB} أسرع (${speedB}MHz)`;
+    return 'متقاربين بالمواصفات';
+  }
+
+  if (category === 'psu') {
+    const wA = a.watt || 0, wB = b.watt || 0;
+    if (wA > wB) return `${nameA} قدرة أعلى (${wA}W) — يتحمل ترقيات مستقبلية`;
+    if (wB > wA) return `${nameB} قدرة أعلى (${wB}W) — يتحمل ترقيات مستقبلية`;
+    return 'نفس القدرة — شيك الكفاءة والضمان';
+  }
+
+  if (category === 'ssd') {
+    const rA = a.read || 0, rB = b.read || 0;
+    if (rA > rB) return `${nameA} أسرع قراءة (${rA} MB/s)`;
+    if (rB > rA) return `${nameB} أسرع قراءة (${rB} MB/s)`;
+    return 'قارن المواصفات فوق وقرر اللي يناسب احتياجك';
+  }
+
+  if (category === 'cooler') {
+    const tA = a.tdpMax || 0, tB = b.tdpMax || 0;
+    if (tA > tB) return `${nameA} يبرّد أقوى (${tA}W)`;
+    if (tB > tA) return `${nameB} يبرّد أقوى (${tB}W)`;
+    return 'متقاربين — شيك حجم الكيس والتوافق';
+  }
+
+  return 'قارن المواصفات فوق وقرر اللي يناسب احتياجك';
+}
 
 export default function ComparePage() {
   usePageTitle('قارن القطع');
@@ -107,22 +213,13 @@ export default function ComparePage() {
     setSearchA(''); setSearchB('');
   };
 
-  const fields = category ? (specFields[category] || []) : [];
-
-  const getSpecValue = (item, field) => {
-    if (!item || item.isCustom) return '—';
-    const val = item[field.key];
-    if (val === undefined || val === null) return '—';
-    if (field.format) return field.format(val);
-    return `${val}${field.suffix || ''}`;
+  const loadPopular = (nameA, nameB) => {
+    const list = COMPONENTS[category] || [];
+    const a = list.find(c => c.name.includes(nameA));
+    const b = list.find(c => c.name.includes(nameB));
+    if (a) { setItemA(a); setSearchA(`${a.brand} ${a.name}`); }
+    if (b) { setItemB(b); setSearchB(`${b.brand} ${b.name}`); }
   };
-
-  const worthIt = itemA && itemB && itemA.score && itemB.score
-    ? (() => {
-        const sorted = [itemA, itemB].sort((a, b) => (a.price || 0) - (b.price || 0));
-        return compareWorthIt(sorted[0], sorted[1]);
-      })()
-    : null;
 
   // Category selector screen
   if (!category) {
@@ -146,6 +243,8 @@ export default function ComparePage() {
       </div>
     );
   }
+
+  const popularList = POPULAR_COMPARISONS[category] || [];
 
   return (
     <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
@@ -176,7 +275,6 @@ export default function ComparePage() {
 
         {/* Two search boxes */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-          {/* Search A */}
           <SearchBox
             placeholder="ابحث عن القطعة الأولى..."
             value={searchA}
@@ -189,8 +287,8 @@ export default function ComparePage() {
             onAddCustom={addCustomA}
             query={searchA}
             selected={itemA}
+            color="text-[#00e5ff]"
           />
-          {/* Search B */}
           <SearchBox
             placeholder="ابحث عن القطعة الثانية..."
             value={searchB}
@@ -203,98 +301,129 @@ export default function ComparePage() {
             onAddCustom={addCustomB}
             query={searchB}
             selected={itemB}
+            color="text-[#00e676]"
           />
         </div>
 
-        {/* Comparison table */}
-        {itemA && itemB && (
-          <div className="rounded-xl sm:rounded-2xl border border-gb-border overflow-hidden mb-4 animate-slide-up">
-            <div className="bg-gb-card px-4 py-3 border-b border-gb-border">
-              <h3 className="font-bold text-gb-text text-sm flex items-center gap-2">
-                <ArrowLeftRight size={16} className="text-gb-primary" />
-                مقارنة المواصفات
-              </h3>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gb-border">
-                    <th className="text-right text-xs text-gb-muted font-medium p-3 w-[100px] sm:w-[120px]">المواصفة</th>
-                    <th className="text-center text-[11px] sm:text-xs text-gb-text font-bold p-3">{itemA.name}</th>
-                    <th className="text-center text-[11px] sm:text-xs text-gb-text font-bold p-3">{itemB.name}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {/* Price */}
-                  <tr className="border-b border-gb-border/50 bg-gb-surface/30">
-                    <td className="p-3 text-xs text-gb-muted font-medium">السعر</td>
-                    <td className="p-3 text-center">
-                      <span className={`text-sm font-display font-bold ${itemA.price && itemB.price && itemA.price <= itemB.price ? 'text-green-400' : 'text-gb-text'}`}>
-                        {itemA.price ? `${itemA.price.toLocaleString()} ر.س` : '—'}
-                        {itemA.price && itemB.price && itemA.price < itemB.price && <Trophy size={12} className="inline mr-1 text-green-400" />}
-                      </span>
-                    </td>
-                    <td className="p-3 text-center">
-                      <span className={`text-sm font-display font-bold ${itemA.price && itemB.price && itemB.price <= itemA.price ? 'text-green-400' : 'text-gb-text'}`}>
-                        {itemB.price ? `${itemB.price.toLocaleString()} ر.س` : '—'}
-                        {itemA.price && itemB.price && itemB.price < itemA.price && <Trophy size={12} className="inline mr-1 text-green-400" />}
-                      </span>
-                    </td>
-                  </tr>
-                  {/* Score */}
-                  {(itemA.score || itemB.score) && (
-                    <tr className="border-b border-gb-border/50">
-                      <td className="p-3 text-xs text-gb-muted font-medium">تقييم الأداء</td>
-                      <td className="p-3 text-center">
-                        <span className={`text-sm font-display font-bold ${(itemA.score || 0) >= (itemB.score || 0) ? 'text-gb-primary' : 'text-gb-muted'}`}>
-                          {itemA.score || '—'}
-                          {itemA.score && itemB.score && itemA.score > itemB.score && <Trophy size={12} className="inline mr-1 text-gb-primary" />}
-                        </span>
-                      </td>
-                      <td className="p-3 text-center">
-                        <span className={`text-sm font-display font-bold ${(itemB.score || 0) >= (itemA.score || 0) ? 'text-gb-primary' : 'text-gb-muted'}`}>
-                          {itemB.score || '—'}
-                          {itemA.score && itemB.score && itemB.score > itemA.score && <Trophy size={12} className="inline mr-1 text-gb-primary" />}
-                        </span>
-                      </td>
-                    </tr>
-                  )}
-                  {/* Spec rows */}
-                  {fields.map(field => (
-                    <tr key={field.key} className="border-b border-gb-border/50 hover:bg-gb-surface/20 transition-colors">
-                      <td className="p-3 text-xs text-gb-muted font-medium">{field.label}</td>
-                      <td className="p-3 text-center text-sm text-gb-text">{getSpecValue(itemA, field)}</td>
-                      <td className="p-3 text-center text-sm text-gb-text">{getSpecValue(itemB, field)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        {/* Popular comparisons — shown when no parts picked */}
+        {!itemA && !itemB && popularList.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm font-bold text-white/40 mb-3">مقارنات شائعة</h3>
+            <div className="flex flex-wrap gap-2">
+              {popularList.map(([nA, nB], i) => (
+                <button key={i} onClick={() => loadPopular(nA, nB)}
+                  className="text-xs bg-[#0f1019] border border-[#1a1a2e] hover:border-[#00e5ff]/30 px-3 py-2 rounded-lg text-white/50 hover:text-white transition-all">
+                  {nA} <span className="text-[#00e5ff] mx-1">vs</span> {nB}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* Worth it analysis */}
-        {worthIt && (() => {
-          const colorMap = { green: { bg: 'bg-green-500/5', border: 'border-green-500/20', text: 'text-green-400' }, yellow: { bg: 'bg-yellow-500/5', border: 'border-yellow-500/20', text: 'text-yellow-400' }, red: { bg: 'bg-red-500/5', border: 'border-red-500/20', text: 'text-red-400' } };
-          const c = colorMap[worthIt.color] || colorMap.yellow;
-          return (
-            <div className={`rounded-2xl ${c.bg} border ${c.border} p-4 sm:p-5 animate-slide-up`}>
-              <h3 className="font-bold text-sm text-gb-text mb-3 flex items-center gap-2">
-                <TrendingUp size={18} className="text-gb-primary" />
-                هل تستحق فرق السعر؟
-              </h3>
-              <div className={`text-center p-4 rounded-xl ${c.bg} border ${c.border} mb-3`}>
-                <p className={`font-bold text-sm ${c.text}`}>{worthIt.verdict}</p>
-                <p className="text-xs text-gb-muted mt-1">أداء +{worthIt.perfDiff}% | سعر +{worthIt.priceDiff}%</p>
+        {/* Comparison results */}
+        {itemA && itemB && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="bg-[#0f1019] border border-[#1a1a2e] rounded-2xl p-4 sm:p-6 mb-4">
+              {/* Header: names */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="text-sm font-bold text-[#00e5ff] text-center flex-1 truncate px-1">{itemA.brand} {itemA.name?.replace(itemA.brand, '').trim().split(' ').slice(0, 4).join(' ')}</div>
+                <div className="text-xs text-white/20 mx-2 shrink-0 font-bold">VS</div>
+                <div className="text-sm font-bold text-[#00e676] text-center flex-1 truncate px-1">{itemB.brand} {itemB.name?.replace(itemB.brand, '').trim().split(' ').slice(0, 4).join(' ')}</div>
               </div>
-              <div className="text-xs text-gb-muted space-y-1">
-                <p className="font-bold mb-1">💡 متى تستحق الأغلى؟</p>
-                {worthIt.perfDiff > 20 ? <p>• لو هدفك 1440p أو 4K — نعم تستحق</p> : <p>• لو تلعب 1080p فقط — وفّر فلوسك</p>}
-                {worthIt.priceDiff > 30 && <p>• فرق السعر كبير — فكر مرتين</p>}
+
+              {/* Score bar (GPU/CPU) */}
+              {(itemA.score || itemB.score) && (
+                <CompareBar label="تقييم الأداء" valueA={itemA.score} valueB={itemB.score} unit=" نقطة" />
+              )}
+
+              {/* Category-specific specs */}
+              {category === 'gpu' && (
+                <>
+                  <CompareBar label="ذاكرة الفيديو (VRAM)" valueA={itemA.vram} valueB={itemB.vram} unit=" GB" />
+                  <CompareBar label="استهلاك الطاقة (TDP)" valueA={itemA.tdp} valueB={itemB.tdp} unit="W" lowerIsBetter />
+                </>
+              )}
+
+              {category === 'cpu' && (
+                <>
+                  <CompareBar label="عدد الأنوية" valueA={itemA.cores} valueB={itemB.cores} unit="" />
+                  <CompareBar label="عدد الخيوط" valueA={itemA.threads} valueB={itemB.threads} unit="" />
+                  <CompareBar label="سرعة التعزيز" valueA={itemA.boostClock} valueB={itemB.boostClock} unit=" GHz" />
+                  <CompareBar label="السرعة الأساسية" valueA={itemA.baseClock} valueB={itemB.baseClock} unit=" GHz" />
+                  <CompareBar label="استهلاك الطاقة (TDP)" valueA={itemA.tdp} valueB={itemB.tdp} unit="W" lowerIsBetter />
+                  <SpecRow label="السوكت" valueA={itemA.socket} valueB={itemB.socket} />
+                </>
+              )}
+
+              {category === 'motherboard' && (
+                <>
+                  <SpecRow label="الشيبست" valueA={itemA.chipset} valueB={itemB.chipset} />
+                  <SpecRow label="السوكت" valueA={itemA.socket} valueB={itemB.socket} />
+                  <SpecRow label="الحجم" valueA={itemA.formFactor} valueB={itemB.formFactor} />
+                  <SpecRow label="نوع الرام" valueA={itemA.ramType} valueB={itemB.ramType} />
+                  <CompareBar label="منافذ رام" valueA={itemA.ramSlots} valueB={itemB.ramSlots} unit="" />
+                  <CompareBar label="أقصى رام" valueA={itemA.maxRam} valueB={itemB.maxRam} unit=" GB" />
+                  <CompareBar label="منافذ M.2" valueA={itemA.m2Slots} valueB={itemB.m2Slots} unit="" />
+                  <SpecRow label="واي فاي" valueA={itemA.wifi ? 'نعم' : 'لا'} valueB={itemB.wifi ? 'نعم' : 'لا'} />
+                </>
+              )}
+
+              {category === 'ram' && (
+                <>
+                  <CompareBar label="السعة" valueA={itemA.size} valueB={itemB.size} unit=" GB" />
+                  <CompareBar label="السرعة" valueA={itemA.speed} valueB={itemB.speed} unit=" MHz" />
+                  <SpecRow label="النوع" valueA={itemA.type} valueB={itemB.type} />
+                  <SpecRow label="التأخير" valueA={itemA.latency} valueB={itemB.latency} />
+                  <SpecRow label="التوزيع" valueA={itemA.modules} valueB={itemB.modules} />
+                </>
+              )}
+
+              {category === 'ssd' && (
+                <>
+                  <SpecRow label="السعة" valueA={itemA.capacity} valueB={itemB.capacity} />
+                  <SpecRow label="الواجهة" valueA={itemA.interface} valueB={itemB.interface} />
+                  <CompareBar label="سرعة القراءة" valueA={itemA.read} valueB={itemB.read} unit=" MB/s" />
+                  <CompareBar label="سرعة الكتابة" valueA={itemA.write} valueB={itemB.write} unit=" MB/s" />
+                </>
+              )}
+
+              {category === 'psu' && (
+                <>
+                  <CompareBar label="القدرة" valueA={itemA.watt} valueB={itemB.watt} unit="W" />
+                  <SpecRow label="الكفاءة" valueA={itemA.rating} valueB={itemB.rating} />
+                  <SpecRow label="مودولار" valueA={itemA.modular} valueB={itemB.modular} />
+                </>
+              )}
+
+              {category === 'cooler' && (
+                <>
+                  <CompareBar label="قدرة التبريد" valueA={itemA.tdpMax} valueB={itemB.tdpMax} unit="W" />
+                  <SpecRow label="النوع" valueA={itemA.type} valueB={itemB.type} />
+                  <SpecRow label="الحجم" valueA={itemA.size} valueB={itemB.size} />
+                </>
+              )}
+
+              {category === 'case' && (
+                <>
+                  <SpecRow label="الحجم" valueA={itemA.formFactor} valueB={itemB.formFactor} />
+                  <CompareBar label="أقصى طول كرت" valueA={itemA.maxGPU} valueB={itemB.maxGPU} unit=" mm" />
+                </>
+              )}
+
+              {/* Verdict */}
+              <div className="bg-[#060610] border border-[#1a1a2e] rounded-xl p-4 mt-4 text-center">
+                <div className="text-[10px] text-white/30 mb-1.5">الحكم</div>
+                <p className="text-sm text-white/60 leading-relaxed">
+                  {getVerdict(itemA, itemB, category)}
+                </p>
               </div>
             </div>
-          );
-        })()}
+          </motion.div>
+        )}
 
         {/* Empty state */}
         {(!itemA || !itemB) && (
@@ -308,7 +437,7 @@ export default function ComparePage() {
   );
 }
 
-function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown, filtered, onSelect, onAddCustom, query, selected }) {
+function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown, filtered, onSelect, onAddCustom, query, selected, color }) {
   return (
     <div className="relative">
       <div className="relative">
@@ -334,7 +463,6 @@ function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown
                 <p className="text-xs font-medium text-gb-text truncate">{c.brand} {c.name}</p>
                 {c.score && <span className="text-[9px] text-gb-primary font-bold">{c.score} نقطة</span>}
               </div>
-              <span className="text-xs font-bold text-gb-primary whitespace-nowrap mr-2">{c.price?.toLocaleString()}</span>
             </div>
           )) : query.trim() ? (
             <div onMouseDown={onAddCustom} className="px-3 py-3 text-center hover:bg-gb-primary/5 cursor-pointer">
@@ -344,8 +472,8 @@ function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown
         </div>
       )}
       {selected && (
-        <div className="mt-1 text-[10px] text-gb-primary font-bold truncate">
-          ✓ {selected.brand} {selected.name} {selected.price ? `— ${selected.price.toLocaleString()} ر.س` : ''}
+        <div className={`mt-1 text-[10px] ${color || 'text-gb-primary'} font-bold truncate`}>
+          ✓ {selected.brand} {selected.name}
         </div>
       )}
     </div>
