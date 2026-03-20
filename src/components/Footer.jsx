@@ -14,9 +14,6 @@ export default function Footer() {
                 <span className="text-gb-primary">PC</span><span className="text-gb-text">BUX</span>
               </span>
             </div>
-            <p className="text-sm text-white/40 leading-relaxed mb-4">
-              أول منصة سعودية متخصصة في تجميع كمبيوترات القيمنق. نساعدك تختار أفضل القطع المتوافقة بأحسن سعر من أمازون السعودية — مع فحص توافق ذكي، تحليل أداء، وتوقع FPS لألعابك المفضلة.
-            </p>
             <p className="text-xs text-white/25">
               مشروع سعودي من شخص شغوف يهدف إلى تبسيط عالم التجميعات للجميع.
             </p>
