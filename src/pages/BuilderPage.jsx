@@ -6,6 +6,7 @@ import { analyzeBottleneck } from '../utils/engine';
 import { useBuild } from '../hooks/BuildContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import PriceChart from '../components/PriceChart';
+import StickySummaryBar from '../components/StickySummaryBar';
 import ProductImage from '../components/ProductImage';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
@@ -64,7 +65,6 @@ export default function BuilderPage() {
   const [filterTier, setFilterTier] = useState('all');
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [stickyDropdown, setStickyDropdown] = useState(false);
   const [buyAllBlocked, setBuyAllBlocked] = useState(false);
 
   // Live prices from Amazon Creators API
@@ -720,68 +720,16 @@ export default function BuilderPage() {
 
       </div>
 
-      {/* ========== STICKY MOBILE BOTTOM BAR ========== */}
-      {selectedCount >= 1 && (
-        <div className="fixed bottom-14 left-0 right-0 z-40 md:hidden">
-          {/* Expandable dropdown */}
-          <AnimatePresence>
-            {stickyDropdown && (
-              <>
-                <motion.div
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-[-1]"
-                  onClick={() => setStickyDropdown(false)}
-                />
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 10 }}
-                  transition={{ duration: 0.2 }}
-                  className="mx-3 mb-2 bg-[#0a0a12]/95 backdrop-blur-xl border border-[#00e5ff]/20 rounded-xl shadow-2xl overflow-hidden max-h-[60vh] overflow-y-auto"
-                >
-                  <div className="p-3 space-y-1.5">
-                    {Object.entries(components).filter(([, v]) => v).map(([cat, comp]) => (
-                      <div key={cat} className="flex items-center gap-2 px-2 py-1.5">
-                        <ProductImage component={comp} size="sm" className="w-8 h-8 rounded-lg shrink-0 p-0.5" />
-                        <span className="text-[11px] text-white/70 truncate flex-1">{comp.name}</span>
-                        <span className="text-[10px] font-mono font-bold text-[#00e676] shrink-0">~{comp.price?.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-[#1a1a2e] p-3">
-                    <button onClick={() => { handleBuyAll(); setStickyDropdown(false); }}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-black font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.97] transition-all">
-                      <ShoppingCart size={16} /> اشتر الكل من أمازون
-                    </button>
-                    <div className="flex items-center justify-between mt-2 px-1">
-                      <span className="text-[10px] text-white/30">{selectedCount} قطع</span>
-                      <span className="text-sm font-display font-bold text-[#00e676]">~{liveTotalPrice.toLocaleString()} ر.س</span>
-                    </div>
-                  </div>
-                </motion.div>
-              </>
-            )}
-          </AnimatePresence>
-          {/* Bar */}
-          <div
-            onClick={() => setStickyDropdown(!stickyDropdown)}
-            className="bg-[#0f1019]/95 backdrop-blur border-t border-[#1a1a2e] px-4 py-2 flex items-center justify-between text-sm cursor-pointer active:bg-[#1a1a2e]/50 transition-colors"
-          >
-            <span className="text-[#00e676] font-bold font-mono">~{liveTotalPrice.toLocaleString()} ر.س</span>
-            <div className="flex items-center gap-1">
-              {CATEGORIES.map(({ key }) => (
-                <div key={key} className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                  components[key] ? 'bg-[#00e5ff] shadow-[0_0_6px_rgba(0,229,255,0.5)]' : 'bg-white/10'
-                }`} />
-              ))}
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-white/40">⚡ {wattage}W</span>
-              <ChevronDown size={14} className={`text-white/30 transition-transform ${stickyDropdown ? 'rotate-180' : ''}`} />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ========== STICKY MOBILE SUMMARY BAR ========== */}
+      <StickySummaryBar
+        components={components}
+        liveTotalPrice={liveTotalPrice}
+        selectedCount={selectedCount}
+        wattage={wattage}
+        handleBuyAll={handleBuyAll}
+        buyAllBlocked={buyAllBlocked}
+        getPrice={getPrice}
+      />
 
       {/* ========== FULL-SCREEN PICKER ========== */}
       <AnimatePresence>
