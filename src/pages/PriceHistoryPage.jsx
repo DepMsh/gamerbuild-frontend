@@ -127,7 +127,7 @@ function PriceCard({ component, stats, expanded, onToggle }) {
         {/* Header */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="min-w-0">
-            <p className="text-[10px] text-gb-muted mb-0.5">{component.brand}</p>
+            <p className="text-xs text-gb-muted mb-0.5">{component.brand}</p>
             <h3 className="text-xs sm:text-sm font-bold text-gb-text leading-snug truncate">{component.name}</h3>
           </div>
           <TrendIcon size={16} className={`shrink-0 ${trendColor}`} />
@@ -142,24 +142,24 @@ function PriceCard({ component, stats, expanded, onToggle }) {
         <div className="flex items-center justify-between mb-2">
           <div>
             <span className="text-sm sm:text-base font-display font-bold text-gb-primary">{stats.current.toLocaleString()}</span>
-            <span className="text-[10px] text-gb-muted mr-1">ر.س</span>
+            <span className="text-xs text-gb-muted mr-1">ر.س</span>
           </div>
           <div className="text-left">
-            <span className="text-[10px] text-gb-muted">أقل: </span>
-            <span className="text-[10px] font-bold text-green-400">{stats.lowest.toLocaleString()}</span>
+            <span className="text-xs text-gb-muted">أقل: </span>
+            <span className="text-xs font-bold text-green-400">{stats.lowest.toLocaleString()}</span>
           </div>
         </div>
 
         {/* Badges */}
         <div className="flex items-center gap-1.5 mb-3">
           {stats.isNearLowest && (
-            <span className="px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[9px] font-bold">أقل سعر!</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold">أقل سعر!</span>
           )}
           {stats.isNearHighest && (
-            <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[9px] font-bold">سعر مرتفع</span>
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold">سعر مرتفع</span>
           )}
           {savings > 0 && (
-            <span className="px-1.5 py-0.5 rounded-full bg-gb-surface text-gb-muted text-[9px]">
+            <span className="px-1.5 py-0.5 rounded-full bg-gb-surface text-gb-muted text-xs">
               وفّر {savingsPercent}% من الأعلى
             </span>
           )}
@@ -171,7 +171,7 @@ function PriceCard({ component, stats, expanded, onToggle }) {
           target="_blank"
           rel="noreferrer"
           onClick={() => track.clickAmazon(component.name, component.price)}
-          className="flex items-center justify-center gap-1 w-full py-2 rounded-lg bg-[#ff9900]/10 border border-[#ff9900]/20 text-[#ff9900] text-[10px] sm:text-xs font-bold hover:bg-[#ff9900]/20 transition-all"
+          className="flex items-center justify-center gap-1 w-full py-2 rounded-lg bg-[#ff9900]/10 border border-[#ff9900]/20 text-[#ff9900] text-xs sm:text-xs font-bold hover:bg-[#ff9900]/20 transition-all"
         >
           اشتري من أمازون <ExternalLink size={10} />
         </a>

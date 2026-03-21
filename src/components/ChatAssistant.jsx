@@ -69,7 +69,7 @@ export default function ChatAssistant() {
               </div>
               <div>
                 <p className="text-sm font-bold text-gb-text">المساعد الذكي</p>
-                <p className="text-[10px] text-gb-muted">أونلاين</p>
+                <p className="text-xs text-gb-muted">أونلاين</p>
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="p-2 text-gb-muted hover:text-gb-accent transition-colors">
@@ -83,7 +83,7 @@ export default function ChatAssistant() {
               <button
                 key={q}
                 onClick={() => send(q)}
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gb-surface border border-gb-border text-[11px] text-gb-muted hover:text-gb-primary hover:border-gb-primary/20 transition-all whitespace-nowrap shrink-0"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-gb-surface border border-gb-border text-xs text-gb-muted hover:text-gb-primary hover:border-gb-primary/20 transition-all whitespace-nowrap shrink-0"
               >
                 <span>{icon}</span> {q}
               </button>

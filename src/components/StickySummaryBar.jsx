@@ -24,8 +24,8 @@ export default function StickySummaryBar({ components, liveTotalPrice, selectedC
                 return (
                   <div key={cat} className="flex items-center gap-2 px-2 py-1.5">
                     <ProductImage component={comp} size="sm" className="w-8 h-8 rounded-lg shrink-0 p-0.5" />
-                    <span className="text-[11px] text-white/70 truncate flex-1">{comp.name}</span>
-                    <span className={`text-[10px] font-mono font-bold shrink-0 ${fp.isLive ? 'text-[#00e676]' : 'text-[#ffd740]'}`}>
+                    <span className="text-xs text-white/70 truncate flex-1">{comp.name}</span>
+                    <span className={`text-xs font-mono font-bold shrink-0 ${fp.isLive ? 'text-[#00e676]' : 'text-[#ffd740]'}`}>
                       {fp.isLive ? '' : '~'}{fp.value?.toLocaleString()}
                     </span>
                   </div>
@@ -63,17 +63,17 @@ export default function StickySummaryBar({ components, liveTotalPrice, selectedC
             {/* Left: Parts count + Price */}
             <div className="flex-1 cursor-pointer" onClick={() => setExpanded(!expanded)}>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-white/40">{selectedCount}/8 قطع</span>
-                <span className="text-white/20">•</span>
-                <span className="text-[10px] text-white/40">
+                <span className="text-xs text-gray-400">{selectedCount}/8 قطع</span>
+                <span className="text-gray-500">•</span>
+                <span className="text-xs text-gray-400">
                   <Zap size={10} className="inline -mt-px" /> {wattage}W
                 </span>
-                <ChevronUp size={12} className={`text-white/30 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                <ChevronUp size={12} className={`text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`} />
               </div>
               <div className="flex items-baseline gap-1">
                 <span className="text-lg font-bold font-mono text-[#00e676]">~{liveTotalPrice.toLocaleString()}</span>
-                <span className="text-[10px] text-white/40">ر.س</span>
-                <span className="text-[9px] text-amber-400 mr-1 bg-amber-500/15 px-1.5 py-0.5 rounded-full">تقريبي</span>
+                <span className="text-xs text-gray-400">ر.س</span>
+                <span className="text-xs text-amber-400 mr-1 bg-amber-500/15 px-1.5 py-0.5 rounded-full">تقريبي</span>
               </div>
             </div>
 

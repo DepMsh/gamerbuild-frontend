@@ -14,18 +14,18 @@ export default function Footer() {
                 <span className="text-gb-primary">PC</span><span className="text-gb-text">BUX</span>
               </span>
             </div>
-            <p className="text-xs text-white/25">
+            <p className="text-xs text-gray-500">
               مشروع سعودي من شخص شغوف يهدف إلى تبسيط عالم التجميعات للجميع.
             </p>
           </div>
 
           {/* Column 2: Links */}
           <div>
-            <h4 className="text-sm font-bold text-white/60 mb-3">روابط سريعة</h4>
+            <h4 className="text-sm font-bold text-gray-400 mb-3">روابط سريعة</h4>
             <div className="flex flex-col gap-2">
-              <Link to="/builder" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">جمّع جهازك</Link>
-              <Link to="/compare" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">قارن القطع</Link>
-              <Link to="/my-builds" className="text-sm text-white/40 hover:text-[#00e5ff] transition-colors">تجميعاتي</Link>
+              <Link to="/builder" className="text-sm text-gray-400 hover:text-[#00e5ff] transition-colors">جمّع جهازك</Link>
+              <Link to="/compare" className="text-sm text-gray-400 hover:text-[#00e5ff] transition-colors">قارن القطع</Link>
+              <Link to="/my-builds" className="text-sm text-gray-400 hover:text-[#00e5ff] transition-colors">تجميعاتي</Link>
             </div>
           </div>
         </div>
@@ -36,17 +36,17 @@ export default function Footer() {
           {/* Social links */}
           <div className="flex items-center gap-4">
             <a href="https://www.amazon.sa/?tag=meshal039-21" target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-2 text-sm text-white/40 hover:text-[#00e676] transition-colors">
+               className="flex items-center gap-2 text-sm text-gray-400 hover:text-[#00e676] transition-colors">
               🛒 Amazon.sa
             </a>
           </div>
 
           {/* Copyright + Disclaimer */}
           <div className="text-center sm:text-left">
-            <div className="text-xs text-white/20">
+            <div className="text-xs text-gray-500">
               © 2026 PCBux — صنع بـ ❤️ في السعودية 🇸🇦
             </div>
-            <div className="text-[10px] text-white/15 mt-1">
+            <div className="text-xs text-gray-500 mt-1">
               الأسعار تقريبية. الأسعار الفعلية والتوفر من أمازون السعودية.
             </div>
           </div>

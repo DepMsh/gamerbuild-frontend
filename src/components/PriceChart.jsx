@@ -64,16 +64,16 @@ export default function PriceChart({ componentId, compact = false }) {
       {/* Badges */}
       <div className="flex items-center gap-2 mb-3">
         {stats.isNearLowest && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-[10px] font-bold">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold">
             <ArrowDown size={10} /> أقل سعر!
           </span>
         )}
         {stats.isNearHighest && (
-          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold">
+          <span className="flex items-center gap-1 px-2 py-1 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold">
             <ArrowUp size={10} /> سعر مرتفع
           </span>
         )}
-        <span className={`flex items-center gap-1 px-2 py-1 rounded-full bg-gb-surface text-[10px] font-bold ${trendColor}`}>
+        <span className={`flex items-center gap-1 px-2 py-1 rounded-full bg-gb-surface text-xs font-bold ${trendColor}`}>
           <TrendIcon size={10} /> {trendLabel}
         </span>
       </div>
@@ -155,9 +155,9 @@ export default function PriceChart({ componentId, compact = false }) {
 function StatBox({ label, value, sub, color = 'text-gb-text' }) {
   return (
     <div className="bg-gb-surface/50 rounded-lg p-2 text-center">
-      <p className="text-[10px] text-gb-muted mb-0.5">{label}</p>
+      <p className="text-xs text-gb-muted mb-0.5">{label}</p>
       <p className={`text-xs font-display font-bold ${color}`}>{value}</p>
-      {sub && <p className="text-[9px] text-gb-muted mt-0.5">{sub}</p>}
+      {sub && <p className="text-xs text-gb-muted mt-0.5">{sub}</p>}
     </div>
   );
 }

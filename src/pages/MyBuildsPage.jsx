@@ -43,7 +43,7 @@ export default function MyBuildsPage() {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-bold text-white text-sm">{b.name}</h3>
-                    <p className="text-[10px] text-white/30 mt-0.5">{b.date}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{b.date}</p>
                   </div>
                   <span className="text-[#00e676] font-bold font-mono text-sm">
                     ~{b.totalPrice?.toLocaleString()} ر.س
@@ -52,12 +52,12 @@ export default function MyBuildsPage() {
 
                 <div className="flex flex-wrap gap-1 mb-3">
                   {b.parts?.slice(0, 4).map((p, i) => (
-                    <span key={i} className="text-[10px] bg-white/5 text-white/50 px-2 py-0.5 rounded-full truncate max-w-[140px]">
+                    <span key={i} className="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded-full truncate max-w-[140px]">
                       {p.name}
                     </span>
                   ))}
                   {b.parts?.length > 4 && (
-                    <span className="text-[10px] text-white/30">+{b.parts.length - 4}</span>
+                    <span className="text-xs text-gray-500">+{b.parts.length - 4}</span>
                   )}
                 </div>
 
@@ -67,7 +67,7 @@ export default function MyBuildsPage() {
                     🔧 فتح وتعديل
                   </Link>
                   <button onClick={() => handleCopyLink(b.encoded)}
-                    className="flex-1 text-center bg-white/5 text-white/50 rounded-lg py-2 text-xs font-bold">
+                    className="flex-1 text-center bg-white/5 text-gray-400 rounded-lg py-2 text-xs font-bold">
                     🔗 نسخ الرابط
                   </button>
                   <button onClick={() => deleteConfirm === b.id ? handleDelete(b.id) : setDeleteConfirm(b.id)}

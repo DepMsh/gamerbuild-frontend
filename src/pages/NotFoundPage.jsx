@@ -12,7 +12,7 @@ export default function NotFoundPage() {
       <h1 className="text-2xl font-bold text-white mb-2">
         الصفحة مو موجودة
       </h1>
-      <p className="text-white/40 mb-8 max-w-md">
+      <p className="text-gray-400 mb-8 max-w-md">
         يمكن الرابط غلط أو الصفحة انحذفت. لا تقلق — جمّع جهازك من هنا!
       </p>
       <div className="flex gap-3">

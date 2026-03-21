@@ -62,7 +62,7 @@ export default function ComponentCard({
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
         </div>
         <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()} ر.س</span>
-        <span className="bg-amber-500/20 text-amber-400 text-[8px] px-1 py-0.5 rounded-full font-bold">تقريبي</span>
+        <span className="bg-amber-500/20 text-amber-400 text-xs px-1 py-0.5 rounded-full font-bold">تقريبي</span>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function ComponentCard({
 
       {/* Tier badge */}
       {component.tier && (
-        <div className={`absolute top-2 left-2 sm:top-3 sm:left-3 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-[8px] sm:text-[10px] font-bold border z-10 ${tierClass}`}>
+        <div className={`absolute top-2 left-2 sm:top-3 sm:left-3 px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs sm:text-xs font-bold border z-10 ${tierClass}`}>
           {tierLabels[component.tier]}
         </div>
       )}
@@ -83,15 +83,15 @@ export default function ComponentCard({
         <ProductImage component={component} size="lg" className="h-24 sm:h-40 w-full rounded-t-xl sm:rounded-t-2xl p-3 sm:p-4" />
         {component.score && (
           <div className="absolute bottom-1.5 right-1.5 sm:bottom-3 sm:right-3 w-8 h-8 sm:w-11 sm:h-11 rounded-full bg-gb-bg/80 backdrop-blur border border-gb-border flex items-center justify-center">
-            <span className="text-[10px] sm:text-sm font-display font-bold text-cyan-400">{component.score}</span>
+            <span className="text-xs sm:text-sm font-display font-bold text-cyan-400">{component.score}</span>
           </div>
         )}
       </div>
 
       {/* Content */}
       <div className="p-3 sm:p-4">
-        <p className="text-[10px] sm:text-xs text-gb-muted mb-0.5 sm:mb-1 font-medium truncate">{component.name.startsWith(component.brand) ? '' : `${component.brand} · `}{typeLabels[component.type]}</p>
-        <h3 className="text-[11px] sm:text-sm font-bold text-gb-text leading-snug mb-1.5 sm:mb-3 line-clamp-2">{getDisplayName(component)}</h3>
+        <p className="text-xs sm:text-xs text-gb-muted mb-0.5 sm:mb-1 font-medium truncate">{component.name.startsWith(component.brand) ? '' : `${component.brand} · `}{typeLabels[component.type]}</p>
+        <h3 className="text-xs sm:text-sm font-bold text-gb-text leading-snug mb-1.5 sm:mb-3 line-clamp-2">{getDisplayName(component)}</h3>
 
         {/* Key specs */}
         {(() => {
@@ -112,7 +112,7 @@ export default function ComponentCard({
           return specs.length > 0 ? (
             <div className="hidden sm:flex flex-wrap gap-1.5 mb-4">
               {specs.slice(0, 3).map((s, i) => (
-                <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-gb-surface text-gb-muted border border-gb-border">{s}</span>
+                <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-gb-surface text-gb-muted border border-gb-border">{s}</span>
               ))}
             </div>
           ) : null;
@@ -121,8 +121,8 @@ export default function ComponentCard({
         {/* Price — GREEN + تقريبي badge */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()}<span className="text-[9px] sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
-            <span className="bg-amber-500/20 text-amber-400 text-[8px] sm:text-[10px] px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
+            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()}<span className="text-xs sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
+            <span className="bg-amber-500/20 text-amber-400 text-xs sm:text-xs px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -154,7 +154,7 @@ export default function ComponentCard({
           target="_blank"
           rel="noreferrer"
           onClick={(e) => { e.stopPropagation(); track.clickAmazon(component.name, component.price); }}
-          className="mt-2.5 flex items-center justify-center gap-1.5 w-full min-h-[40px] sm:min-h-[44px] py-2 sm:py-2.5 rounded-xl bg-gb-primary text-gb-bg text-[11px] sm:text-sm font-bold hover:shadow-[0_0_16px_rgba(0,229,255,0.3)] transition-all active:scale-[0.97]"
+          className="mt-2.5 flex items-center justify-center gap-1.5 w-full min-h-[40px] sm:min-h-[44px] py-2 sm:py-2.5 rounded-xl bg-gb-primary text-gb-bg text-xs sm:text-sm font-bold hover:shadow-[0_0_16px_rgba(0,229,255,0.3)] transition-all active:scale-[0.97]"
         >
           🛒 شيك السعر على أمازون
         </a>
@@ -166,9 +166,9 @@ export default function ComponentCard({
 function PriceTrend({ componentId }) {
   const stats = getPriceStats(componentId);
   if (!stats) return null;
-  if (stats.isNearLowest) return <span className="text-[10px] text-green-400 font-bold whitespace-nowrap">↓ أقل سعر</span>;
-  if (stats.isNearHighest) return <span className="text-[10px] text-red-400 font-bold whitespace-nowrap">↑ سعر مرتفع</span>;
-  return <span className="text-[10px] text-gb-muted whitespace-nowrap">→ مستقر</span>;
+  if (stats.isNearLowest) return <span className="text-xs text-green-400 font-bold whitespace-nowrap">↓ أقل سعر</span>;
+  if (stats.isNearHighest) return <span className="text-xs text-red-400 font-bold whitespace-nowrap">↑ سعر مرتفع</span>;
+  return <span className="text-xs text-gb-muted whitespace-nowrap">→ مستقر</span>;
 }
 
 export { typeIcons, typeLabels, tierColors, tierLabels };

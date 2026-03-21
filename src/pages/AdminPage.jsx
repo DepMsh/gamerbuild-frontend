@@ -90,46 +90,46 @@ export default function AdminPage() {
 
         {/* Today's highlight */}
         <div className="bg-gradient-to-b from-[#00e5ff]/10 to-transparent border border-[#00e5ff]/20 rounded-2xl p-5 mb-6">
-          <div className="text-sm text-white/50 mb-2">اليوم {today}</div>
+          <div className="text-sm text-gray-400 mb-2">اليوم {today}</div>
           <div className="grid grid-cols-2 gap-3">
             <div className="text-center">
               <div className="text-3xl font-bold font-mono text-[#00e676]">{todayData.click_amazon || 0}</div>
-              <div className="text-[10px] text-white/40">ضغطات أمازون</div>
+              <div className="text-xs text-gray-400">ضغطات أمازون</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold font-mono text-[#00e5ff]">{todayData.complete_build || 0}</div>
-              <div className="text-[10px] text-white/40">تجميعات مكتملة</div>
+              <div className="text-xs text-gray-400">تجميعات مكتملة</div>
             </div>
           </div>
         </div>
 
         {/* All-time stats */}
-        <h2 className="text-sm font-bold text-white/50 mb-3">اجمالي (آخر 30 يوم)</h2>
+        <h2 className="text-sm font-bold text-gray-400 mb-3">اجمالي (آخر 30 يوم)</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
           {statCards.map(stat => (
             <div key={stat.key} className={`bg-[#0f1019] border border-[#1a1a2e] rounded-xl p-4 ${stat.important ? 'col-span-2 sm:col-span-1' : ''}`}>
               <div className="text-2xl font-bold font-mono" style={{ color: stat.color }}>
                 {totals[stat.key] || 0}
               </div>
-              <div className="text-[11px] text-white/40 mt-1">{stat.label}</div>
+              <div className="text-xs text-gray-400 mt-1">{stat.label}</div>
             </div>
           ))}
         </div>
 
         {/* Daily breakdown */}
-        <h2 className="text-sm font-bold text-white/50 mb-3">يوميا</h2>
+        <h2 className="text-sm font-bold text-gray-400 mb-3">يوميا</h2>
         <div className="space-y-2">
           {dates.slice(0, 14).map(date => (
             <div key={date} className="bg-[#0f1019] border border-[#1a1a2e] rounded-xl p-3">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-white/50">{date}</span>
+                <span className="text-xs text-gray-400">{date}</span>
                 <span className="text-xs text-[#00e676] font-mono font-bold">
                   {data[date].click_amazon || 0} clicks
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(data[date]).map(([event, count]) => (
-                  <span key={event} className="text-[10px] bg-white/5 text-white/40 px-2 py-0.5 rounded-full">
+                  <span key={event} className="text-xs bg-white/5 text-gray-400 px-2 py-0.5 rounded-full">
                     {event}: {count}
                   </span>
                 ))}
@@ -139,7 +139,7 @@ export default function AdminPage() {
         </div>
 
         {dates.length === 0 && (
-          <div className="text-center py-16 text-white/30">
+          <div className="text-center py-16 text-gray-500">
             <div className="text-3xl mb-3">---</div>
             <p>ما فيه بيانات بعد</p>
           </div>

@@ -74,7 +74,7 @@ export default function HomePage() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/[0.04] backdrop-blur-xl border border-white/[0.06] mb-6">
             <Sparkles size={12} className="text-gb-primary" />
-            <span className="text-[11px] text-gb-muted">أول منصة سعودية لتجميع PC القيمنق</span>
+            <span className="text-xs text-gb-muted">أول منصة سعودية لتجميع PC القيمنق</span>
           </div>
 
           <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5">
@@ -108,17 +108,17 @@ export default function HomePage() {
         <div className="max-w-md lg:max-w-3xl mx-auto flex items-center justify-center gap-10 sm:gap-16" ref={partsRef}>
           <div className="text-center">
             <span className="text-3xl sm:text-4xl font-display font-black text-white block">{partsCount.toLocaleString()}</span>
-            <span className="text-xs text-white/40 mt-1">قطعة</span>
+            <span className="text-xs text-gray-400 mt-1">قطعة</span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center" ref={gamesRef}>
             <span className="text-3xl sm:text-4xl font-display font-black text-white block">{gamesCount}</span>
-            <span className="text-xs text-white/40 mt-1">لعبة</span>
+            <span className="text-xs text-gray-400 mt-1">لعبة</span>
           </div>
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="text-2xl sm:text-3xl font-display font-black text-[#ff9900] block">Amazon</span>
-            <span className="text-xs text-white/40 mt-1">أسعار حية</span>
+            <span className="text-xs text-gray-400 mt-1">أسعار حية</span>
           </div>
         </div>
       </section>
@@ -138,9 +138,9 @@ export default function HomePage() {
                 >
                   <tier.icon className="w-6 h-6 text-gb-primary mx-auto mb-2" strokeWidth={1.5} />
                   <div className="font-bold text-white text-sm">{tier.label}</div>
-                  <div className="text-[10px] text-white/50 mt-0.5">{tier.desc}</div>
+                  <div className="text-xs text-white/50 mt-0.5">{tier.desc}</div>
                   <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
-                  <div className="text-[10px] text-white/40">ر.س</div>
+                  <div className="text-xs text-gray-400">ر.س</div>
                 </Link>
               </div>
             ))}
@@ -162,8 +162,8 @@ export default function HomePage() {
                 <div className={`w-10 h-10 rounded-xl bg-gb-bg/60 flex items-center justify-center mb-2.5 ${f.iconColor}`}>
                   <f.icon size={18} />
                 </div>
-                <h3 className="text-[13px] sm:text-sm font-bold text-gb-text mb-1">{f.title}</h3>
-                <p className="text-[10px] sm:text-xs text-gb-muted leading-relaxed">{f.desc}</p>
+                <h3 className="text-sm sm:text-sm font-bold text-gb-text mb-1">{f.title}</h3>
+                <p className="text-xs sm:text-xs text-gb-muted leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -188,7 +188,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <p className="text-center text-[10px] text-white/30 mt-6 px-4 leading-relaxed">
+          <p className="text-center text-xs text-gray-500 mt-6 px-4 leading-relaxed">
             💡 الأسعار المعروضة تقريبية. اضغط "شيك السعر" للسعر الفعلي المحدّث من أمازون السعودية.
           </p>
         </div>

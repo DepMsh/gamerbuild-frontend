@@ -65,10 +65,10 @@ function CompareBar({ valueA, valueB, label, unit = '', lowerIsBetter = false })
 
   return (
     <div className="py-3 border-b border-[#1a1a2e]/50 last:border-0">
-      <div className="text-[11px] text-white/30 text-center mb-2">{label}</div>
+      <div className="text-xs text-gray-500 text-center mb-2">{label}</div>
       <div className="flex items-center gap-2 sm:gap-4">
         <div className="w-16 sm:w-20 text-left">
-          <span className={`text-xs font-mono ${aWins ? 'text-[#00e5ff] font-bold' : tie ? 'text-white/50' : 'text-white/30'}`}>
+          <span className={`text-xs font-mono ${aWins ? 'text-[#00e5ff] font-bold' : tie ? 'text-gray-400' : 'text-gray-500'}`}>
             {numA}{unit}
           </span>
         </div>
@@ -82,7 +82,7 @@ function CompareBar({ valueA, valueB, label, unit = '', lowerIsBetter = false })
                style={{ width: `${pctB}%` }} />
         </div>
         <div className="w-16 sm:w-20 text-right">
-          <span className={`text-xs font-mono ${bWins ? 'text-[#00e676] font-bold' : tie ? 'text-white/50' : 'text-white/30'}`}>
+          <span className={`text-xs font-mono ${bWins ? 'text-[#00e676] font-bold' : tie ? 'text-gray-400' : 'text-gray-500'}`}>
             {numB}{unit}
           </span>
         </div>
@@ -97,10 +97,10 @@ function SpecRow({ label, valueA, valueB }) {
   const same = valueA === valueB;
   return (
     <div className="py-3 border-b border-[#1a1a2e]/50 last:border-0">
-      <div className="text-[11px] text-white/30 text-center mb-2">{label}</div>
+      <div className="text-xs text-gray-500 text-center mb-2">{label}</div>
       <div className="flex items-center justify-between px-2">
-        <span className={`text-xs font-medium ${same ? 'text-white/50' : 'text-[#00e5ff]'}`}>{valueA || '—'}</span>
-        <span className={`text-xs font-medium ${same ? 'text-white/50' : 'text-[#00e676]'}`}>{valueB || '—'}</span>
+        <span className={`text-xs font-medium ${same ? 'text-gray-400' : 'text-[#00e5ff]'}`}>{valueA || '—'}</span>
+        <span className={`text-xs font-medium ${same ? 'text-gray-400' : 'text-[#00e676]'}`}>{valueB || '—'}</span>
       </div>
     </div>
   );
@@ -308,11 +308,11 @@ export default function ComparePage() {
         {/* Popular comparisons — shown when no parts picked */}
         {!itemA && !itemB && popularList.length > 0 && (
           <div className="mb-6">
-            <h3 className="text-sm font-bold text-white/40 mb-3">مقارنات شائعة</h3>
+            <h3 className="text-sm font-bold text-gray-400 mb-3">مقارنات شائعة</h3>
             <div className="flex flex-wrap gap-2">
               {popularList.map(([nA, nB], i) => (
                 <button key={i} onClick={() => loadPopular(nA, nB)}
-                  className="text-xs bg-[#0f1019] border border-[#1a1a2e] hover:border-[#00e5ff]/30 px-3 py-2 rounded-lg text-white/50 hover:text-white transition-all">
+                  className="text-xs bg-[#0f1019] border border-[#1a1a2e] hover:border-[#00e5ff]/30 px-3 py-2 rounded-lg text-gray-400 hover:text-white transition-all">
                   {nA} <span className="text-[#00e5ff] mx-1">vs</span> {nB}
                 </button>
               ))}
@@ -331,7 +331,7 @@ export default function ComparePage() {
               {/* Header: names */}
               <div className="flex items-center justify-between mb-6">
                 <div className="text-sm font-bold text-[#00e5ff] text-center flex-1 truncate px-1">{itemA.brand} {itemA.name?.replace(itemA.brand, '').trim().split(' ').slice(0, 4).join(' ')}</div>
-                <div className="text-xs text-white/20 mx-2 shrink-0 font-bold">VS</div>
+                <div className="text-xs text-gray-500 mx-2 shrink-0 font-bold">VS</div>
                 <div className="text-sm font-bold text-[#00e676] text-center flex-1 truncate px-1">{itemB.brand} {itemB.name?.replace(itemB.brand, '').trim().split(' ').slice(0, 4).join(' ')}</div>
               </div>
 
@@ -416,8 +416,8 @@ export default function ComparePage() {
 
               {/* Verdict */}
               <div className="bg-[#060610] border border-[#1a1a2e] rounded-xl p-4 mt-4 text-center">
-                <div className="text-[10px] text-white/30 mb-1.5">الحكم</div>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <div className="text-xs text-gray-500 mb-1.5">الحكم</div>
+                <p className="text-sm text-gray-400 leading-relaxed">
                   {getVerdict(itemA, itemB, category)}
                 </p>
               </div>
@@ -461,7 +461,7 @@ function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown
               className="flex items-center justify-between px-3 py-2.5 hover:bg-gb-primary/5 cursor-pointer border-b border-gb-border/20 last:border-0">
               <div className="min-w-0">
                 <p className="text-xs font-medium text-gb-text truncate">{c.brand} {c.name}</p>
-                {c.score && <span className="text-[9px] text-gb-primary font-bold">{c.score} نقطة</span>}
+                {c.score && <span className="text-xs text-gb-primary font-bold">{c.score} نقطة</span>}
               </div>
             </div>
           )) : query.trim() ? (
@@ -472,7 +472,7 @@ function SearchBox({ placeholder, value, onChange, onFocus, onBlur, showDropdown
         </div>
       )}
       {selected && (
-        <div className={`mt-1 text-[10px] ${color || 'text-gb-primary'} font-bold truncate`}>
+        <div className={`mt-1 text-xs ${color || 'text-gb-primary'} font-bold truncate`}>
           ✓ {selected.brand} {selected.name}
         </div>
       )}

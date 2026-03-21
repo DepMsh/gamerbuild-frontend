@@ -282,7 +282,7 @@ export default function BuilderPage() {
         {/* Header — sticky on mobile */}
         <div className="sticky top-14 sm:top-16 z-30 -mx-3 sm:-mx-4 px-3 sm:px-4 py-3 sm:py-0 sm:static sm:z-auto bg-gb-bg/95 backdrop-blur-xl sm:backdrop-blur-none sm:bg-transparent mb-5 sm:mb-6">
           <div>
-            <h1 className="font-display text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
+            <h1 className="text-lg sm:text-2xl font-bold text-gb-text">جمّع جهازك</h1>
             <p className="text-gb-muted text-xs mt-0.5 hidden sm:block">اختر القطع — بيظهر لك بس المتوافقة</p>
           </div>
         </div>
@@ -290,7 +290,7 @@ export default function BuilderPage() {
         {/* Price disclaimer banner */}
         <div className="flex items-center gap-2 px-3 py-2 mb-4 rounded-xl bg-red-500/10 border border-red-500/20">
           <AlertTriangle size={14} className="text-red-400 shrink-0" />
-          <p className="text-[11px] text-red-300/90">الأسعار المعروضة <span className="font-bold">تقريبية</span> — اضغط "شيك السعر" على كل قطعة للسعر الفعلي والمحدّث من أمازون السعودية.</p>
+          <p className="text-xs text-red-300/90">الأسعار المعروضة <span className="font-bold">تقريبية</span> — اضغط "شيك السعر" على كل قطعة للسعر الفعلي والمحدّث من أمازون السعودية.</p>
         </div>
 
         {/* Progress bar — 8 circles + gradient bar */}
@@ -314,7 +314,7 @@ export default function BuilderPage() {
                   }`}>
                     {filled && isCustom ? <AlertCircle size={14} strokeWidth={3} /> : filled ? <Check size={14} strokeWidth={3} /> : <span className="text-xs">{catIcons[key]}</span>}
                   </div>
-                  <span className={`text-[9px] sm:text-[10px] whitespace-nowrap transition-colors ${filled && isCustom ? 'text-yellow-400 font-bold' : filled ? 'text-gb-primary font-bold' : 'text-gb-muted group-hover:text-gb-text'}`}>
+                  <span className={`text-xs sm:text-xs whitespace-nowrap transition-colors ${filled && isCustom ? 'text-yellow-400 font-bold' : filled ? 'text-gb-primary font-bold' : 'text-gb-muted group-hover:text-gb-text'}`}>
                     {label}
                   </span>
                 </button>
@@ -331,8 +331,8 @@ export default function BuilderPage() {
             />
           </div>
           <div className="flex items-center justify-between mt-1.5">
-            <span className="text-[10px] text-gb-muted font-mono">{selectedCount}/8 قطع</span>
-            {selectedCount === 8 && <span className="text-[10px] text-[#00e676] font-bold">تجميعة كاملة!</span>}
+            <span className="text-xs text-gb-muted font-mono">{selectedCount}/8 قطع</span>
+            {selectedCount === 8 && <span className="text-xs text-[#00e676] font-bold">تجميعة كاملة!</span>}
           </div>
         </div>
 
@@ -356,7 +356,7 @@ export default function BuilderPage() {
                     <CatIcon size={48} className="hidden sm:block" style={{ color: cfg.color }} strokeWidth={1.5} />
                   </div>
                   <span className="text-sm sm:text-base font-bold text-white/90">{label}</span>
-                  <span className="text-[10px] text-white/40 font-medium">+ اختر</span>
+                  <span className="text-xs text-gray-400 font-medium">+ اختر</span>
                 </button>
               );
             })}
@@ -385,7 +385,7 @@ export default function BuilderPage() {
         {/* Shared build banner */}
         {isSharedBuild && (
           <div className="bg-[#7c4dff]/10 border border-[#7c4dff]/20 rounded-xl p-3 mb-4 text-center">
-            <p className="text-sm text-white/70">📤 هذي تجميعة مشاركة — تقدر تعدّل عليها</p>
+            <p className="text-sm text-gray-300">📤 هذي تجميعة مشاركة — تقدر تعدّل عليها</p>
             <button onClick={() => { saveBuild('تجميعة معدّلة'); setSaveSuccess(true); setTimeout(() => setSaveSuccess(false), 2000); }}
               className="text-[#00e5ff] text-xs font-bold mt-1">
               {saveSuccess ? '✅ تم الحفظ!' : '💾 احفظ نسختك'}
@@ -418,16 +418,16 @@ export default function BuilderPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className="text-xs sm:text-sm font-bold text-gb-text">{label}</span>
-                      <span className="text-[10px] text-gb-muted font-mono hidden sm:inline">{labelEn}</span>
-                      {required && !selected && <span className="text-[8px] text-gb-accent font-bold">مطلوب</span>}
+                      <span className="text-xs text-gb-muted font-mono hidden sm:inline">{labelEn}</span>
+                      {required && !selected && <span className="text-xs text-gb-accent font-bold">مطلوب</span>}
                     </div>
                     {selected ? (
                       <div>
                         <div className="flex items-center gap-1.5">
                           <p className="text-xs sm:text-sm text-gb-text truncate font-bold">{(() => { const dn = getDisplayName(selected, key); return dn.startsWith(selected.brand) ? dn : `${selected.brand} ${dn}`; })()}</p>
-                          {selected.isCustom && <span className="text-[8px] px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 font-bold shrink-0">مخصص</span>}
+                          {selected.isCustom && <span className="text-xs px-1.5 py-0.5 rounded bg-yellow-500/15 text-yellow-400 font-bold shrink-0">مخصص</span>}
                         </div>
-                        <p className="text-[10px] sm:text-xs text-gb-muted truncate">{specLine(key, selected)}</p>
+                        <p className="text-xs sm:text-xs text-gb-muted truncate">{specLine(key, selected)}</p>
                       </div>
                     ) : (
                       <p className="text-xs text-gb-muted">اضغط لاختيار {label}</p>
@@ -441,7 +441,7 @@ export default function BuilderPage() {
                         <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: p.isLive ? '#00e676' : '#ffd740' }}>
                           {p.isLive ? '' : '~'}{p.value?.toLocaleString()}
                         </span>
-                        <span className="text-[9px] text-gb-muted">ر.س {p.isLive
+                        <span className="text-xs text-gb-muted">ر.س {p.isLive
                           ? <span className="bg-green-500/20 text-green-400 px-1 py-px rounded-full font-bold">أمازون</span>
                           : <span className="bg-amber-500/20 text-amber-400 px-1 py-px rounded-full font-bold">تقريبي</span>
                         }</span>
@@ -456,7 +456,7 @@ export default function BuilderPage() {
                       {!selected.isCustom && selected.asin && (
                         <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => { e.stopPropagation(); track.clickAmazon(selected.name, selected.price); }} className="p-1.5 rounded-lg text-[#ff9900] hover:text-[#ffb340] transition-colors"><ExternalLink size={13} /></a>
                       )}
-                      <button onClick={e => { e.stopPropagation(); openPickerModal(key); }} className="p-1.5 rounded-lg text-gb-muted hover:text-gb-primary transition-colors text-[10px] font-bold">تغيير</button>
+                      <button onClick={e => { e.stopPropagation(); openPickerModal(key); }} className="p-1.5 rounded-lg text-gb-muted hover:text-gb-primary transition-colors text-xs font-bold">تغيير</button>
                       <button onClick={e => { e.stopPropagation(); removeComponent(key); }} className="p-1.5 text-gb-muted hover:text-gb-accent transition-colors"><X size={14} /></button>
                     </div>
                   ) : (
@@ -480,7 +480,7 @@ export default function BuilderPage() {
                 <span className="flex items-center gap-1.5 text-xs text-gb-muted"><Zap size={13} className="text-yellow-400" /> واط تقديري</span>
                 <span className="text-xs font-display text-gb-text">
                   {wattage}W / {psuCapacity}W
-                  {selectedCount >= 2 && !components.psu && <span className="text-yellow-400 mr-1 text-[10px]"> (يفضل {recPSU}W+)</span>}
+                  {selectedCount >= 2 && !components.psu && <span className="text-yellow-400 mr-1 text-xs"> (يفضل {recPSU}W+)</span>}
                 </span>
               </div>
               <div className="h-2.5 rounded-full bg-gb-bg overflow-hidden">
@@ -495,11 +495,11 @@ export default function BuilderPage() {
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>~{liveTotalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
-                <span className="bg-amber-500/20 text-amber-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
+                <span className="bg-amber-500/20 text-amber-400 text-xs px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
               </div>
             </div>
             {selectedCount >= 1 && (
-              <p className="text-[9px] text-gb-muted/60 text-left mt-1.5">💡 الأسعار تقريبية — اضغط "شيك السعر" لكل قطعة للسعر الفعلي من أمازون</p>
+              <p className="text-xs text-gb-muted/60 text-left mt-1.5">💡 الأسعار تقريبية — اضغط "شيك السعر" لكل قطعة للسعر الفعلي من أمازون</p>
             )}
 
             {/* Action buttons */}
@@ -514,7 +514,7 @@ export default function BuilderPage() {
                 )}
                 {hasCorePartsSelected && (
                   <div className="flex gap-2">
-                    <Link to="/analysis" className="flex-1 text-center bg-white/5 text-white/50 rounded-xl py-2.5 text-sm font-bold hover:bg-white/10 transition-colors">
+                    <Link to="/analysis" className="flex-1 text-center bg-white/5 text-gray-400 rounded-xl py-2.5 text-sm font-bold hover:bg-white/10 transition-colors">
                       📊 تحليل مفصّل
                     </Link>
                     <button onClick={handleShareUrl} className="flex-1 text-center bg-[#00e5ff]/15 text-[#00e5ff] rounded-xl py-2.5 text-sm font-bold active:scale-95 transition-transform">
@@ -564,11 +564,11 @@ export default function BuilderPage() {
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl">{currentCat.icon}</span>
                     <h2 className="font-display font-bold text-base text-white">{currentCat.label}</h2>
-                    <span className="text-[11px] text-[#555] font-medium">{compatCount} متوافق من {totalCatCount}</span>
+                    <span className="text-xs text-[#555] font-medium">{compatCount} متوافق من {totalCatCount}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button onClick={() => setCustomMode(!customMode)}
-                      className={`px-2 py-1 rounded-lg text-[11px] font-medium transition-all ${customMode ? 'bg-cyan-500 text-[#0a0a14]' : 'text-[#666] hover:text-white'}`}>
+                      className={`px-2 py-1 rounded-lg text-xs font-medium transition-all ${customMode ? 'bg-cyan-500 text-[#0a0a14]' : 'text-[#666] hover:text-white'}`}>
                       + يدوي
                     </button>
                     <button onClick={() => setOpenPicker(null)} className="w-10 h-10 rounded-xl bg-[#1a1a2e] flex items-center justify-center text-[#888] hover:text-red-400 transition-colors">
@@ -596,12 +596,12 @@ export default function BuilderPage() {
                   <div className="px-4 pb-3 flex flex-col gap-2">
                     <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
                       <button onClick={() => setFilterBrand('all')}
-                        className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${filterBrand === 'all' ? 'bg-cyan-500 text-[#0a0a14]' : 'bg-[#1a1a2e] text-[#888] hover:text-white'}`}>
+                        className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${filterBrand === 'all' ? 'bg-cyan-500 text-[#0a0a14]' : 'bg-[#1a1a2e] text-[#888] hover:text-white'}`}>
                         الكل
                       </button>
                       {availableBrands.slice(0, 20).map(b => (
                         <button key={b} onClick={() => setFilterBrand(filterBrand === b ? 'all' : b)}
-                          className={`px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${filterBrand === b ? 'bg-cyan-500 text-[#0a0a14]' : 'bg-[#1a1a2e] text-[#888] hover:text-white'}`}>
+                          className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${filterBrand === b ? 'bg-cyan-500 text-[#0a0a14]' : 'bg-[#1a1a2e] text-[#888] hover:text-white'}`}>
                           {b}
                         </button>
                       ))}
@@ -610,20 +610,20 @@ export default function BuilderPage() {
                     <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
                       {['all', 'budget', 'mid-range', 'high-end', 'enthusiast'].map(t => (
                         <button key={t} onClick={() => setFilterTier(filterTier === t ? 'all' : t)}
-                          className={`px-2.5 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all ${filterTier === t ? 'bg-purple-500 text-white' : 'text-[#666] hover:text-white'}`}>
+                          className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all ${filterTier === t ? 'bg-purple-500 text-white' : 'text-[#666] hover:text-white'}`}>
                           {t === 'all' ? 'كل الفئات' : tierLabels[t]}
                         </button>
                       ))}
                       <div className="mr-auto" />
                       <select value={sortBy} onChange={e => setSortBy(e.target.value)}
-                        className="text-[11px] bg-[#1a1a2e] border border-[#2a2a3e] rounded-full px-3 py-1 text-[#888] focus:outline-none cursor-pointer">
+                        className="text-xs bg-[#1a1a2e] border border-[#2a2a3e] rounded-full px-3 py-1 text-[#888] focus:outline-none cursor-pointer">
                         <option value="smart">الترتيب الافتراضي</option>
                         <option value="price-asc">السعر ↑</option>
                         <option value="price-desc">السعر ↓</option>
                         <option value="score">الأداء</option>
                         <option value="name">الاسم</option>
                       </select>
-                      <label className="flex items-center gap-1.5 text-[11px] text-[#666] cursor-pointer whitespace-nowrap">
+                      <label className="flex items-center gap-1.5 text-xs text-[#666] cursor-pointer whitespace-nowrap">
                         <input type="checkbox" checked={showOnlyCompat} onChange={e => setShowOnlyCompat(e.target.checked)} className="accent-cyan-500 w-3.5 h-3.5 rounded" />
                         متوافق
                       </label>
@@ -667,7 +667,7 @@ export default function BuilderPage() {
                             <div key={`hdr-${gi}`} className="sticky top-0 z-10 -mx-3 px-4 py-2 mt-2 first:mt-0 bg-[#0a0a14]/95 backdrop-blur-sm border-b border-[#1a1a2e]">
                               <div className="flex items-center justify-between">
                                 <span className="text-xs font-bold text-[#00e5ff]/80 tracking-wider">{entry._header}</span>
-                                <span className="text-[10px] text-white/20">{entry._count} قطعة</span>
+                                <span className="text-xs text-gray-500">{entry._count} قطعة</span>
                               </div>
                             </div>
                           );
@@ -690,22 +690,22 @@ export default function BuilderPage() {
                             {/* Info — center */}
                             <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                               <div>
-                                {!item.name.startsWith(item.brand) && <p className="text-[10px] sm:text-[11px] text-[#888] font-medium">{item.brand}</p>}
+                                {!item.name.startsWith(item.brand) && <p className="text-xs sm:text-xs text-[#888] font-medium">{item.brand}</p>}
                                 <p className="text-[12px] sm:text-[14px] font-bold text-white leading-snug line-clamp-2">{getDisplayName(item, openPicker)}</p>
-                                <p className="text-[10px] sm:text-[11px] text-[#555] mt-0.5 truncate">{specLine(openPicker, item)}</p>
+                                <p className="text-xs sm:text-xs text-[#555] mt-0.5 truncate">{specLine(openPicker, item)}</p>
                               </div>
 
                               <div className="flex items-center gap-2 mt-1.5">
                                 <span className="text-[16px] sm:text-[18px] font-black" style={{ color: '#00e676' }}>~{item.price?.toLocaleString()}</span>
-                                <span className="text-[10px] text-[#666]">ر.س</span>
-                                <span className="bg-amber-500/20 text-amber-400 text-[8px] px-1 py-0.5 rounded-full font-bold">تقريبي</span>
+                                <span className="text-xs text-[#666]">ر.س</span>
+                                <span className="bg-amber-500/20 text-amber-400 text-xs px-1 py-0.5 rounded-full font-bold">تقريبي</span>
                                 {item.score ? (
-                                  <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
+                                  <span className="text-xs px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
                                 ) : null}
                               </div>
 
                               {!item.compatible && item.reason && (
-                                <p className="text-[10px] text-red-400 flex items-center gap-1 mt-0.5"><AlertCircle size={10} /> {item.reason}</p>
+                                <p className="text-xs text-red-400 flex items-center gap-1 mt-0.5"><AlertCircle size={10} /> {item.reason}</p>
                               )}
                             </div>
 
@@ -713,7 +713,7 @@ export default function BuilderPage() {
                             <div className="flex flex-col items-center justify-center gap-1.5 shrink-0">
                               <button
                                 onClick={e => { e.stopPropagation(); item.compatible && handleSelect(openPicker, item); }}
-                                className={`min-w-[70px] sm:min-w-[80px] py-2.5 sm:py-2.5 rounded-xl text-[11px] sm:text-[12px] font-bold transition-all active:scale-95 border ${
+                                className={`min-w-[70px] sm:min-w-[80px] py-2.5 sm:py-2.5 rounded-xl text-xs sm:text-[12px] font-bold transition-all active:scale-95 border ${
                                   isSelected
                                     ? 'bg-[#00e676] text-[#12121c] border-[#00e676]'
                                     : 'bg-[#1a1a2e] text-white border-[#2a2a3e] hover:border-[#00e676]/40 hover:text-[#00e676]'
@@ -722,7 +722,7 @@ export default function BuilderPage() {
                                 {isSelected ? '✓ تم' : '+ أضف'}
                               </button>
                               <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
-                                className="text-[9px] sm:text-[10px] text-gb-primary hover:underline flex items-center gap-0.5 font-bold"
+                                className="text-xs sm:text-xs text-gb-primary hover:underline flex items-center gap-0.5 font-bold"
                                 onClick={e => { e.stopPropagation(); track.clickAmazon(item.name, item.price); }}>
                                 🛒 شيك السعر <ExternalLink size={8} />
                               </a>
@@ -749,7 +749,7 @@ export default function BuilderPage() {
               {/* Footer */}
               {!customMode && pickerItems.length > 0 && (
                 <div className="shrink-0 px-4 py-2 border-t border-[#1e1e2e] bg-[#0e0e18] text-center">
-                  <p className="text-[11px] text-[#555]">عرض {Math.min(visibleCount, pickerItems.length)} من {pickerItems.length} قطعة</p>
+                  <p className="text-xs text-[#555]">عرض {Math.min(visibleCount, pickerItems.length)} من {pickerItems.length} قطعة</p>
                 </div>
               )}
             </motion.div>

@@ -66,7 +66,7 @@ export default function DealsPage() {
             <p className="text-gb-muted text-xs mt-1">{filtered.length} عرض — أسعار Amazon.sa</p>
           </div>
           <div className="text-left">
-            <p className="text-[10px] text-gb-muted">إجمالي التوفير</p>
+            <p className="text-xs text-gb-muted">إجمالي التوفير</p>
             <p className="text-lg font-display font-bold text-green-400">{totalSavings.toLocaleString()} ر.س</p>
           </div>
         </div>
@@ -88,27 +88,27 @@ export default function DealsPage() {
           {filtered.map(deal => (
             <div key={deal.id} className={`bg-gb-card rounded-xl border overflow-hidden transition-all ${deal.isHot ? 'border-gb-accent/30' : 'border-gb-border'}`}>
               {deal.isHot && (
-                <div className="bg-gb-accent px-3 py-1 text-[10px] font-bold text-white text-center">🔥 عرض مميز — خصم {deal.discount}%</div>
+                <div className="bg-gb-accent px-3 py-1 text-xs font-bold text-white text-center">🔥 عرض مميز — خصم {deal.discount}%</div>
               )}
               <div className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-gb-surface text-gb-muted border border-gb-border">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-gb-surface text-gb-muted border border-gb-border">
                       {catLabels[deal.component.id.split('-')[0] === 'mb' ? 'motherboard' : deal.component.id.split('-')[0]] || ''}
                     </span>
                     <h3 className="text-sm font-bold text-gb-text mt-1.5">{deal.component.brand} {deal.component.name}</h3>
-                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-gb-muted">
+                    <div className="flex items-center gap-1.5 mt-1 text-xs text-gb-muted">
                       <Clock size={10} /> ينتهي خلال {deal.expiresIn}
                     </div>
                   </div>
                   <div className="text-left shrink-0">
                     <div className="flex items-center gap-1.5 mb-1">
                       <span className="text-xs text-gb-muted line-through">{deal.originalPrice.toLocaleString()}</span>
-                      <span className="px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 text-[10px] font-bold flex items-center gap-0.5">
+                      <span className="px-1.5 py-0.5 rounded bg-green-500/15 text-green-400 text-xs font-bold flex items-center gap-0.5">
                         <TrendingDown size={9} />{deal.discount}%
                       </span>
                     </div>
-                    <p className="text-lg font-display font-black text-green-400">{deal.dealPrice.toLocaleString()} <span className="text-[10px] text-gb-muted">ر.س</span></p>
+                    <p className="text-lg font-display font-black text-green-400">{deal.dealPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></p>
                   </div>
                 </div>
 
@@ -122,7 +122,7 @@ export default function DealsPage() {
           ))}
         </div>
 
-        <p className="text-center text-[10px] text-gb-muted mt-4">الأسعار تقريبية — تحقق من أمازون للسعر الحالي</p>
+        <p className="text-center text-xs text-gb-muted mt-4">الأسعار تقريبية — تحقق من أمازون للسعر الحالي</p>
       </div>
     </div>
   );
