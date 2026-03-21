@@ -2549,6 +2549,7 @@ export const COMPONENTS = {
     { id: 'ram-997', name: 'V-Color TRA516G56S836Q 64 GB', brand: 'V-Color', price: 1710, asin: null, image_url: null, type: 'DDR5', size: 64, speed: 5600, latency: 'CL36', modules: '4x16GB', tier: 'enthusiast' },
     { id: 'ram-998', name: 'V-Color XSky RGB 32 GB', brand: 'V-Color', price: 656, asin: null, image_url: null, type: 'DDR5', size: 32, speed: 6200, latency: 'CL36', modules: '2x16GB', tier: 'high-end' },
     { id: 'ram-999', name: 'V-Color XSky RGB 32 GB', brand: 'V-Color', price: 619, asin: null, image_url: null, type: 'DDR5', size: 32, speed: 6000, latency: 'CL36', modules: '2x16GB', tier: 'mid-range' },
+    { id: 'ram-1000', name: 'KingBank DDR5 32GB (2x16GB) 6000MHz CL30', brand: 'KingBank', price: 280, asin: 'B0CXJ5XNWB', image_url: null, type: 'DDR5', size: 32, speed: 6000, latency: 'CL30', modules: '2x16GB', tier: 'budget' },
   ],
 
   // ═══════ SSDs — 1092 total ═══════
@@ -4024,6 +4025,7 @@ export const COMPONENTS = {
     { id: 'psu-373', name: 'Xilence XP600R6', brand: 'Xilence', price: 654, asin: null, image_url: null, watt: 600, rating: '80+', modular: 'Non-Modular', tier: 'mid-range' },
     { id: 'psu-374', name: 'Xilence XP550R9', brand: 'Xilence', price: 593, asin: null, image_url: null, watt: 550, rating: '80+ Gold', modular: 'Non-Modular', tier: 'mid-range' },
     { id: 'psu-375', name: 'Xilence XP750R6.2', brand: 'Xilence', price: 355, asin: null, image_url: null, watt: 750, rating: '80+', modular: 'Non-Modular', tier: 'budget' },
+    { id: 'psu-376', name: 'Lian Li Edge 850W 80+ Gold ATX 3.1', brand: 'Lian Li', price: 550, asin: 'B0DDY2TJC5', image_url: null, watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
   ],
 
   // ═══════ Coolers — 719 total ═══════
@@ -5410,6 +5412,7 @@ export const COMPONENTS = {
     { id: 'case-657', name: 'Zalman T3 PLUS', brand: 'Zalman', price: 148, asin: null, image_url: null, formFactor: 'Mid Tower', maxGPU: 400, tier: 'budget' },
     { id: 'case-658', name: 'Zalman CUBIX', brand: 'Zalman', price: 142, asin: null, image_url: null, formFactor: 'Mini Tower', maxGPU: 330, tier: 'budget' },
     { id: 'case-659', name: 'ZZEW A1 Plus', brand: 'ZZEW', price: 412, asin: null, image_url: null, formFactor: 'Mini Tower', maxGPU: 330, tier: 'mid-range' },
+    { id: 'case-660', name: 'Lian Li O11D Mini V2 Flow', brand: 'Lian Li', price: 500, asin: 'B0FK5GHQ2N', image_url: null, formFactor: 'Mid Tower', maxGPU: 400, tier: 'mid-range' },
   ],
 };
 
