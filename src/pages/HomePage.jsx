@@ -99,7 +99,6 @@ export default function HomePage() {
               <span>ابدأ التجميع</span>
               <ChevronLeft size={20} />
             </Link>
-            <p className="text-white/30 text-xs mt-4">انضم لـ 500+ جيمر سعودي</p>
           </div>
         </div>
       </section>
