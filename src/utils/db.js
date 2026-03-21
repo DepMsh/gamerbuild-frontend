@@ -2549,7 +2549,7 @@ export const COMPONENTS = {
     { id: 'ram-997', name: 'V-Color TRA516G56S836Q 64 GB', brand: 'V-Color', price: 1710, asin: null, image_url: null, type: 'DDR5', size: 64, speed: 5600, latency: 'CL36', modules: '4x16GB', tier: 'enthusiast' },
     { id: 'ram-998', name: 'V-Color XSky RGB 32 GB', brand: 'V-Color', price: 656, asin: null, image_url: null, type: 'DDR5', size: 32, speed: 6200, latency: 'CL36', modules: '2x16GB', tier: 'high-end' },
     { id: 'ram-999', name: 'V-Color XSky RGB 32 GB', brand: 'V-Color', price: 619, asin: null, image_url: null, type: 'DDR5', size: 32, speed: 6000, latency: 'CL36', modules: '2x16GB', tier: 'mid-range' },
-    { id: 'ram-1000', name: 'KingBank DDR5 32GB (2x16GB) 6000MHz CL30', brand: 'KingBank', price: 280, asin: 'B0CXJ5XNWB', image_url: null, type: 'DDR5', size: 32, speed: 6000, latency: 'CL30', modules: '2x16GB', tier: 'budget' },
+    { id: 'ram-1000', name: 'KingBank DDR5 32GB (2x16GB) 6000MHz CL30', brand: 'KingBank', price: 280, asin: 'B0CXJ5XNWB', image_url: 'https://m.media-amazon.com/images/I/71hDYnOJqEL._AC_SL1500_.jpg', type: 'DDR5', size: 32, speed: 6000, latency: 'CL30', modules: '2x16GB', tier: 'budget' },
   ],
 
   // ═══════ SSDs — 1092 total ═══════
