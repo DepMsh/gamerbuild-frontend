@@ -50,9 +50,9 @@ export default function HomePage() {
   const [gamesCount, gamesRef] = useCountUp(17);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen noise-overlay">
       {/* ========== HERO ========== */}
-      <section className="relative min-h-[80vh] sm:min-h-[85vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[55vh] sm:min-h-[60vh] flex items-center justify-center overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 bg-gb-bg">
           <div className="absolute inset-0 bg-grid opacity-20" />
@@ -66,11 +66,8 @@ export default function HomePage() {
             className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] rounded-full blur-[130px]"
             style={{ background: 'radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 70%)', animation: 'orbFloat2 10s ease-in-out infinite' }}
           />
-          {/* Accent purple orb */}
-          <div
-            className="absolute top-1/3 left-1/3 w-[300px] h-[300px] rounded-full blur-[120px]"
-            style={{ background: 'radial-gradient(circle, rgba(124,77,255,0.06) 0%, transparent 70%)', animation: 'orbFloat3 12s ease-in-out infinite' }}
-          />
+          {/* Radial glow behind title */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[radial-gradient(ellipse,rgba(0,229,255,0.1)_0%,transparent_70%)] pointer-events-none" />
         </div>
 
         <div className="relative z-10 text-center px-5 max-w-2xl lg:max-w-4xl mx-auto">
@@ -80,15 +77,15 @@ export default function HomePage() {
             <span className="text-[11px] text-gb-muted">أول منصة سعودية لتجميع PC القيمنق</span>
           </div>
 
-          <h1 className="font-display text-[2.2rem] sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5">
+          <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-black leading-[1.1] mb-5">
             <span className="text-gb-text">جمّع جهازك</span>
             <br />
-            <span className="bg-gradient-to-l from-gb-primary via-gb-secondary to-gb-accent bg-clip-text text-transparent">
+            <span className="bg-gradient-to-l from-cyan-300 to-cyan-400 bg-clip-text text-transparent">
               بأفضل سعر
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-gb-muted max-w-md mx-auto mb-8 leading-relaxed">
+          <p className="text-sm sm:text-base text-white/50 max-w-md mx-auto mb-8 leading-relaxed">
             قارن وجمّع — ثم اشترِ من أمازون السعودية بضغطة زر
           </p>
 
@@ -96,33 +93,33 @@ export default function HomePage() {
           <div>
             <Link
               to="/builder"
-              className="group relative inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-lg sm:text-xl shadow-[0_0_50px_rgba(0,229,255,0.3)] hover:shadow-[0_0_80px_rgba(0,229,255,0.5)] hover:scale-105 transition-all duration-300 active:scale-95"
+              className="inline-flex items-center gap-3 px-10 py-4 sm:px-12 sm:py-5 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-[#0a0a14] font-extrabold text-lg sm:text-xl shadow-[0_0_40px_rgba(0,229,255,0.25)] hover:shadow-[0_0_60px_rgba(0,229,255,0.45)] hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 active:scale-95"
             >
-              <span className="absolute inset-0 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500 pointer-events-none" />
-              <Wrench size={22} className="relative z-10" />
-              <span className="relative z-10">ابدأ التجميع</span>
-              <ChevronLeft size={20} className="relative z-10 group-hover:-translate-x-1 transition-transform" />
+              <Wrench size={22} />
+              <span>ابدأ التجميع</span>
+              <ChevronLeft size={20} />
             </Link>
+            <p className="text-white/30 text-xs mt-4">انضم لـ 500+ جيمر سعودي</p>
           </div>
         </div>
       </section>
 
       {/* ========== STATS BAR (count-up) ========== */}
-      <section className="py-5 px-4 border-y border-white/[0.04]">
-        <div className="max-w-md lg:max-w-3xl mx-auto flex items-center justify-center gap-8 sm:gap-12" ref={partsRef}>
-          <div className="flex items-center gap-2">
-            <span className="text-xl sm:text-2xl font-display font-black text-gb-primary">{partsCount.toLocaleString()}</span>
-            <span className="text-[11px] text-gb-muted">قطعة</span>
+      <section className="py-6 sm:py-8 px-4 border-y border-white/[0.06]">
+        <div className="max-w-md lg:max-w-3xl mx-auto flex items-center justify-center gap-10 sm:gap-16" ref={partsRef}>
+          <div className="text-center">
+            <span className="text-3xl sm:text-4xl font-display font-black text-white block">{partsCount.toLocaleString()}</span>
+            <span className="text-xs text-white/40 mt-1">قطعة</span>
           </div>
-          <div className="w-px h-5 bg-gb-border" />
-          <div className="flex items-center gap-2" ref={gamesRef}>
-            <span className="text-xl sm:text-2xl font-display font-black text-gb-secondary">{gamesCount}</span>
-            <span className="text-[11px] text-gb-muted">لعبة</span>
+          <div className="w-px h-8 bg-white/10" />
+          <div className="text-center" ref={gamesRef}>
+            <span className="text-3xl sm:text-4xl font-display font-black text-white block">{gamesCount}</span>
+            <span className="text-xs text-white/40 mt-1">لعبة</span>
           </div>
-          <div className="w-px h-5 bg-gb-border" />
-          <div className="flex items-center gap-2">
-            <span className="text-base sm:text-lg font-display font-black text-[#ff9900]">Amazon</span>
-            <span className="text-[11px] text-gb-muted">أسعار</span>
+          <div className="w-px h-8 bg-white/10" />
+          <div className="text-center">
+            <span className="text-2xl sm:text-3xl font-display font-black text-[#ff9900] block">Amazon</span>
+            <span className="text-xs text-white/40 mt-1">أسعار حية</span>
           </div>
         </div>
       </section>
@@ -142,9 +139,9 @@ export default function HomePage() {
                 >
                   <tier.icon className="w-6 h-6 text-gb-primary mx-auto mb-2" strokeWidth={1.5} />
                   <div className="font-bold text-white text-sm">{tier.label}</div>
-                  <div className="text-[10px] text-white/40 mt-0.5">{tier.desc}</div>
+                  <div className="text-[10px] text-white/50 mt-0.5">{tier.desc}</div>
                   <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
-                  <div className="text-[10px] text-white/30">ر.س</div>
+                  <div className="text-[10px] text-white/40">ر.س</div>
                 </Link>
               </div>
             ))}
@@ -192,7 +189,7 @@ export default function HomePage() {
               </Link>
             </div>
           </div>
-          <p className="text-center text-[10px] text-white/20 mt-6 px-4 leading-relaxed">
+          <p className="text-center text-[10px] text-white/30 mt-6 px-4 leading-relaxed">
             💡 الأسعار المعروضة تقريبية. اضغط "شيك السعر" للسعر الفعلي المحدّث من أمازون السعودية.
           </p>
         </div>
