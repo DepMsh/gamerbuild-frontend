@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
-import { Wrench, Shield, Crosshair, Tag, Gamepad2, Sparkles, ChevronLeft, Zap, Flame, Monitor, Gem, Crown } from 'lucide-react';
+import { Wrench, Shield, Crosshair, Tag, Sparkles, ChevronLeft, Zap, Flame, Monitor, Gem, Crown } from 'lucide-react';
 import usePageTitle from '../hooks/usePageTitle';
 
 // ── Count-up hook ──
@@ -170,29 +170,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ========== FINAL CTA ========== */}
-      <section className="py-10 sm:py-14 px-4 pb-28 md:pb-14">
-        <div className="max-w-lg lg:max-w-3xl mx-auto text-center">
-          <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-br from-gb-primary/[0.06] via-gb-secondary/[0.04] to-gb-accent/[0.04] border border-gb-primary/10 relative overflow-hidden fade-in-up">
-            <div className="absolute inset-0 bg-grid opacity-10" />
-            <div className="relative z-10">
-              <Gamepad2 size={36} className="text-gb-primary mx-auto mb-3 opacity-80" />
-              <h2 className="font-display text-lg sm:text-xl font-bold text-gb-text mb-2">جاهز تجمّع؟</h2>
-              <p className="text-xs text-gb-muted mb-6">ابدأ الحين وجمّع أفضل PC قيمنق بأحسن سعر</p>
-              <Link
-                to="/builder"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-l from-gb-primary via-cyan-400 to-gb-secondary text-gb-bg font-bold text-base shadow-[0_0_30px_rgba(0,229,255,0.2)] hover:shadow-[0_0_60px_rgba(0,229,255,0.4)] hover:scale-105 transition-all duration-300 active:scale-95"
-              >
-                <Wrench size={18} />
-                ابدأ التجميع
-              </Link>
-            </div>
-          </div>
-          <p className="text-center text-xs text-gray-500 mt-6 px-4 leading-relaxed">
-            💡 الأسعار المعروضة تقريبية. اضغط "شيك السعر" للسعر الفعلي المحدّث من أمازون السعودية.
-          </p>
-        </div>
-      </section>
     </div>
   );
 }
