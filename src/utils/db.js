@@ -4026,6 +4026,9 @@ export const COMPONENTS = {
     { id: 'psu-374', name: 'Xilence XP550R9', brand: 'Xilence', price: 593, asin: null, image_url: null, watt: 550, rating: '80+ Gold', modular: 'Non-Modular', tier: 'mid-range' },
     { id: 'psu-375', name: 'Xilence XP750R6.2', brand: 'Xilence', price: 355, asin: null, image_url: null, watt: 750, rating: '80+', modular: 'Non-Modular', tier: 'budget' },
     { id: 'psu-376', name: 'Lian Li Edge 850W 80+ Gold ATX 3.1', brand: 'Lian Li', price: 550, asin: 'B0DDY2TJC5', image_url: null, watt: 850, rating: '80+ Gold', modular: 'Full', tier: 'mid-range' },
+    { id: 'psu-377', name: 'Lian Li Edge 1000W 80+ Gold ATX 3.1', brand: 'Lian Li', price: 700, asin: 'B0DKWYR3V1', image_url: null, watt: 1000, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
+    { id: 'psu-378', name: 'Lian Li Edge 1200W 80+ Gold ATX 3.1', brand: 'Lian Li', price: 850, asin: 'B0DN167XS4', image_url: null, watt: 1200, rating: '80+ Gold', modular: 'Full', tier: 'high-end' },
+    { id: 'psu-379', name: 'Lian Li Edge 1300W 80+ Platinum ATX 3.0', brand: 'Lian Li', price: 1100, asin: 'B0D8SJXQ81', image_url: null, watt: 1300, rating: '80+ Platinum', modular: 'Full', tier: 'enthusiast' },
   ],
 
   // ═══════ Coolers — 719 total ═══════
@@ -4749,6 +4752,8 @@ export const COMPONENTS = {
     { id: 'cool-717', name: 'Zalman CNPS20X', brand: 'Zalman', price: 109, asin: 'B084ZX4ZSQ', image_url: null, type: 'Air', tdpMax: 150, size: null, tier: 'budget' },
     { id: 'cool-718', name: 'Zalman CNPS16X', brand: 'Zalman', price: 94, asin: 'B084ZX4ZSQ', image_url: null, type: 'Air', tdpMax: 150, size: null, tier: 'budget' },
     { id: 'cool-719', name: 'Zalman CNPS17X', brand: 'Zalman', price: 75, asin: 'B084ZX4ZSQ', image_url: null, type: 'Air', tdpMax: 150, size: null, tier: 'budget' },
+    { id: 'cool-720', name: 'Lian Li Galahad II Trinity 360 ARGB', brand: 'Lian Li', price: 450, asin: 'B0CBV5QDY3', image_url: null, type: 'AIO', tdpMax: 300, size: '360mm', tier: 'high-end' },
+    { id: 'cool-721', name: 'Lian Li HydroShift II LCD 360', brand: 'Lian Li', price: 650, asin: 'B0DPZ8LPKQ', image_url: null, type: 'AIO', tdpMax: 300, size: '360mm', tier: 'enthusiast' },
   ],
 
   // ═══════ Cases — 659 total ═══════
@@ -5413,6 +5418,7 @@ export const COMPONENTS = {
     { id: 'case-658', name: 'Zalman CUBIX', brand: 'Zalman', price: 142, asin: null, image_url: null, formFactor: 'Mini Tower', maxGPU: 330, tier: 'budget' },
     { id: 'case-659', name: 'ZZEW A1 Plus', brand: 'ZZEW', price: 412, asin: null, image_url: null, formFactor: 'Mini Tower', maxGPU: 330, tier: 'mid-range' },
     { id: 'case-660', name: 'Lian Li O11D Mini V2 Flow', brand: 'Lian Li', price: 500, asin: 'B0FK5GHQ2N', image_url: null, formFactor: 'Mid Tower', maxGPU: 400, tier: 'mid-range' },
+    { id: 'case-661', name: 'Lian Li LANCOOL 215', brand: 'Lian Li', price: 290, asin: 'B08LG6LGP8', image_url: null, formFactor: 'Mid Tower', maxGPU: 370, tier: 'budget' },
   ],
 };
 
