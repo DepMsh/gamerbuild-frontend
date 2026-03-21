@@ -69,8 +69,7 @@ export default function Navbar() {
                   <div className="w-5 h-5 rounded-full bg-gb-primary/20 text-gb-primary text-xs font-bold flex items-center justify-center">
                     {selectedCount}
                   </div>
-                  <span className="text-xs text-gb-primary font-display font-bold">{totalPrice.toLocaleString()}</span>
-                  <span className="text-xs text-gb-muted">ر.س</span>
+                  <span className="text-xs text-gb-muted">قطع</span>
                 </Link>
               )}
             </div>

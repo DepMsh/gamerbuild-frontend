@@ -287,12 +287,6 @@ export default function BuilderPage() {
           </div>
         </div>
 
-        {/* Price disclaimer banner */}
-        <div className="flex items-center gap-2 px-3 py-2 mb-4 rounded-xl bg-red-500/10 border border-red-500/20">
-          <AlertTriangle size={14} className="text-red-400 shrink-0" />
-          <p className="text-xs text-red-300/90">الأسعار المعروضة <span className="font-bold">تقريبية</span> — اضغط "شيك السعر" على كل قطعة للسعر الفعلي والمحدّث من أمازون السعودية.</p>
-        </div>
-
         {/* Progress bar — 8 circles + gradient bar */}
         <div className="mb-5 px-2">
           <div className="flex items-center justify-between relative">
@@ -436,25 +430,25 @@ export default function BuilderPage() {
 
                   {selected ? (
                     <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-                      {(() => { const p = getPrice(selected); return (
+                      {(() => { const p = getPrice(selected); return p.isLive ? (
                       <div className="text-left">
-                        <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: p.isLive ? '#00e676' : '#ffd740' }}>
-                          {p.isLive ? '' : '~'}{p.value?.toLocaleString()}
+                        <span className="text-sm sm:text-base font-display font-bold whitespace-nowrap block" style={{ color: '#00e676' }}>
+                          {p.value?.toLocaleString()}
                         </span>
-                        <span className="text-xs text-gb-muted">ر.س {p.isLive
-                          ? <span className="bg-green-500/20 text-green-400 px-1 py-px rounded-full font-bold">أمازون</span>
-                          : <span className="bg-amber-500/20 text-amber-400 px-1 py-px rounded-full font-bold">تقريبي</span>
-                        }</span>
+                        <span className="text-xs text-gb-muted">ر.س <span className="bg-green-500/20 text-green-400 px-1 py-px rounded-full font-bold">أمازون</span></span>
                       </div>
+                      ) : (
+                      <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer"
+                        onClick={e => { e.stopPropagation(); track.clickAmazon(selected.name, selected.price); }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#ff9900]/15 border border-[#ff9900]/30 text-[#ff9900] text-xs font-bold hover:bg-[#ff9900]/25 transition-all whitespace-nowrap">
+                        شيك السعر <ExternalLink size={10} />
+                      </a>
                       ); })()}
-                      {!selected.isCustom && (
+                      {!selected.isCustom && getPrice(selected).isLive && (
                         <button onClick={e => { e.stopPropagation(); setPriceHistoryOpen(priceHistoryOpen === key ? null : key); }}
                           className={`p-1.5 rounded-lg transition-colors ${priceHistoryOpen === key ? 'text-gb-primary bg-gb-primary/10' : 'text-gb-muted hover:text-gb-primary'}`}>
                           <BarChart2 size={14} />
                         </button>
-                      )}
-                      {!selected.isCustom && selected.asin && (
-                        <a href={getAmazonLink(selected)} target="_blank" rel="noreferrer" onClick={e => { e.stopPropagation(); track.clickAmazon(selected.name, selected.price); }} className="p-1.5 rounded-lg text-[#ff9900] hover:text-[#ffb340] transition-colors"><ExternalLink size={13} /></a>
                       )}
                       <button onClick={e => { e.stopPropagation(); openPickerModal(key); }} className="p-1.5 rounded-lg text-gb-muted hover:text-gb-primary transition-colors text-xs font-bold">تغيير</button>
                       <button onClick={e => { e.stopPropagation(); removeComponent(key); }} className="p-1.5 text-gb-muted hover:text-gb-accent transition-colors"><X size={14} /></button>
@@ -493,13 +487,12 @@ export default function BuilderPage() {
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gb-muted">{selectedCount}/8 قطع</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-display font-black" style={{ color: '#00e676' }}>~{liveTotalPrice.toLocaleString()} <span className="text-xs text-gb-muted">ر.س</span></span>
-                <span className="bg-amber-500/20 text-amber-400 text-xs px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
-              </div>
+              <span className="text-sm font-bold text-[#ff9900] flex items-center gap-1">
+                <ShoppingCart size={14} /> شيك الأسعار على أمازون
+              </span>
             </div>
             {selectedCount >= 1 && (
-              <p className="text-xs text-gb-muted/60 text-left mt-1.5">💡 الأسعار تقريبية — اضغط "شيك السعر" لكل قطعة للسعر الفعلي من أمازون</p>
+              <p className="text-xs text-gray-500 text-left mt-1.5">اضغط "شيك السعر" لكل قطعة أو "اشتر الكل" لفتح أمازون</p>
             )}
 
             {/* Action buttons */}
@@ -696,9 +689,11 @@ export default function BuilderPage() {
                               </div>
 
                               <div className="flex items-center gap-2 mt-1.5">
-                                <span className="text-[16px] sm:text-[18px] font-black" style={{ color: '#00e676' }}>~{item.price?.toLocaleString()}</span>
-                                <span className="text-xs text-[#666]">ر.س</span>
-                                <span className="bg-amber-500/20 text-amber-400 text-xs px-1 py-0.5 rounded-full font-bold">تقريبي</span>
+                                <a href={getAmazonLink(item)} target="_blank" rel="noreferrer"
+                                  onClick={e => e.stopPropagation()}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#ff9900]/15 border border-[#ff9900]/30 text-[#ff9900] text-xs font-bold hover:bg-[#ff9900]/25 transition-all">
+                                  شيك السعر
+                                </a>
                                 {item.score ? (
                                   <span className="text-xs px-1.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 font-bold">{item.score}</span>
                                 ) : null}

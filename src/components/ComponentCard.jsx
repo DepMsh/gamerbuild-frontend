@@ -61,8 +61,11 @@ export default function ComponentCard({
           <p className="text-sm font-medium text-gb-text truncate">{(() => { const dn = getDisplayName(component); return dn.startsWith(component.brand) ? dn : `${component.brand} ${dn}`; })()}</p>
           <p className="text-xs text-gb-muted">{typeLabels[component.type]}</p>
         </div>
-        <span className="text-sm font-bold whitespace-nowrap" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()} ر.س</span>
-        <span className="bg-amber-500/20 text-amber-400 text-xs px-1 py-0.5 rounded-full font-bold">تقريبي</span>
+        <a href={getAmazonLink(component)} target="_blank" rel="noreferrer"
+          onClick={e => { e.stopPropagation(); track.clickAmazon(component.name, component.price); }}
+          className="text-xs font-bold text-[#ff9900] px-2.5 py-1 bg-[#ff9900]/10 border border-[#ff9900]/25 rounded-lg whitespace-nowrap hover:bg-[#ff9900]/20 transition-all">
+          شيك السعر
+        </a>
       </div>
     );
   }
@@ -118,12 +121,13 @@ export default function ComponentCard({
           ) : null;
         })()}
 
-        {/* Price — GREEN + تقريبي badge */}
+        {/* Price area — Amazon button */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm sm:text-lg font-display font-bold" style={{ color: '#00e676' }}>~{component.price?.toLocaleString()}<span className="text-xs sm:text-xs text-gb-muted mr-0.5 sm:mr-1">ر.س</span></span>
-            <span className="bg-amber-500/20 text-amber-400 text-xs sm:text-xs px-1.5 py-0.5 rounded-full font-bold">تقريبي</span>
-          </div>
+          <a href={getAmazonLink(component)} target="_blank" rel="noreferrer"
+            onClick={e => { e.stopPropagation(); track.clickAmazon(component.name, component.price); }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#ff9900]/10 border border-[#ff9900]/25 text-[#ff9900] text-xs sm:text-sm font-bold hover:bg-[#ff9900]/20 transition-all">
+            🛒 شيك السعر
+          </a>
 
           <div className="flex items-center gap-1">
             {compareMode && (

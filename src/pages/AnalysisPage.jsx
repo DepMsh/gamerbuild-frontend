@@ -88,9 +88,9 @@ function fpsInfo(fps) {
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
 const FEATURED_PRESETS = [
-  { id: 'budget', name: 'اقتصادية', subtitle: '1080p سلس', cpuId: 'cpu-43', gpuId: 'gpu-116', price: '4,200', res: '1080p' },
-  { id: 'mid', name: 'متوسطة', subtitle: '1440p Ultra', cpuId: 'cpu-21', gpuId: 'gpu-343', price: '7,000', res: '1440p' },
-  { id: 'beast', name: 'خرافية', subtitle: '4K Ultra', cpuId: 'cpu-3', gpuId: 'gpu-230', price: '14,000', res: '1080p' },
+  { id: 'budget', name: 'اقتصادية', subtitle: '1080p سلس', cpuId: 'cpu-43', gpuId: 'gpu-116', priceRange: '٣-٥ آلاف', res: '1080p' },
+  { id: 'mid', name: 'متوسطة', subtitle: '1440p Ultra', cpuId: 'cpu-21', gpuId: 'gpu-343', priceRange: '٦-٨ آلاف', res: '1440p' },
+  { id: 'beast', name: 'خرافية', subtitle: '4K Ultra', cpuId: 'cpu-3', gpuId: 'gpu-230', priceRange: '١٢ ألف+', res: '1080p' },
 ];
 const PREVIEW_GAME_NAMES = ['Valorant', 'Fortnite', 'Cyberpunk 2077'];
 
@@ -193,7 +193,7 @@ export default function AnalysisPage() {
 
                 {/* Price + CTA */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
-                  <span className="text-[#00e676] font-bold font-mono text-sm">~{build.price} <span className="text-xs text-gray-500">ر.س</span></span>
+                  <span className="text-[#ff9900] font-bold text-sm">{build.priceRange} <span className="text-xs text-gray-500">ر.س</span></span>
                   <span className="text-gb-primary text-xs font-bold group-hover:-translate-x-1 transition-transform">شوف التحليل ←</span>
                 </div>
               </Link>
@@ -689,7 +689,7 @@ export default function AnalysisPage() {
                       <div key={i} className="bg-gb-surface rounded-xl p-3">
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-xs text-gb-muted">{s.type === 'gpu' ? 'كرت الشاشة' : s.type === 'cpu' ? 'المعالج' : 'الباور'}</span>
-                          <span className="text-xs font-display font-bold text-green-400">وفّر {s.saving.toLocaleString()} ر.س</span>
+                          <span className="text-xs font-display font-bold text-green-400">بديل أوفر</span>
                         </div>
                         <p className="text-xs text-gb-text font-bold mb-0.5">{s.current.name} → {s.suggested.name}</p>
                         <p className="text-xs text-gb-muted">{s.reason}</p>
@@ -817,7 +817,8 @@ export default function AnalysisPage() {
                                   <span className="text-xs font-display font-bold text-green-400">+{opt.gain} أداء</span>
                                 </div>
                                 <p className="text-xs font-bold text-gb-text mt-1">{opt.part.name}</p>
-                                <p className="text-xs text-gb-primary font-bold mt-0.5">{opt.part.price?.toLocaleString()} ر.س</p>
+                                <a href={`https://www.amazon.sa/dp/${opt.part.asin}?tag=meshal039-21`} target="_blank" rel="noreferrer"
+                                  className="inline-flex items-center gap-1 text-xs font-bold text-[#ff9900] mt-0.5 hover:underline">شيك السعر</a>
                               </div>
                             ))}
                           </div>

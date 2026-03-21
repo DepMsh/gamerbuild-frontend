@@ -25,9 +25,14 @@ export default function StickySummaryBar({ components, liveTotalPrice, selectedC
                   <div key={cat} className="flex items-center gap-2 px-2 py-1.5">
                     <ProductImage component={comp} size="sm" className="w-8 h-8 rounded-lg shrink-0 p-0.5" />
                     <span className="text-xs text-white/70 truncate flex-1">{comp.name}</span>
-                    <span className={`text-xs font-mono font-bold shrink-0 ${fp.isLive ? 'text-[#00e676]' : 'text-[#ffd740]'}`}>
-                      {fp.isLive ? '' : '~'}{fp.value?.toLocaleString()}
-                    </span>
+                    {fp.isLive ? (
+                      <span className="text-xs font-mono font-bold shrink-0 text-[#00e676]">{fp.value?.toLocaleString()} ر.س</span>
+                    ) : (
+                      <a href={getAmazonLink(comp)} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()}
+                        className="text-xs font-bold text-[#ff9900] shrink-0 px-2 py-0.5 bg-[#ff9900]/10 rounded-full">
+                        شيك السعر
+                      </a>
+                    )}
                   </div>
                 );
               })}
@@ -71,9 +76,7 @@ export default function StickySummaryBar({ components, liveTotalPrice, selectedC
                 <ChevronUp size={12} className={`text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`} />
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="text-lg font-bold font-mono text-[#00e676]">~{liveTotalPrice.toLocaleString()}</span>
-                <span className="text-xs text-gray-400">ر.س</span>
-                <span className="text-xs text-amber-400 mr-1 bg-amber-500/15 px-1.5 py-0.5 rounded-full">تقريبي</span>
+                <span className="text-sm font-bold text-[#ff9900]">شيك الأسعار</span>
               </div>
             </div>
 

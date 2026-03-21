@@ -168,10 +168,7 @@ export default function ComponentsPage() {
 
         {/* Price disclaimer */}
         <div className="text-center text-xs text-gray-500 mt-8 px-4 pb-4 leading-relaxed">
-          💡 الأسعار تقريبية وقد تختلف عن السعر الفعلي في أمازون.
-          اضغط "شيك السعر" للسعر الحالي المحدّث.
-          <br />
-          آخر تحديث للأسعار: مارس 2025
+          💡 اضغط "شيك السعر" على أي قطعة للسعر الحالي من أمازون السعودية.
         </div>
       </div>
     </div>

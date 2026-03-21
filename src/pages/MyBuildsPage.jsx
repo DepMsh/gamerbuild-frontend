@@ -45,8 +45,8 @@ export default function MyBuildsPage() {
                     <h3 className="font-bold text-white text-sm">{b.name}</h3>
                     <p className="text-xs text-gray-500 mt-0.5">{b.date}</p>
                   </div>
-                  <span className="text-[#00e676] font-bold font-mono text-sm">
-                    ~{b.totalPrice?.toLocaleString()} ر.س
+                  <span className="text-[#ff9900] font-bold text-xs">
+                    🛒 شيك الأسعار
                   </span>
                 </div>
 

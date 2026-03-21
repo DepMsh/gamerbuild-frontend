@@ -31,11 +31,11 @@ function useCountUp(target, duration = 1500) {
 }
 
 const quickBuilds = [
-  { key: 'budget', label: 'اقتصادية', desc: '1080p سلس', price: '4,200', icon: Zap },
-  { key: 'amd_value', label: 'AMD قيمنق', desc: '1440p V-Cache', price: '5,800', icon: Flame },
-  { key: 'mid', label: 'متوسطة', desc: '1440p Ultra', price: '7,000', icon: Monitor },
-  { key: 'nvidia_premium', label: 'NVIDIA بريميوم', desc: 'RTX + DLSS 4', price: '10,000', icon: Gem },
-  { key: 'beast', label: 'خرافية', desc: '4K + ستريم', price: '14,000', icon: Crown },
+  { key: 'budget', label: 'اقتصادية', desc: '1080p سلس', priceRange: '٣-٥ آلاف', icon: Zap },
+  { key: 'amd_value', label: 'AMD قيمنق', desc: '1440p V-Cache', priceRange: '٥-٧ آلاف', icon: Flame },
+  { key: 'mid', label: 'متوسطة', desc: '1440p Ultra', priceRange: '٦-٨ آلاف', icon: Monitor },
+  { key: 'nvidia_premium', label: 'NVIDIA بريميوم', desc: 'RTX + DLSS 4', priceRange: '٩-١٢ ألف', icon: Gem },
+  { key: 'beast', label: 'خرافية', desc: '4K + ستريم', priceRange: '١٢ ألف+', icon: Crown },
 ];
 
 const featureCards = [
@@ -118,7 +118,7 @@ export default function HomePage() {
           <div className="w-px h-8 bg-white/10" />
           <div className="text-center">
             <span className="text-2xl sm:text-3xl font-display font-black text-[#ff9900] block">Amazon</span>
-            <span className="text-xs text-gray-400 mt-1">أسعار حية</span>
+            <span className="text-xs text-gray-400 mt-1">أسعار أمازون</span>
           </div>
         </div>
       </section>
@@ -139,7 +139,7 @@ export default function HomePage() {
                   <tier.icon className="w-6 h-6 text-gb-primary mx-auto mb-2" strokeWidth={1.5} />
                   <div className="font-bold text-white text-sm">{tier.label}</div>
                   <div className="text-xs text-white/50 mt-0.5">{tier.desc}</div>
-                  <div className="text-[#00e676] font-bold font-mono text-sm mt-2">{tier.price}+</div>
+                  <div className="text-[#ff9900] font-bold text-sm mt-2">{tier.priceRange}</div>
                   <div className="text-xs text-gray-400">ر.س</div>
                 </Link>
               </div>
