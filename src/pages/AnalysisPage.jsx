@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useBuild } from '../hooks/BuildContext';
 import { track } from '../utils/analytics';
 import usePageTitle from '../hooks/usePageTitle';
 import { analyzeBottleneck, getRecommendations, getUpgradeRoadmap, getGamingCpuScore, getSmartDowngrades, calcFutureProof, GAMES, predictFPS } from '../utils/engine';
-import { getAllComponents, estimateWattage } from '../utils/db';
+import { getAllComponents, estimateWattage, getById } from '../utils/db';
 import { findCPUBenchmark } from '../data/cpuBenchmarks';
 import { findGPUBenchmark } from '../data/gpuBenchmarks';
 import { Shield, ShieldCheck, ShieldAlert, Cpu, MonitorPlay, Zap, TrendingUp, Monitor, ArrowDownCircle, Clock, ChevronDown, Wrench, Gamepad2 } from 'lucide-react';
@@ -87,6 +87,13 @@ function fpsInfo(fps) {
 
 const tierLabels = { budget: 'اقتصادي', 'mid-range': 'متوسط', 'high-end': 'عالي', enthusiast: 'خرافي' };
 
+const FEATURED_PRESETS = [
+  { id: 'budget', name: 'اقتصادية', subtitle: '1080p سلس', cpuId: 'cpu-43', gpuId: 'gpu-116', price: '4,200', res: '1080p' },
+  { id: 'mid', name: 'متوسطة', subtitle: '1440p Ultra', cpuId: 'cpu-21', gpuId: 'gpu-343', price: '7,000', res: '1440p' },
+  { id: 'beast', name: 'خرافية', subtitle: '4K Ultra', cpuId: 'cpu-3', gpuId: 'gpu-230', price: '14,000', res: '1080p' },
+];
+const PREVIEW_GAME_NAMES = ['Valorant', 'Fortnite', 'Cyberpunk 2077'];
+
 export default function AnalysisPage() {
   usePageTitle('تحليل التجميعة');
   const { components, selectedCount } = useBuild();
@@ -101,6 +108,23 @@ export default function AnalysisPage() {
   const toggleCard = (key) => setOpenCards(prev => ({ ...prev, [key]: !prev[key] }));
   const [showUpgrades, setShowUpgrades] = useState(false);
 
+  // Preview data for empty state — computed once
+  const previewData = useMemo(() => {
+    const previewGames = PREVIEW_GAME_NAMES.map(n => GAMES.find(g => g.name === n)).filter(Boolean);
+    return FEATURED_PRESETS.map(preset => {
+      const cpu = getById(preset.cpuId);
+      const gpu = getById(preset.gpuId);
+      if (!cpu || !gpu) return { ...preset, cpu: null, gpu: null, fps: {} };
+      const fps = {};
+      const resKey = preset.res === '4K' ? '4k' : preset.res;
+      previewGames.forEach(game => {
+        const result = predictFPS({ cpu, gpu }, game);
+        fps[game.name] = Math.round(result?.[resKey]?.fps || 0);
+      });
+      return { ...preset, cpu, gpu, fps };
+    });
+  }, []);
+
   const bn = analyzeBottleneck(components.cpu, components.gpu, resolution);
   const compatResult = checkCompat(components);
   const recs = getRecommendations(components);
@@ -112,19 +136,81 @@ export default function AnalysisPage() {
   if (!components.cpu || !components.gpu) {
     return (
       <div className="min-h-screen pt-20 sm:pt-24 pb-24 md:pb-10 px-4">
-        <div className="max-w-2xl lg:max-w-4xl mx-auto text-center py-14">
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <div className="text-5xl mb-4">⚖️</div>
-            <h2 className="font-display text-xl font-bold text-gb-text mb-2">🔬 شوف قوة تجميعتك</h2>
-            <p className="text-gb-muted text-sm mb-6">اختر المعالج وكرت الشاشة عشان نحلل الأداء والتوافق وتوقع FPS لـ 17 لعبة</p>
+        <div className="max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="text-center py-10">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-gb-text mb-2">🔬 تحليل التجميعة</h1>
+            <p className="text-gb-muted text-sm">اختر تجميعة جاهزة وشوف تحليلها الكامل — أو ابنِ تجميعتك</p>
+          </div>
+
+          {/* Featured builds grid */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            {previewData.map(build => (
+              <Link
+                key={build.id}
+                to={`/builder?preset=${build.id}`}
+                className="bg-gb-card/60 border border-white/[0.06] hover:border-gb-primary/30 rounded-2xl p-5 text-right transition-all hover:bg-gb-primary/5 hover:scale-[1.02] hover:-translate-y-0.5 group"
+              >
+                {/* Build name + subtitle */}
+                <div className="mb-4">
+                  <h3 className="text-lg font-display font-bold text-gb-text group-hover:text-gb-primary transition-colors">{build.name}</h3>
+                  <p className="text-[11px] text-gb-muted">{build.subtitle}</p>
+                </div>
+
+                {/* CPU + GPU */}
+                {build.cpu && build.gpu && (
+                  <div className="space-y-1.5 mb-4">
+                    <div className="flex items-center gap-2">
+                      <Cpu size={12} className="text-purple-400 shrink-0" />
+                      <span className="text-[11px] text-white/60 truncate">{build.cpu.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MonitorPlay size={12} className="text-cyan-400 shrink-0" />
+                      <span className="text-[11px] text-white/60 truncate">{build.gpu.name}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mini FPS preview */}
+                <div className="space-y-1.5 mb-4">
+                  {Object.entries(build.fps).map(([game, fps]) => {
+                    const info = fpsInfo(fps);
+                    return (
+                      <div key={game} className="flex items-center gap-2">
+                        <span className="text-white/30 text-[10px] w-24 text-left truncate">{game}</span>
+                        <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{ width: `${Math.min(fps / 300 * 100, 100)}%`, backgroundColor: info.color }}
+                          />
+                        </div>
+                        <span className="text-[10px] font-mono font-bold w-8 text-left" style={{ color: info.color }}>{fps}</span>
+                      </div>
+                    );
+                  })}
+                  <p className="text-[9px] text-white/20 text-left">FPS @ {build.res} Ultra</p>
+                </div>
+
+                {/* Price + CTA */}
+                <div className="flex items-center justify-between pt-3 border-t border-white/[0.04]">
+                  <span className="text-[#00e676] font-bold font-mono text-sm">~{build.price} <span className="text-[10px] text-white/30">ر.س</span></span>
+                  <span className="text-gb-primary text-[11px] font-bold group-hover:-translate-x-1 transition-transform">شوف التحليل ←</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Or build your own */}
+          <div className="text-center mt-10 pb-10">
+            <p className="text-gb-muted text-sm mb-3">أو ابنِ تجميعتك الخاصة</p>
             <Link
               to="/builder"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-l from-gb-primary to-gb-secondary text-gb-bg font-bold text-sm shadow-[0_0_20px_rgba(0,229,255,0.2)] hover:shadow-[0_0_30px_rgba(0,229,255,0.35)] transition-all active:scale-95"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white/[0.04] border border-white/[0.06] text-gb-text font-bold text-sm hover:bg-white/[0.08] hover:border-gb-primary/20 transition-all active:scale-95"
             >
               <Wrench size={16} />
               روح للتجميع
             </Link>
-          </motion.div>
+          </div>
         </div>
       </div>
     );
